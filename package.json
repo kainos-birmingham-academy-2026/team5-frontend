@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/kainos-birmingham-academy-2026/team5-frontend#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "@types/nunjucks": "^3.2.6",
+    "express": "^5.2.1",
+    "nunjucks": "^3.2.4"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
