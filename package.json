@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Team5 Frontend",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "lint": "tsc --noEmit",
     "test": "echo \"No tests configured\"",
