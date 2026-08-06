@@ -9,6 +9,7 @@ export class JobRoleController {
 			const jobRoles = await this.jobRoleService.getAllJobRoles();
 			res.render("job-role-list.html", { jobRoles });
 		} catch (error) {
+			console.error("Failed to retrieve job roles:", error);
 			res.status(500).send("Failed to retrieve job roles");
 		}
 	}

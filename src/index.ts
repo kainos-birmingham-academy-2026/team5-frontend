@@ -1,8 +1,19 @@
 import express from "express";
-import JobRouter from "./routes/jobRouter";
+import JobRouter from "./routes/JobRouter";
 import "dotenv/config";
+import nunjucks from "nunjucks";
+import path from "path";
 
 const app = express();
+
+nunjucks.configure(path.join(process.cwd(), "src/views"), {
+	autoescape: true,
+	express: app,
+	noCache: true,
+});
+
+app.set("view engine", "html");
+
 app.use(express.json());
 app.use(JobRouter);
 
