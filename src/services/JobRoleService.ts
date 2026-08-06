@@ -15,5 +15,15 @@ export class JobRoleService {
         const response = await apiClient.get<JobRole[]>("/job-roles");
         return response.data;
     }
+
+    async getJobRoleById(jobRoleId: number): Promise<JobRole | null> {
+        try {
+            const response = await apiClient.get<JobRole>(`/job-roles/${jobRoleId}`);
+            return response.data;
+        } catch {
+            const roles = await this.getAllJobRoles();
+            return roles.find((role) => role.jobRoleId === jobRoleId) ?? null;
+        }
+    }
 }
 

@@ -1,0 +1,56 @@
+{% extends "layouts/base.html" %}
+{% from "components/ui-macros.html" import badge %}
+
+{% block title %}{{ jobRole.roleName if jobRole else "Role not found" }} | Kainos Careers{% endblock %}
+
+{% block content %}
+  <section class="container section section-tight">
+    <a href="/job-roles" class="inline-link">Back to opportunities</a>
+
+    {% if jobRole %}
+      <article class="detail-card">
+        <header class="detail-header">
+          <h1>{{ jobRole.roleName }}</h1>
+          {{ badge(jobRole.status, "success" if jobRole.status == "Open" else "neutral") }}
+        </header>
+
+        <div class="meta-grid">
+          <div>
+            <dt>Location</dt>
+            <dd>{{ jobRole.location }}</dd>
+          </div>
+          <div>
+            <dt>Capability</dt>
+            <dd>{{ jobRole.capabilityId }}</dd>
+          </div>
+          <div>
+            <dt>Band</dt>
+            <dd>{{ jobRole.bandId }}</dd>
+          </div>
+          <div>
+            <dt>Closing date</dt>
+            <dd>{{ jobRole.closingDate }}</dd>
+          </div>
+        </div>
+
+        <section class="detail-copy">
+          <h2>Role overview</h2>
+          <p>
+            Join Kainos and shape meaningful outcomes for clients through technology. This role contributes to strategy,
+            delivery excellence and long-term impact in a collaborative, high-growth environment.
+          </p>
+        </section>
+
+        <div class="detail-actions">
+          <a class="btn btn-primary" href="https://careers.kainos.com/gb/en" target="_blank" rel="noreferrer">Apply on Kainos Careers</a>
+          <a class="btn btn-ghost" href="https://www.kainos.com/" target="_blank" rel="noreferrer">Learn more about Kainos</a>
+        </div>
+      </article>
+    {% else %}
+      <article class="empty-state">
+        <h1>Role not found</h1>
+        <p>The selected role is unavailable or was removed.</p>
+      </article>
+    {% endif %}
+  </section>
+{% endblock %}

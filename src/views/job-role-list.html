@@ -1,28 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Job Roles</title>
-</head>
-<body>
-  <h1>Job Roles</h1>
+{% extends "layouts/base.html" %}
+{% from "components/ui-macros.html" import hero, filterBar, jobCard, paginationShell %}
 
-  {% if jobRoles and jobRoles.length %}
-    <ul>
-      {% for job in jobRoles %}
-        <li>
-          <strong>{{ job.roleName }}</strong><br />
-          Location: {{ job.location }}<br />
-          Capability ID: {{ job.capabilityId }}<br />
-          Band ID: {{ job.bandId }}<br />
-          Closing Date: {{ job.closingDate }}<br />
-          Status: {{ job.status }}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No job roles found.</p>
-  {% endif %}
-</body>
-</html>
+{% block title %}Kainos Careers | Opportunities{% endblock %}
+
+{% block content %}
+  {{ hero(
+    "Opportunities",
+    "Browse open roles",
+    "Explore roles across capability areas and locations. Filter quickly by keyword or city.",
+    "Refresh roles",
+    "/job-roles",
+    "Visit Kainos careers",
+    "https://careers.kainos.com/gb/en"
+  ) }}
+
+  <section class="container section">
+    <h2>Current vacancies</h2>
+    {{ filterBar() }}
+
+    {% if jobRoles and jobRoles.length %}
+      <div class="job-grid">
+        {% for job in jobRoles %}
+          {{ jobCard(job) }}
+        {% endfor %}
+      </div>
+      {{ paginationShell() }}
+    {% else %}
+      <article class="empty-state">
+        <h3>No job roles found</h3>
+        <p>Try again later or visit the Kainos careers portal for updated postings.</p>
+      </article>
+    {% endif %}
+  </section>
+{% endblock %}

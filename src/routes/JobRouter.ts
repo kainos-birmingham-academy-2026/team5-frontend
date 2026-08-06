@@ -12,10 +12,9 @@ router.get("/health", (req, res) => {
 	res.json({ status: "UP", time: new Date().toISOString() });
 });
 
-router.get("/", (req, res) => {
-	res.send("<h1>Hello World</h1>");
-});
+router.get("/", (req, res) => controller.getHomePage(req, res));
 
 router.get("/job-roles", (req, res) => controller.getAllJobRoles(req, res));
+router.get("/job-roles/:jobRoleId", (req, res) => controller.getJobRoleById(req, res));
 
 export default router;

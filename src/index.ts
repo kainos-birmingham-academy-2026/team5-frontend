@@ -15,6 +15,7 @@ nunjucks.configure(path.join(process.cwd(), "src/views"), {
 app.set("view engine", "html");
 
 app.use(express.json());
+app.use("/assets", express.static(path.join(process.cwd(), "src/views/assets")));
 app.use(JobRouter);
 
 app.listen(4000, () => {

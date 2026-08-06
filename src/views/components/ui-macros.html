@@ -1,0 +1,87 @@
+{% macro hero(eyebrow, title, subtitle, primaryLabel, primaryHref, secondaryLabel, secondaryHref) %}
+<section class="hero">
+  <div class="container hero-content">
+    <p class="eyebrow">{{ eyebrow }}</p>
+    <h1>{{ title }}</h1>
+    <p class="hero-copy">{{ subtitle }}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ primaryHref }}">{{ primaryLabel }}</a>
+      <a class="btn btn-ghost" href="{{ secondaryHref }}">{{ secondaryLabel }}</a>
+    </div>
+  </div>
+</section>
+{% endmacro %}
+
+{% macro badge(text, tone="neutral") %}
+<span class="badge badge-{{ tone }}">{{ text }}</span>
+{% endmacro %}
+
+{% macro filterBar() %}
+<form class="filter-bar" data-filter-form>
+  <label>
+    <span>Keyword</span>
+    <input type="search" name="q" placeholder="Role, capability or skill" data-filter="keyword" />
+  </label>
+  <label>
+    <span>Location</span>
+    <input type="search" name="location" placeholder="e.g. Belfast" data-filter="location" />
+  </label>
+  <button class="btn btn-primary" type="submit">Filter</button>
+</form>
+{% endmacro %}
+
+{% macro jobCard(job) %}
+<article class="job-card" data-role="{{ job.roleName | lower }}" data-location="{{ job.location | lower }}">
+  <header class="job-card-head">
+    <h3>{{ job.roleName }}</h3>
+    {{ badge(job.status, "success" if job.status == "Open" else "neutral") }}
+  </header>
+  <dl class="meta-grid">
+    <div>
+      <dt>Location</dt>
+      <dd>{{ job.location }}</dd>
+    </div>
+    <div>
+      <dt>Capability</dt>
+      <dd>{{ job.capabilityId }}</dd>
+    </div>
+    <div>
+      <dt>Band</dt>
+      <dd>{{ job.bandId }}</dd>
+    </div>
+    <div>
+      <dt>Closing date</dt>
+      <dd>{{ job.closingDate }}</dd>
+    </div>
+  </dl>
+  <a class="job-link" href="/job-roles/{{ job.jobRoleId }}">View role</a>
+</article>
+{% endmacro %}
+
+{% macro paginationShell() %}
+<nav class="pagination" aria-label="Pagination">
+  <button type="button" class="page-btn" disabled>Previous</button>
+  <span class="page-index">Page 1 of 1</span>
+  <button type="button" class="page-btn" disabled>Next</button>
+</nav>
+{% endmacro %}
+
+{% macro storyCard(title, summary, href) %}
+<article class="story-card">
+  <h3>{{ title }}</h3>
+  <p>{{ summary }}</p>
+  <a href="{{ href }}" target="_blank" rel="noreferrer">Read more</a>
+</article>
+{% endmacro %}
+
+{% macro ctaBand(title, copy, actionText, actionHref) %}
+<section class="cta-band">
+  <div class="container cta-grid">
+    <div>
+      <h2>{{ title }}</h2>
+      <p>{{ copy }}</p>
+    </div>
+    <a class="btn btn-primary" href="{{ actionHref }}">{{ actionText }}</a>
+  </div>
+</section>
+{% endmacro %}
