@@ -1,10 +1,24 @@
 import express from "express";
-import jobRouter from "./routes/jobRouter";
+import JobRouter from "./routes/JobRouter";
+import "dotenv/config";
+import nunjucks from "nunjucks";
+import path from "path";
 
 const app = express();
-app.use(express.json());
-app.use(jobRouter);
 
-app.listen(3000, () => {
-	console.log("Server running on http://localhost:3000");
+nunjucks.configure(path.join(process.cwd(), "src/views"), {
+	autoescape: true,
+	express: app,
+	noCache: true,
+});
+
+app.set("view engine", "njk");
+
+app.use(express.json());
+app.use("/assets", express.static(path.join(process.cwd(), "dist/views/assets")));
+app.use("/assets", express.static(path.join(process.cwd(), "src/views/assets")));
+app.use(JobRouter);
+
+app.listen(4000, () => {
+	console.log("Frontend is running on http://localhost:4000");
 });
