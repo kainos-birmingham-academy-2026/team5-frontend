@@ -34,20 +34,20 @@ describe("Kainos design system", () => {
 
 describe("shared accessibility contracts", () => {
 	it("connects the skip link to the main landmark", () => {
-		const layout = readView("layouts", "base.html");
+		const layout = readView("layouts", "base.njk");
 		expect(layout).toContain('href="#main-content"');
 		expect(layout).toContain('id="main-content"');
 	});
 
 	it("connects the mobile navigation toggle to its controlled navigation", () => {
-		const header = readView("partials", "header.html");
+		const header = readView("partials", "header.njk");
 		expect(header).toContain('aria-expanded="false"');
 		expect(header).toContain('aria-controls="primary-navigation"');
 		expect(header).toContain('id="primary-navigation"');
 	});
 
 	it("uses a description list for job metadata", () => {
-		const detail = readView("job-role-detail.html");
+		const detail = readView("job-role-detail.njk");
 		expect(detail).toContain('<dl class="meta-grid">');
 		expect(detail).toContain("</dl>");
 	});
