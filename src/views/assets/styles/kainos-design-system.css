@@ -4,17 +4,17 @@
   color-scheme: light;
 
   /* Brand and semantic colors */
-  --color-brand-700: #006b55;
-  --color-brand-600: #007f67;
-  --color-brand-500: #00a980;
-  --color-brand-400: #00c896;
-  --color-brand-100: #dff8ef;
-  --color-brand-50: #f0fbf7;
-  --color-ink-950: #071d1a;
-  --color-ink-900: #102a27;
-  --color-ink-700: #344d49;
-  --color-ink-600: #4f6763;
-  --color-ink-500: #687d79;
+  --color-brand-700: #0c8f3e;
+  --color-brand-600: #10a54a;
+  --color-brand-500: #21ba4f;
+  --color-brand-400: #9fd420;
+  --color-brand-100: #ecf9d2;
+  --color-brand-50: #f7fce8;
+  --color-ink-950: #121f4d;
+  --color-ink-900: #1f2f62;
+  --color-ink-700: #354675;
+  --color-ink-600: #4f5f8b;
+  --color-ink-500: #6977a0;
   --color-white: #ffffff;
   --color-surface: #f5f7f6;
   --color-surface-strong: #e7ecea;
@@ -367,24 +367,14 @@ table {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   color: var(--color-ink-950);
   text-decoration: none;
 }
 
-.brand-mark {
-  display: grid;
-  width: 2.75rem;
-  aspect-ratio: 1;
-  place-items: center;
-  color: var(--color-white);
-  background: var(--color-brand-500);
-  border-radius: var(--radius-sm);
-  font-weight: var(--font-weight-bold);
-}
-
-.brand-name {
-  font-weight: var(--font-weight-bold);
+.brand-logo {
+  width: auto;
+  height: clamp(1.8rem, 4vw, 2.5rem);
 }
 
 .nav-toggle {
@@ -1051,6 +1041,15 @@ ul.download-list li {
   color: var(--color-brand-400);
   font-size: var(--font-size-base);
   text-transform: uppercase;
+}
+
+.footer-title-logo {
+  text-transform: none;
+}
+
+.footer-logo {
+  width: auto;
+  height: clamp(1.8rem, 3vw, 2.25rem);
 }
 
 .footer-links,

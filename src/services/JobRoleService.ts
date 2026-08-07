@@ -8,6 +8,8 @@ export type JobRole = {
     bandId: number,
     closingDate: Date,
     status: string,
+    capabilityName: string,
+    bandName: string,
 };
 
 export class JobRoleService {
