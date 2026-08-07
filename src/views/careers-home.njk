@@ -1,5 +1,5 @@
-{% extends "layouts/base.html" %}
-{% from "components/ui-macros.html" import hero, ctaBand, storyCard, jobCard %}
+{% extends "layouts/base.njk" %}
+{% from "components/ui-macros.njk" import hero, ctaBand, storyCard, jobCard %}
 
 {% block title %}Kainos Careers | Home{% endblock %}
 
@@ -47,20 +47,4 @@
       </article>
     {% endif %}
   </section>
-
-  <section class="container section">
-    <h2>Short stories</h2>
-    <div class="story-grid">
-      {{ storyCard("Giving Back Together", "How Kainos colleagues raised support for charities across the world.", "https://careers.kainos.com/gb/en/blogarticle/giving-back-together-how-kainos-colleagues-are-making-a-difference-around-the-world") }}
-      {{ storyCard("EmpowHER Final", "The next generation of female tech innovators showcasing AI ideas.", "https://careers.kainos.com/gb/en/blogarticle/empowher-regional-final-showcases-the-next-generation-of-female-tech-innovators") }}
-      {{ storyCard("341 New Opportunities", "Growth across Northern Ireland in AI, engineering and consulting.", "https://careers.kainos.com/gb/en/blogarticle/join-kainos-as-we-create-341-new-opportunities-across-northern-ireland") }}
-    </div>
-  </section>
-
-  {{ ctaBand(
-    "Talent community",
-    "Be the first to hear about new jobs and updates.",
-    "Sign up",
-    "https://careers.kainos.com/gb/en/jointalentcommunity"
-  ) }}
 {% endblock %}

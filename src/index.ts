@@ -12,9 +12,10 @@ nunjucks.configure(path.join(process.cwd(), "src/views"), {
 	noCache: true,
 });
 
-app.set("view engine", "html");
+app.set("view engine", "njk");
 
 app.use(express.json());
+app.use("/assets", express.static(path.join(process.cwd(), "dist/views/assets")));
 app.use("/assets", express.static(path.join(process.cwd(), "src/views/assets")));
 app.use(JobRouter);
 

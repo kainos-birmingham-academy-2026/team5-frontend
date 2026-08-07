@@ -7,15 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/styles/main.css" />
+	<link rel="stylesheet" href="/assets/styles/main.css" />
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
-  {% include "partials/header.html" %}
+  {% include "partials/header.njk" %}
   <main class="site-main" id="main-content" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
-  {% include "partials/footer.html" %}
+  {% include "partials/footer.njk" %}
   <script src="/assets/scripts/jobs.js" defer></script>
 </body>
 </html>

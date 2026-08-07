@@ -98,7 +98,7 @@
 {% macro mediaCard(title, summary, href, imageUrl, imageAlt, linkLabel="Learn more") %}
 <article class="media-card">
   <img class="media-card-image" src="{{ imageUrl }}" alt="{{ imageAlt }}" loading="lazy" />
-  <div class="media-card-body">
+  <div class="media-card-content">
     <h3>{{ title }}</h3>
     <p>{{ summary }}</p>
     <a class="card-link" href="{{ href }}">{{ linkLabel }}</a>
@@ -106,75 +106,15 @@
 </article>
 {% endmacro %}
 
-{% macro formField(id, label, type="text", required=false, hint="", error="") %}
-<label class="form-field" for="{{ id }}">
-  <span>{{ label }}{% if required %} <span aria-hidden="true">*</span>{% endif %}</span>
-  {% if required and hint and error %}
-  <input id="{{ id }}" name="{{ id }}" type="{{ type }}" required aria-required="true" aria-invalid="true" aria-describedby="{{ id }}-hint {{ id }}-error" />
-  {% elif required and hint %}
-  <input id="{{ id }}" name="{{ id }}" type="{{ type }}" required aria-required="true" aria-describedby="{{ id }}-hint" />
-  {% elif required and error %}
-  <input id="{{ id }}" name="{{ id }}" type="{{ type }}" required aria-required="true" aria-invalid="true" aria-describedby="{{ id }}-error" />
-  {% elif required %}
-  <input id="{{ id }}" name="{{ id }}" type="{{ type }}" required aria-required="true" />
-  {% elif hint and error %}
-  <input id="{{ id }}" name="{{ id }}" type="{{ type }}" aria-invalid="true" aria-describedby="{{ id }}-hint {{ id }}-error" />
-  {% elif hint %}
-  <input id="{{ id }}" name="{{ id }}" type="{{ type }}" aria-describedby="{{ id }}-hint" />
-  {% elif error %}
-  <input id="{{ id }}" name="{{ id }}" type="{{ type }}" aria-invalid="true" aria-describedby="{{ id }}-error" />
-  {% else %}
-  <input id="{{ id }}" name="{{ id }}" type="{{ type }}" />
-  {% endif %}
-  {% if hint %}<span class="field-hint" id="{{ id }}-hint">{{ hint }}</span>{% endif %}
-  {% if error %}<span class="field-error" id="{{ id }}-error">{{ error }}</span>{% endif %}
-</label>
-{% endmacro %}
-
-{% macro notice(title, message, tone="info") %}
-<aside class="notice notice-{{ tone }}" role="status">
-  <strong>{{ title }}</strong>
-  <p class="ds-m-0">{{ message }}</p>
-</aside>
-{% endmacro %}
-
-{% macro emptyState(title, message, actionLabel="", actionHref="") %}
-<section class="empty-state" aria-labelledby="empty-state-title">
-  <h2 id="empty-state-title">{{ title }}</h2>
-  <p>{{ message }}</p>
-  {% if actionLabel %}<a class="btn btn-primary" href="{{ actionHref }}">{{ actionLabel }}</a>{% endif %}
-</section>
-{% endmacro %}
-
-{% macro testimonial(quote, name, role) %}
-<figure class="testimonial">
-  <blockquote>“{{ quote }}”</blockquote>
-  <figcaption><strong>{{ name }}</strong>{% if role %}, {{ role }}{% endif %}</figcaption>
-</figure>
-{% endmacro %}
-
-{% macro accordionItem(title, content, open=false) %}
-{% if open %}
-<details open>
-  <summary>{{ title }}</summary>
-  <div class="accordion-panel">{{ content }}</div>
-</details>
-{% else %}
-<details>
-  <summary>{{ title }}</summary>
-  <div class="accordion-panel">{{ content }}</div>
-</details>
-{% endif %}
-{% endmacro %}
-
-{% macro ctaBand(title, copy, actionText, actionHref) %}
+{% macro ctaBand(title, subtitle, primaryLabel, primaryHref, secondaryLabel="", secondaryHref="") %}
 <section class="cta-band">
-  <div class="container cta-grid">
-    <div>
-      <h2>{{ title }}</h2>
-      <p>{{ copy }}</p>
+  <div class="container cta-content">
+    <h2>{{ title }}</h2>
+    <p>{{ subtitle }}</p>
+    <div class="cta-actions">
+      <a class="btn btn-primary" href="{{ primaryHref }}">{{ primaryLabel }}</a>
+      {% if secondaryLabel and secondaryHref %}<a class="btn btn-ghost" href="{{ secondaryHref }}">{{ secondaryLabel }}</a>{% endif %}
     </div>
-    <a class="btn btn-primary" href="{{ actionHref }}">{{ actionText }}</a>
   </div>
 </section>
 {% endmacro %}

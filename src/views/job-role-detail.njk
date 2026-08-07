@@ -1,5 +1,5 @@
-{% extends "layouts/base.html" %}
-{% from "components/ui-macros.html" import badge, breadcrumbs %}
+{% extends "layouts/base.njk" %}
+{% from "components/ui-macros.njk" import badge, breadcrumbs %}
 
 {% block title %}{{ jobRole.roleName if jobRole else "Role not found" }} | Kainos Careers{% endblock %}
 
@@ -48,13 +48,12 @@
 
         <div class="detail-actions">
           <a class="btn btn-primary" href="https://careers.kainos.com/gb/en" target="_blank" rel="noreferrer">Apply on Kainos Careers</a>
-          <a class="btn btn-ghost" href="https://www.kainos.com/" target="_blank" rel="noreferrer">Learn more about Kainos</a>
         </div>
       </article>
     {% else %}
       <article class="empty-state">
-        <h1>Role not found</h1>
-        <p>The selected role is unavailable or was removed.</p>
+        <h3>Role not found</h3>
+        <p><a href="/job-roles">Return to opportunities</a> to browse available roles.</p>
       </article>
     {% endif %}
   </section>

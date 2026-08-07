@@ -7,19 +7,19 @@ export class JobRoleController {
 	async getHomePage(req: Request, res: Response): Promise<void> {
 		try {
 			const jobRoles = await this.jobRoleService.getAllJobRoles();
-			res.render("careers-home.html", {
+			res.render("careers-home.njk", {
 				featuredRoles: jobRoles.slice(0, 3),
 			});
 		} catch (error) {
 			console.error("Failed to retrieve featured job roles:", error);
-			res.render("careers-home.html", { featuredRoles: [] });
+			res.render("careers-home.njk", { featuredRoles: [] });
 		}
 	}
 
 	async getAllJobRoles(req: Request, res: Response): Promise<void> {
 		try {
 			const jobRoles = await this.jobRoleService.getAllJobRoles();
-			res.render("job-role-list.html", { jobRoles });
+			res.render("job-role-list.njk", { jobRoles });
 		} catch (error) {
 			console.error("Failed to retrieve job roles:", error);
 			res.status(500).send("Failed to retrieve job roles");
@@ -39,11 +39,11 @@ export class JobRoleController {
 		try {
 			const jobRole = await this.jobRoleService.getJobRoleById(jobRoleId);
 			if (!jobRole) {
-				res.status(404).render("job-role-detail.html", { jobRole: null });
+				res.status(404).render("job-role-detail.njk", { jobRole: null });
 				return;
 			}
 
-			res.render("job-role-detail.html", { jobRole });
+			res.render("job-role-detail.njk", { jobRole });
 		} catch (error) {
 			console.error("Failed to retrieve job role:", error);
 			res.status(500).send("Failed to retrieve job role");
