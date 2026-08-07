@@ -1,4 +1,36 @@
 const form = document.querySelector("[data-filter-form]");
+const siteHeader = document.querySelector("[data-site-header]");
+const navToggle = document.querySelector("[data-nav-toggle]");
+
+const closeNavigation = () => {
+  if (!siteHeader || !navToggle) return;
+
+  siteHeader.dataset.menuOpen = "false";
+  navToggle.setAttribute("aria-expanded", "false");
+  const label = navToggle.querySelector(".ds-sr-only");
+  if (label) label.textContent = "Open navigation";
+};
+
+if (siteHeader && navToggle) {
+  navToggle.addEventListener("click", () => {
+    const isOpen = navToggle.getAttribute("aria-expanded") === "true";
+    siteHeader.dataset.menuOpen = String(!isOpen);
+    navToggle.setAttribute("aria-expanded", String(!isOpen));
+    const label = navToggle.querySelector(".ds-sr-only");
+    if (label) label.textContent = isOpen ? "Open navigation" : "Close navigation";
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeNavigation();
+      navToggle.focus();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 1024) closeNavigation();
+  });
+}
 
 if (form) {
   const keywordInput = form.querySelector('[data-filter="keyword"]');

@@ -6,12 +6,13 @@
   <title>{% block title %}Kainos Careers{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/styles/main.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   {% include "partials/header.html" %}
-  <main class="site-main">
+  <main class="site-main" id="main-content" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
   {% include "partials/footer.html" %}

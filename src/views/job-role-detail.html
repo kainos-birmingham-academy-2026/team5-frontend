@@ -1,9 +1,14 @@
 {% extends "layouts/base.html" %}
-{% from "components/ui-macros.html" import badge %}
+{% from "components/ui-macros.html" import badge, breadcrumbs %}
 
 {% block title %}{{ jobRole.roleName if jobRole else "Role not found" }} | Kainos Careers{% endblock %}
 
 {% block content %}
+  {{ breadcrumbs([
+    { label: "Home", href: "/" },
+    { label: "Opportunities", href: "/job-roles" },
+    { label: jobRole.roleName if jobRole else "Role not found" }
+  ]) }}
   <section class="container section section-tight">
     <a href="/job-roles" class="inline-link">Back to opportunities</a>
 
@@ -14,7 +19,7 @@
           {{ badge(jobRole.status, "success" if jobRole.status == "Open" else "neutral") }}
         </header>
 
-        <div class="meta-grid">
+        <dl class="meta-grid">
           <div>
             <dt>Location</dt>
             <dd>{{ jobRole.location }}</dd>
@@ -31,7 +36,7 @@
             <dt>Closing date</dt>
             <dd>{{ jobRole.closingDate }}</dd>
           </div>
-        </div>
+        </dl>
 
         <section class="detail-copy">
           <h2>Role overview</h2>
