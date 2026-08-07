@@ -46,6 +46,15 @@ describe("shared accessibility contracts", () => {
 		expect(header).toContain('id="primary-navigation"');
 	});
 
+	it("links to a dedicated login page with required credentials", () => {
+		const header = readView("partials", "header.njk");
+		const loginPage = readView("login.njk");
+		expect(header).toContain('<a href="/login">Login</a>');
+		expect(loginPage).toContain('method="post" action="/login"');
+		expect(loginPage).toContain('name="email" type="email" autocomplete="email" required');
+		expect(loginPage).toContain('name="password" type="password" autocomplete="current-password" required');
+	});
+
 	it("uses a description list for job metadata", () => {
 		const detail = readView("job-role-detail.njk");
 		expect(detail).toContain('<dl class="meta-grid">');

@@ -21,7 +21,7 @@ if (siteHeader && navToggle) {
   });
 
   document.addEventListener("keydown", (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
+    if (event.key === "Escape" && (navToggle as HTMLElement).getAttribute("aria-expanded") === "true") {
       closeNavigation();
       (navToggle as HTMLElement).focus();
     }

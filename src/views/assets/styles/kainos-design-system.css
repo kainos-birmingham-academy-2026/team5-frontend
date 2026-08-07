@@ -1094,6 +1094,65 @@ table {
   color: var(--color-brand-700);
 }
 
+.login-page {
+  min-height: calc(100vh - var(--header-height));
+  display: grid;
+  align-items: center;
+  padding-block: var(--space-8);
+  background: linear-gradient(120deg, var(--color-brand-50) 0 42%, var(--color-surface) 42% 100%);
+}
+
+.login-page-layout {
+  display: grid;
+  gap: var(--space-7);
+  align-items: center;
+}
+
+.login-page-intro {
+  max-width: 34rem;
+}
+
+.login-page-eyebrow {
+  margin-block-end: var(--space-2);
+  color: var(--color-brand-700);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+}
+
+.login-page-intro h1 {
+  margin-block-end: var(--space-4);
+}
+
+.login-page-intro p:last-child {
+  color: var(--color-ink-600);
+  font-size: var(--font-size-md);
+}
+
+.login-panel {
+  width: 100%;
+  max-width: 30rem;
+  padding: var(--space-7);
+  border-block-start: 5px solid var(--color-brand-500);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-lg);
+}
+
+.login-panel h2 {
+  margin-block-end: var(--space-5);
+  font-size: var(--font-size-xl);
+}
+
+.login-form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.login-form .btn {
+  width: 100%;
+}
+
 .mega-menu {
   display: grid;
   gap: var(--space-5);
@@ -1797,6 +1856,7 @@ ul.download-list li {
   .site-nav {
     position: static;
     display: block;
+    flex: 1;
     padding: 0;
     border: 0;
     box-shadow: none;
@@ -1806,6 +1866,10 @@ ul.download-list li {
     display: flex;
     align-items: stretch;
     gap: var(--space-5);
+  }
+
+  .nav-links li:last-child {
+    margin-inline-start: auto;
   }
 
   .nav-links a {
@@ -1819,6 +1883,10 @@ ul.download-list li {
   .nav-links a:hover,
   .nav-links a[aria-current="page"] {
     border-block-end-color: var(--color-brand-500);
+  }
+
+  .login-page-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(24rem, 30rem);
   }
 
   .mega-menu {
