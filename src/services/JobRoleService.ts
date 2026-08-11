@@ -34,12 +34,8 @@ export class JobRoleService {
 			const response = await apiClient.get<JobRole>(`/job-roles/${jobRoleId}`);
 			return response.data;
 		} catch {
-<<<<<<< HEAD
 			const roles = await this.getAllJobRoles();
 			return roles.items.find((role) => role.jobRoleId === jobRoleId) ?? null;
-=======
-			return null;
->>>>>>> 4e13b89 (Axios and Controller endpoints added)
 		}
 	}
 
