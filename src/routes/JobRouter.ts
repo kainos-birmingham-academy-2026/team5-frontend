@@ -15,6 +15,8 @@ router.get("/health", (req, res) => {
 router.get("/", (req, res) => controller.getHomePage(req, res));
 
 router.get("/job-roles", (req, res) => controller.getAllJobRoles(req, res));
-router.get("/job-roles/:jobRoleId", (req, res) => controller.getJobRoleById(req, res));
+router.get("/job-roles/:jobRoleId", (req, res) =>
+	controller.getJobRoleById(req, res),
+);
 
 export default router;
