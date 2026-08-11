@@ -13,75 +13,48 @@
     <a href="/job-roles" class="inline-link">Back to opportunities</a>
 
     {% if jobRole %}
+      {% set statusText = jobRole.statusRef.statusName if jobRole.statusRef and jobRole.statusRef.statusName else (jobRole.status if jobRole.status else "Unknown") %}
+      {% set capabilityText = jobRole.capability.capabilityName if jobRole.capability and jobRole.capability.capabilityName else (jobRole.capability.name if jobRole.capability and jobRole.capability.name else (jobRole.capabilityName if jobRole.capabilityName else "Not provided")) %}
+      {% set bandText = jobRole.band.bandName if jobRole.band and jobRole.band.bandName else (jobRole.band.name if jobRole.band and jobRole.band.name else (jobRole.bandName if jobRole.bandName else "Not provided")) %}
       <article class="detail-card">
         <header class="detail-header">
           <h1>{{ jobRole.roleName }}</h1>
-          {{ badge(jobRole.status, "success" if jobRole.status == "Open" else "neutral") }}
+          {{ badge(statusText, "success" if statusText == "Open" else "neutral") }}
         </header>
 
         <dl class="meta-grid">
-          <div>
-            <dt>Role ID</dt>
-            <dd>{{ jobRole.jobRoleId }}</dd>
-          </div>
           <div>
             <dt>Location</dt>
             <dd>{{ jobRole.location }}</dd>
           </div>
           <div>
-            <dt>Capability</dt>
-            <dd>{{ jobRole.capabilityName }}</dd>
+            <dt>Status</dt>
+            <dd>{{ statusText }}</dd>
           </div>
-          {% if jobRole.capabilityId %}
-            <div>
-              <dt>Capability ID</dt>
-              <dd>{{ jobRole.capabilityId }}</dd>
-            </div>
-          {% endif %}
+          <div>
+            <dt>Capability</dt>
+            <dd>{{ capabilityText }}</dd>
+          </div>
           <div>
             <dt>Band</dt>
-            <dd>{{ jobRole.bandName }}</dd>
+            <dd>{{ bandText }}</dd>
           </div>
-          {% if jobRole.bandId %}
-            <div>
-              <dt>Band ID</dt>
-              <dd>{{ jobRole.bandId }}</dd>
-            </div>
-          {% endif %}
           <div>
             <dt>Closing date</dt>
             <dd>{{ jobRole.closingDate }}</dd>
           </div>
-          {% if jobRole.employmentType %}
+          {% if jobRole.numberOfOpenPositions is not none %}
             <div>
-              <dt>Employment type</dt>
-              <dd>{{ jobRole.employmentType }}</dd>
-            </div>
-          {% endif %}
-          {% if jobRole.departmentName %}
-            <div>
-              <dt>Department</dt>
-              <dd>{{ jobRole.departmentName }}</dd>
-            </div>
-          {% endif %}
-          {% if jobRole.postedDate %}
-            <div>
-              <dt>Posted date</dt>
-              <dd>{{ jobRole.postedDate }}</dd>
-            </div>
-          {% endif %}
-          {% if jobRole.salaryRange %}
-            <div>
-              <dt>Salary range</dt>
-              <dd>{{ jobRole.salaryRange }}</dd>
+              <dt>Open positions</dt>
+              <dd>{{ jobRole.numberOfOpenPositions }}</dd>
             </div>
           {% endif %}
         </dl>
 
-        {% if jobRole.roleSummary %}
+        {% if jobRole.description %}
           <section class="detail-copy">
             <h2>Role overview</h2>
-            <p>{{ jobRole.roleSummary }}</p>
+            <p>{{ jobRole.description }}</p>
           </section>
         {% else %}
           <section class="detail-copy">
@@ -97,6 +70,13 @@
           <section class="detail-copy">
             <h2>Key responsibilities</h2>
             <p>{{ jobRole.responsibilities }}</p>
+          </section>
+        {% endif %}
+
+        {% if jobRole.sharepointUrl %}
+          <section class="detail-copy">
+            <h2>More information</h2>
+            <p><a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noreferrer">View related documents on SharePoint</a></p>
           </section>
         {% endif %}
 

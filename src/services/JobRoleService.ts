@@ -7,9 +7,25 @@ export type JobRole = {
 	capabilityId: number;
 	bandId: number;
 	closingDate: Date;
-	status: string;
-	capabilityName: string;
-	bandName: string;
+	status?: string;
+	description?: string | null;
+	responsibilities?: string | null;
+	sharepointUrl?: string | null;
+	statusId?: number | null;
+	numberOfOpenPositions?: number | null;
+	capabilityName?: string;
+	bandName?: string;
+	capability?: {
+		capabilityName?: string;
+		name?: string;
+	};
+	band?: {
+		bandName?: string;
+		name?: string;
+	};
+	statusRef?: {
+		statusName?: string;
+	};
 };
 
 export type PaginatedJobRoles = {
