@@ -14,7 +14,11 @@
         <li><a href="/job-roles">Opportunities</a></li>
         <li><a href="https://careers.kainos.com/gb/en" target="_blank" rel="noreferrer">Life at Kainos</a></li>
         <li><a href="https://careers.kainos.com/gb/en/jointalentcommunity" target="_blank" rel="noreferrer">Talent community</a></li>
-        <li><a href="/login">Login</a></li>
+        {% if isAuthenticated %}
+          <li><a href="/logout">Sign out</a></li>
+        {% else %}
+          <li><a href="/login">Sign in</a></li>
+        {% endif %}
       </ul>
     </nav>
   </div>

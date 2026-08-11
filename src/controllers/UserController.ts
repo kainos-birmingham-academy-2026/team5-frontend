@@ -1,10 +1,16 @@
+import axios from "axios";
 import type { Request, Response } from "express";
 import type { UserService } from "../services/UserService";
 
 export class UserController {
 	constructor(private userService: UserService) {}
 
-	showLogin(_req: Request, res: Response): void {
+	showLogin(req: Request, res: Response): void {
+		if (req.session.jwtToken) {
+			res.redirect("/");
+			return;
+		}
+
 		res.render("login.njk", {
 			formValues: { email: "" },
 		});
@@ -15,18 +21,35 @@ export class UserController {
 		const password = String(req.body.password ?? "");
 
 		if (!email || !password) {
-			res.status(400).json({ error: "Enter both email and password" });
+			res.status(400).render("login.njk", {
+				errorMessage: "Enter both email and password",
+				formValues: { email },
+			});
 			return;
 		}
 
 		try {
 			const jwtToken = await this.userService.login(email, password);
 			req.session.jwtToken = jwtToken;
-			res.status(200).json({ token: jwtToken });
+			res.redirect("/");
 		} catch (error) {
-			const message =
-				error instanceof Error ? error.message : "Unable to sign in";
-			res.status(401).json({ error: message });
+			const status = axios.isAxiosError(error)
+				? error.response?.status
+				: undefined;
+			const hasInvalidCredentials = status === 400 || status === 401;
+			res.status(hasInvalidCredentials ? status : 500).render("login.njk", {
+				errorMessage: hasInvalidCredentials
+					? "Email or password is incorrect"
+					: "Unable to sign in. Please try again later",
+				formValues: { email },
+			});
 		}
+	}
+
+	logout(req: Request, res: Response): void {
+		req.session.destroy(() => {
+			res.clearCookie("connect.sid");
+			res.redirect("/login");
+		});
 	}
 }

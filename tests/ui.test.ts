@@ -11,9 +11,7 @@ const readView = (...segments: string[]) =>
 describe("Kainos design system", () => {
 	it("is the single stylesheet imported by the project entry point", () => {
 		const mainCss = readView("assets", "styles", "main.css");
-		expect(mainCss.trim()).toBe(
-			'@import url("./kainos-design-system.css");',
-		);
+		expect(mainCss.trim()).toBe('@import url("./kainos-design-system.css");');
 	});
 
 	it("defines core tokens, utilities, states, and responsive behavior", () => {
@@ -49,10 +47,16 @@ describe("shared accessibility contracts", () => {
 	it("links to a dedicated login page with required credentials", () => {
 		const header = readView("partials", "header.njk");
 		const loginPage = readView("login.njk");
-		expect(header).toContain('<a href="/login">Login</a>');
+		expect(header).toContain("{% if isAuthenticated %}");
+		expect(header).toContain('<a href="/login">Sign in</a>');
+		expect(header).toContain('<a href="/logout">Sign out</a>');
 		expect(loginPage).toContain('method="post" action="/login"');
-		expect(loginPage).toContain('name="email" type="email" autocomplete="email" required');
-		expect(loginPage).toContain('name="password" type="password" autocomplete="current-password" required');
+		expect(loginPage).toContain(
+			'name="email" type="email" autocomplete="email" required',
+		);
+		expect(loginPage).toContain(
+			'name="password" type="password" autocomplete="current-password" required',
+		);
 	});
 
 	it("uses a description list for job metadata", () => {

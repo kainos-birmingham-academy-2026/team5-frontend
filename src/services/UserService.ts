@@ -6,7 +6,8 @@ type LoginResponse = {
 
 export class UserService {
 	async login(email: string, password: string): Promise<string> {
-		const response = await apiClient.post<LoginResponse>("/auth/login", {
+		const loginPath = process.env.AUTH_LOGIN_PATH ?? "/auth/login";
+		const response = await apiClient.post<LoginResponse>(loginPath, {
 			email,
 			password,
 		});
