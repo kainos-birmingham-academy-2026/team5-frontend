@@ -1,37 +1,47 @@
-# <review-title>
+# 🔎 <review-title>
 
-## Verdict
+---
+
+## 🚦 Verdict
 
 | | |
 |---|---|
-| **Status** | Green / Amber / Red |
+| **Status** | 🟢 Green / 🟡 Amber / 🔴 Red |
 | **Summary** | <one-line summary> |
-| **Branch** | `<branch>` to `<base>` |
-| **Date** | <YYYY-MM-DD> |
+| **Branch** | `<branch>` → `<base>` |
+| **Date** | 📅 <YYYY-MM-DD> |
 
-## Findings
+---
 
-### High
+## 🔍 Findings
+
+### 🔴 High
 
 <findings or "No high-severity findings.">
 
-### Medium
+### 🟡 Medium
 
 <findings or "No medium-severity findings.">
 
-### Low
+### 🔵 Low
 
 <findings or "No low-severity findings.">
 
-## Change Summary
+---
+
+## 📋 Change Summary
 
 <concise summary of the reviewed changes>
 
-## Files Reviewed
+---
+
+## 🗂️ Files Reviewed
 
 <changed files and diff statistics>
 
-## Review Scope
+---
+
+## 🔬 Review Scope
 
 | | |
 |---|---|
@@ -39,4 +49,4 @@
 | **Base branch** | `<base>` |
 | **Merge base** | `<commit>` |
 | **Head commit** | `<commit>` |
-| **Limitations** | <limitations or "None"> |
+| **Limitations** | ⚠️ <limitations or "None"> |
