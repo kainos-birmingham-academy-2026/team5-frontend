@@ -71,11 +71,15 @@
 </article>
 {% endmacro %}
 
-{% macro paginationShell() %}
+{% macro paginationShell(pagination) %}
 <nav class="pagination" aria-label="Pagination">
-  <button type="button" class="page-btn" disabled>Previous</button>
-  <span class="page-index">Page 1 of 1</span>
-  <button type="button" class="page-btn" disabled>Next</button>
+  {% if pagination.page > 1 %}
+    <a class="page-btn" href="/job-roles?page={{ pagination.page - 1 }}">Previous</a>
+  {% endif %}
+  <span class="page-index">Page {{ pagination.page }} of {{ pagination.totalPages }}</span>
+  {% if pagination.page < pagination.totalPages %}
+    <a class="page-btn" href="/job-roles?page={{ pagination.page + 1 }}">Next</a>
+  {% endif %}
 </nav>
 {% endmacro %}
 

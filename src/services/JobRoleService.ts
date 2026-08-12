@@ -12,9 +12,20 @@ export type JobRole = {
 	bandName: string;
 };
 
+export type PaginatedJobRoles = {
+	items: JobRole[];
+	page: number;
+	pageSize: number;
+	totalItems: number;
+	totalPages: number;
+};
+
 export class JobRoleService {
-	async getAllJobRoles(): Promise<JobRole[]> {
-		const response = await apiClient.get<JobRole[]>("/job-roles");
+	async getAllJobRoles(page = 1, pageSize = 10): Promise<PaginatedJobRoles> {
+		const response = await apiClient.get<PaginatedJobRoles>("/job-roles", {
+			params: { page, pageSize },
+		});
+
 		return response.data;
 	}
 
@@ -24,7 +35,7 @@ export class JobRoleService {
 			return response.data;
 		} catch {
 			const roles = await this.getAllJobRoles();
-			return roles.find((role) => role.jobRoleId === jobRoleId) ?? null;
+			return roles.items.find((role) => role.jobRoleId === jobRoleId) ?? null;
 		}
 	}
 }
