@@ -29,18 +29,65 @@
 <span class="badge badge-{{ tone }}">{{ text }}</span>
 {% endmacro %}
 
-{% macro filterBar() %}
-<form class="filter-bar" data-filter-form>
-  <label>
-    <span>Keyword</span>
-    <input type="search" name="q" placeholder="Role, capability or skill" data-filter="keyword" />
-  </label>
-  <label>
-    <span>Location</span>
-    <input type="search" name="location" placeholder="e.g. Belfast" data-filter="location" />
-  </label>
-  <button class="btn btn-primary" type="submit">Filter</button>
+{% macro filterBar(options, filters) %}
+<details class="filter-panel" {% if filters.roleName or filters.location or filters.closingDate or filters.capability.length or filters.band.length or filters.status.length %}open{% endif %}>
+  <summary>Filter roles</summary>
+<form class="filter-bar" method="get" action="/job-roles">
+  <div class="filter-text-fields">
+    <label>
+      <span>Role name</span>
+      <input type="search" name="roleName" value="{{ filters.roleName or '' }}" placeholder="e.g. Software Engineer" />
+    </label>
+    <label>
+      <span>Location</span>
+      <input type="search" name="location" value="{{ filters.location or '' }}" placeholder="e.g. Belfast" />
+    </label>
+    <label>
+      <span>Closing date</span>
+      <input type="date" name="closingDate" value="{{ filters.closingDate or '' }}" />
+    </label>
+  </div>
+  <div class="filter-option-fields">
+    <fieldset class="filter-group">
+      <legend>Capability</legend>
+      <div class="filter-checks">
+        {% for capability in options.capabilities %}
+          <label class="checkbox-option">
+            <input type="checkbox" name="capability" value="{{ capability }}" {% if capability in filters.capability %}checked{% endif %} />
+            <span>{{ capability }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <fieldset class="filter-group">
+      <legend>Band</legend>
+      <div class="filter-checks">
+        {% for band in options.bands %}
+          <label class="checkbox-option">
+            <input type="checkbox" name="band" value="{{ band }}" {% if band in filters.band %}checked{% endif %} />
+            <span>{{ band }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <fieldset class="filter-group">
+      <legend>Status</legend>
+      <div class="filter-checks">
+        {% for status in options.statuses %}
+          <label class="checkbox-option">
+            <input type="checkbox" name="status" value="{{ status }}" {% if status in filters.status %}checked{% endif %} />
+            <span>{{ status }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+  </div>
+  <div class="filter-actions">
+    <button class="btn btn-primary" type="submit">Apply filters</button>
+    <a class="btn btn-ghost" href="/job-roles">Clear filters</a>
+  </div>
 </form>
+</details>
 {% endmacro %}
 
 {% macro jobCard(job) %}
@@ -71,14 +118,14 @@
 </article>
 {% endmacro %}
 
-{% macro paginationShell(pagination) %}
+{% macro paginationShell(pagination, filterQuery="") %}
 <nav class="pagination" aria-label="Pagination">
   {% if pagination.page > 1 %}
-    <a class="page-btn" href="/job-roles?page={{ pagination.page - 1 }}">Previous</a>
+    <a class="page-btn" href="/job-roles?{% if filterQuery %}{{ filterQuery }}&{% endif %}page={{ pagination.page - 1 }}">Previous</a>
   {% endif %}
   <span class="page-index">Page {{ pagination.page }} of {{ pagination.totalPages }}</span>
   {% if pagination.page < pagination.totalPages %}
-    <a class="page-btn" href="/job-roles?page={{ pagination.page + 1 }}">Next</a>
+    <a class="page-btn" href="/job-roles?{% if filterQuery %}{{ filterQuery }}&{% endif %}page={{ pagination.page + 1 }}">Next</a>
   {% endif %}
 </nav>
 {% endmacro %}

@@ -7,7 +7,7 @@
   {{ hero(
     "Opportunities",
     "Browse open roles",
-    "Explore roles across capability areas and locations. Filter quickly by keyword or city.",
+    "Explore roles across capability areas, locations, bands and closing dates.",
     "Refresh roles",
     "/job-roles",
     "Visit Kainos careers",
@@ -16,7 +16,7 @@
 
   <section class="container section">
     <h2>Current vacancies</h2>
-    {{ filterBar() }}
+    {{ filterBar(filterOptions, filters) }}
 
     {% if jobRoles and jobRoles.length %}
       <div class="job-grid">
@@ -24,11 +24,11 @@
           {{ jobCard(job) }}
         {% endfor %}
       </div>
-      {{ paginationShell(pagination) }}
+      {{ paginationShell(pagination, filterQuery) }}
     {% else %}
       <article class="empty-state">
         <h3>No job roles found</h3>
-        <p>Try again later or visit the Kainos careers portal for updated postings.</p>
+        <p>Adjust your filters or visit the Kainos careers portal for updated postings.</p>
       </article>
     {% endif %}
   </section>
