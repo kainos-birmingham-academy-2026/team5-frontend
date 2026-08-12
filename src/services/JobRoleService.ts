@@ -7,9 +7,25 @@ export type JobRole = {
 	capabilityId: number;
 	bandId: number;
 	closingDate: Date;
-	status: string;
-	capabilityName: string;
-	bandName: string;
+	status?: string;
+	description?: string | null;
+	responsibilities?: string | null;
+	sharepointUrl?: string | null;
+	statusId?: number | null;
+	numberOfOpenPositions?: number | null;
+	capabilityName?: string;
+	bandName?: string;
+	capability?: {
+		capabilityName?: string;
+		name?: string;
+	};
+	band?: {
+		bandName?: string;
+		name?: string;
+	};
+	statusRef?: {
+		statusName?: string;
+	};
 };
 
 export type PaginatedJobRoles = {
@@ -29,7 +45,7 @@ export class JobRoleService {
 		return response.data;
 	}
 
-	async getJobRoleById(jobRoleId: number): Promise<JobRole | null> {
+	async getJobRoleInformation(jobRoleId: number): Promise<JobRole | null> {
 		try {
 			const response = await apiClient.get<JobRole>(`/job-roles/${jobRoleId}`);
 			return response.data;
@@ -37,5 +53,9 @@ export class JobRoleService {
 			const roles = await this.getAllJobRoles();
 			return roles.items.find((role) => role.jobRoleId === jobRoleId) ?? null;
 		}
+	}
+
+	async getJobRoleById(jobRoleId: number): Promise<JobRole | null> {
+		return this.getJobRoleInformation(jobRoleId);
 	}
 }

@@ -13,10 +13,13 @@
     <a href="/job-roles" class="inline-link">Back to opportunities</a>
 
     {% if jobRole %}
+      {% set statusText = jobRole.statusRef.statusName if jobRole.statusRef and jobRole.statusRef.statusName else (jobRole.status if jobRole.status else "Unknown") %}
+      {% set capabilityText = jobRole.capability.capabilityName if jobRole.capability and jobRole.capability.capabilityName else (jobRole.capability.name if jobRole.capability and jobRole.capability.name else (jobRole.capabilityName if jobRole.capabilityName else "Not provided")) %}
+      {% set bandText = jobRole.band.bandName if jobRole.band and jobRole.band.bandName else (jobRole.band.name if jobRole.band and jobRole.band.name else (jobRole.bandName if jobRole.bandName else "Not provided")) %}
       <article class="detail-card">
         <header class="detail-header">
           <h1>{{ jobRole.roleName }}</h1>
-          {{ badge(jobRole.status, "success" if jobRole.status == "Open" else "neutral") }}
+          {{ badge(statusText, "success" if statusText == "Open" else "neutral") }}
         </header>
 
         <dl class="meta-grid">
@@ -25,26 +28,57 @@
             <dd>{{ jobRole.location }}</dd>
           </div>
           <div>
+            <dt>Status</dt>
+            <dd>{{ statusText }}</dd>
+          </div>
+          <div>
             <dt>Capability</dt>
-            <dd>{{ jobRole.capabilityName }}</dd>
+            <dd>{{ capabilityText }}</dd>
           </div>
           <div>
             <dt>Band</dt>
-            <dd>{{ jobRole.bandName }}</dd>
+            <dd>{{ bandText }}</dd>
           </div>
           <div>
             <dt>Closing date</dt>
             <dd>{{ jobRole.closingDate }}</dd>
           </div>
+          {% if jobRole.numberOfOpenPositions is not none %}
+            <div>
+              <dt>Open positions</dt>
+              <dd>{{ jobRole.numberOfOpenPositions }}</dd>
+            </div>
+          {% endif %}
         </dl>
 
-        <section class="detail-copy">
-          <h2>Role overview</h2>
-          <p>
-            Join Kainos and shape meaningful outcomes for clients through technology. This role contributes to strategy,
-            delivery excellence and long-term impact in a collaborative, high-growth environment.
-          </p>
-        </section>
+        {% if jobRole.description %}
+          <section class="detail-copy">
+            <h2>Role overview</h2>
+            <p>{{ jobRole.description }}</p>
+          </section>
+        {% else %}
+          <section class="detail-copy">
+            <h2>Role overview</h2>
+            <p>
+              Join Kainos and shape meaningful outcomes for clients through technology. This role contributes to strategy,
+              delivery excellence and long-term impact in a collaborative, high-growth environment.
+            </p>
+          </section>
+        {% endif %}
+
+        {% if jobRole.responsibilities %}
+          <section class="detail-copy">
+            <h2>Key responsibilities</h2>
+            <p>{{ jobRole.responsibilities }}</p>
+          </section>
+        {% endif %}
+
+        {% if jobRole.sharepointUrl %}
+          <section class="detail-copy">
+            <h2>More information</h2>
+            <p><a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noreferrer">View related documents on SharePoint</a></p>
+          </section>
+        {% endif %}
 
         <div class="detail-actions">
           <a class="btn btn-primary" href="https://careers.kainos.com/gb/en" target="_blank" rel="noreferrer">Apply on Kainos Careers</a>

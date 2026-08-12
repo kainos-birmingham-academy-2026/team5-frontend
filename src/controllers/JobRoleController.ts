@@ -34,11 +34,27 @@ export class JobRoleController {
 		}
 	}
 
-	async getJobRoleById(req: Request, res: Response): Promise<void> {
-		const rawJobRoleId = Array.isArray(req.params.jobRoleId)
-			? req.params.jobRoleId[0]
-			: req.params.jobRoleId;
-		const jobRoleId = Number.parseInt(rawJobRoleId, 10);
+	async getJobRoleInformation(
+		req: Request<{ id: string }>,
+		res: Response,
+	): Promise<void> {
+		const rawJobRoleId = req.params.id;
+		await this.renderJobRoleDetail(rawJobRoleId, res);
+	}
+
+	async getJobRoleById(
+		req: Request<{ jobRoleId: string }>,
+		res: Response,
+	): Promise<void> {
+		const rawJobRoleId = req.params.jobRoleId;
+		await this.renderJobRoleDetail(rawJobRoleId, res);
+	}
+
+	private async renderJobRoleDetail(
+		rawJobRoleId: string | undefined,
+		res: Response,
+	): Promise<void> {
+		const jobRoleId = Number.parseInt(rawJobRoleId ?? "", 10);
 		if (Number.isNaN(jobRoleId)) {
 			res.status(400).send("Invalid job role id");
 			return;
