@@ -32,17 +32,19 @@ export class JobRoleController {
 		}
 	}
 
-	async getJobRoleInformation(req: Request, res: Response): Promise<void> {
-		const rawJobRoleId = Array.isArray(req.params.id)
-			? req.params.id[0]
-			: req.params.id;
+	async getJobRoleInformation(
+		req: Request<{ id: string }>,
+		res: Response,
+	): Promise<void> {
+		const rawJobRoleId = req.params.id;
 		await this.renderJobRoleDetail(rawJobRoleId, res);
 	}
 
-	async getJobRoleById(req: Request, res: Response): Promise<void> {
-		const rawJobRoleId = Array.isArray(req.params.jobRoleId)
-			? req.params.jobRoleId[0]
-			: req.params.jobRoleId;
+	async getJobRoleById(
+		req: Request<{ jobRoleId: string }>,
+		res: Response,
+	): Promise<void> {
+		const rawJobRoleId = req.params.jobRoleId;
 		await this.renderJobRoleDetail(rawJobRoleId, res);
 	}
 
