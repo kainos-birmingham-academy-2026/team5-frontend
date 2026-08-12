@@ -69,6 +69,9 @@ describe("shared accessibility contracts", () => {
 		const macros = readView("components", "ui-macros.njk");
 		const jobsScript = readView("assets", "scripts", "jobs.ts");
 
+		expect(macros).toContain('<details class="filter-panel"');
+		expect(macros).toContain("<summary>Filter roles</summary>");
+		expect(macros).toContain("filters.capability.length");
 		expect(macros).toContain(
 			'<form class="filter-bar" method="get" action="/job-roles">',
 		);

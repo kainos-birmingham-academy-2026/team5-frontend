@@ -30,6 +30,8 @@
 {% endmacro %}
 
 {% macro filterBar(options, filters) %}
+<details class="filter-panel" {% if filters.roleName or filters.location or filters.closingDate or filters.capability.length or filters.band.length or filters.status.length %}open{% endif %}>
+  <summary>Filter roles</summary>
 <form class="filter-bar" method="get" action="/job-roles">
   <div class="filter-text-fields">
     <label>
@@ -85,6 +87,7 @@
     <a class="btn btn-ghost" href="/job-roles">Clear filters</a>
   </div>
 </form>
+</details>
 {% endmacro %}
 
 {% macro jobCard(job) %}
