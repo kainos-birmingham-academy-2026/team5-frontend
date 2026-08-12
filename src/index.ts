@@ -3,10 +3,14 @@ import path from "node:path";
 import express from "express";
 import session from "express-session";
 import nunjucks from "nunjucks";
+import morganMiddleware from "./config/morganMiddleware";
+import Logger from "./lib/logger";
 import JobRouter from "./routes/JobRouter";
 import UserRouter from "./routes/UserRouter";
 
 const app = express();
+
+app.use(morganMiddleware);
 
 nunjucks.configure(path.join(process.cwd(), "src/views"), {
 	autoescape: true,
@@ -43,9 +47,10 @@ app.use(
 	"/assets",
 	express.static(path.join(process.cwd(), "src/views/assets")),
 );
+
 app.use(UserRouter);
 app.use(JobRouter);
 
 app.listen(4000, () => {
-	console.log("Frontend is running on http://localhost:4000");
+	Logger.info("Frontend is running on http://localhost:4000");
 });
