@@ -64,4 +64,28 @@ describe("shared accessibility contracts", () => {
 		expect(detail).toContain('<dl class="meta-grid">');
 		expect(detail).toContain("</dl>");
 	});
+
+	it("submits every role column filter to the server", () => {
+		const macros = readView("components", "ui-macros.njk");
+		const jobsScript = readView("assets", "scripts", "jobs.ts");
+
+		expect(macros).toContain(
+			'<form class="filter-bar" method="get" action="/job-roles">',
+		);
+		for (const name of [
+			"roleName",
+			"location",
+			"capability",
+			"band",
+			"status",
+			"closingDate",
+		]) {
+			expect(macros).toContain(`name="${name}"`);
+		}
+		expect(macros).toContain('type="checkbox" name="capability"');
+		expect(macros).toContain('type="checkbox" name="band"');
+		expect(macros).toContain('type="checkbox" name="status"');
+		expect(macros).toContain('type="date" name="closingDate"');
+		expect(jobsScript).not.toContain("preventDefault");
+	});
 });

@@ -1,4 +1,3 @@
-const form = document.querySelector("[data-filter-form]");
 const siteHeader = document.querySelector("[data-site-header]");
 const navToggle = document.querySelector("[data-nav-toggle]");
 
@@ -34,35 +33,5 @@ if (siteHeader && navToggle) {
 
 	window.addEventListener("resize", () => {
 		if (window.innerWidth >= 1024) closeNavigation();
-	});
-}
-
-if (form) {
-	const keywordInput = (form as HTMLFormElement).querySelector(
-		'[data-filter="keyword"]',
-	) as HTMLInputElement | null;
-	const locationInput = (form as HTMLFormElement).querySelector(
-		'[data-filter="location"]',
-	) as HTMLInputElement | null;
-	const cards: HTMLElement[] = [
-		...(document.querySelectorAll(".job-card") as NodeListOf<HTMLElement>),
-	];
-
-	const applyFilters = (): void => {
-		const keyword = (keywordInput?.value || "").trim().toLowerCase();
-		const location = (locationInput?.value || "").trim().toLowerCase();
-
-		cards.forEach((card) => {
-			const role = card.getAttribute("data-role") || "";
-			const city = card.getAttribute("data-location") || "";
-			const keywordMatch = !keyword || role.includes(keyword);
-			const locationMatch = !location || city.includes(location);
-			(card as any).hidden = !(keywordMatch && locationMatch);
-		});
-	};
-
-	(form as HTMLFormElement).addEventListener("submit", (event: Event) => {
-		event.preventDefault();
-		applyFilters();
 	});
 }

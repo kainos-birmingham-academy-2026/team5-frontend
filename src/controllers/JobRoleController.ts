@@ -1,5 +1,37 @@
 import type { Request, Response } from "express";
-import type { JobRoleService } from "../services/JobRoleService";
+import type {
+	JobRoleFilters,
+	JobRoleService,
+} from "../services/JobRoleService";
+
+const firstQueryValue = (value: unknown): string | undefined =>
+	typeof value === "string" && value.trim() ? value.trim() : undefined;
+
+const queryValues = (value: unknown): string[] =>
+	(Array.isArray(value) ? value : [value]).filter(
+		(item): item is string => typeof item === "string" && item.length > 0,
+	);
+
+const getFilters = (query: Request["query"]): JobRoleFilters => ({
+	roleName: firstQueryValue(query.roleName),
+	location: firstQueryValue(query.location),
+	capability: queryValues(query.capability),
+	band: queryValues(query.band),
+	status: queryValues(query.status),
+	closingDate: firstQueryValue(query.closingDate),
+});
+
+const getFilterQuery = (filters: JobRoleFilters): string => {
+	const query = new URLSearchParams();
+	if (filters.roleName) query.set("roleName", filters.roleName);
+	if (filters.location) query.set("location", filters.location);
+	for (const capability of filters.capability)
+		query.append("capability", capability);
+	for (const band of filters.band) query.append("band", band);
+	for (const status of filters.status) query.append("status", status);
+	if (filters.closingDate) query.set("closingDate", filters.closingDate);
+	return query.toString();
+};
 
 export class JobRoleController {
 	constructor(private jobRoleService: JobRoleService) {}
@@ -20,11 +52,20 @@ export class JobRoleController {
 		try {
 			const requestedPage = Number(req.query.page ?? 1);
 			const page =
-				Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
-			const result = await this.jobRoleService.getAllJobRoles(page, 10);
+				Number.isInteger(requestedPage) && requestedPage > 0
+					? requestedPage
+					: 1;
+			const filters = getFilters(req.query);
+			const [result, filterOptions] = await Promise.all([
+				this.jobRoleService.getAllJobRoles(page, 10, filters),
+				this.jobRoleService.getFilterOptions(),
+			]);
 			res.render("job-role-list.njk", {
 				jobRoles: result.items,
 				pagination: result,
+				filters,
+				filterOptions,
+				filterQuery: getFilterQuery(filters),
 			});
 		} catch (error) {
 			console.error("Failed to retrieve job roles:", error);

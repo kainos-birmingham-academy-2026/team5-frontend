@@ -36,12 +36,45 @@ export type PaginatedJobRoles = {
 	totalPages: number;
 };
 
+export type JobRoleFilters = {
+	roleName?: string;
+	location?: string;
+	capability: string[];
+	band: string[];
+	status: string[];
+	closingDate?: string;
+};
+
+export type JobRoleFilterOptions = {
+	capabilities: string[];
+	bands: string[];
+	statuses: string[];
+};
+
+const emptyFilters = (): JobRoleFilters => ({
+	capability: [],
+	band: [],
+	status: [],
+});
+
 export class JobRoleService {
-	async getAllJobRoles(page = 1, pageSize = 10): Promise<PaginatedJobRoles> {
+	async getAllJobRoles(
+		page = 1,
+		pageSize = 10,
+		filters: JobRoleFilters = emptyFilters(),
+	): Promise<PaginatedJobRoles> {
 		const response = await apiClient.get<PaginatedJobRoles>("/job-roles", {
-			params: { page, pageSize },
+			params: { page, pageSize, ...filters },
+			paramsSerializer: { indexes: null },
 		});
 
+		return response.data;
+	}
+
+	async getFilterOptions(): Promise<JobRoleFilterOptions> {
+		const response = await apiClient.get<JobRoleFilterOptions>(
+			"/job-roles/filter-options",
+		);
 		return response.data;
 	}
 

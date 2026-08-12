@@ -1485,6 +1485,12 @@ table {
 	border-block-start: 4px solid var(--color-brand-500);
 }
 
+.filter-text-fields,
+.filter-option-fields {
+	display: grid;
+	gap: var(--space-4);
+}
+
 .filter-bar label,
 .form-field {
 	display: grid;
@@ -1494,7 +1500,7 @@ table {
 	font-weight: var(--font-weight-semibold);
 }
 
-.filter-bar input,
+.filter-bar input:not([type="checkbox"]),
 .form-field input,
 .form-field select,
 .form-field textarea {
@@ -1506,18 +1512,57 @@ table {
 	background: var(--color-white);
 }
 
-.filter-bar input:hover,
+.filter-bar input:not([type="checkbox"]):hover,
 .form-field input:hover,
 .form-field select:hover,
 .form-field textarea:hover {
 	border-color: var(--color-ink-700);
 }
 
-.filter-bar input:focus,
+.filter-bar input:not([type="checkbox"]):focus,
 .form-field input:focus,
 .form-field select:focus,
 .form-field textarea:focus {
 	border-color: var(--color-focus);
+}
+
+.filter-group {
+	padding: 0;
+	border: 0;
+}
+
+.filter-group legend {
+	margin-block-end: var(--space-2);
+	color: var(--color-ink-700);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+}
+
+.filter-checks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2) var(--space-4);
+}
+
+.filter-bar .checkbox-option {
+	display: flex;
+	min-height: 2.75rem;
+	align-items: center;
+	grid-template-columns: auto 1fr;
+	gap: var(--space-2);
+	font-weight: var(--font-weight-regular);
+}
+
+.filter-bar .checkbox-option input {
+	width: 1.25rem;
+	height: 1.25rem;
+	accent-color: var(--color-brand-500);
+}
+
+.filter-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-3);
 }
 
 .field-hint,
@@ -1846,8 +1891,12 @@ ul.download-list li {
 	}
 
 	.filter-bar {
-		grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
-		align-items: end;
+		gap: var(--space-5);
+	}
+
+	.filter-text-fields,
+	.filter-option-fields {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 
 	.cta-grid {
