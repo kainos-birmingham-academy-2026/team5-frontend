@@ -7,9 +7,11 @@
 
 ## Automated Code Review
 
-Feature-branch pushes run `.github/workflows/code-review.yml`, which invokes the
-repository's `/local-code-review` Copilot skill and uploads the generated
-`code_reviews/` directory as a workflow artifact.
+Pull requests targeting `main` or `master` run
+`.github/workflows/code-review.yml`, which invokes the repository's
+`/local-code-review` Copilot skill. The review appears on the workflow Summary
+page, and the generated `code_reviews/` directory is also uploaded as an
+artifact.
 
 Before using the workflow, add a repository Actions secret named
 `COPILOT_TOKEN`. Its fine-grained personal access token must have the
@@ -35,3 +37,7 @@ Team5 Frontend — a Node.js/Express server with Nunjucks templating.
 | `npm run lint` | Lint the codebase with Biome |
 | `npm run lint:fix` | Lint and auto-fix issues with Biome |
 | `npm run format` | Format all files with Biome |
+
+The review runs when a pull request is opened, reopened, marked ready, or
+updated with new commits. Forked pull requests are skipped because GitHub does
+not expose repository secrets to forks.
