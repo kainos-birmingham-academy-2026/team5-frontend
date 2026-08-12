@@ -37,5 +37,8 @@ Thumbs.db
 coverage/
 .nyc_output/
 
+# Generated code review reports
+code_reviews/
+
 # Misc
 *.pem

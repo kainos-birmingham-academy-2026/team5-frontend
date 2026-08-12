@@ -1,0 +1,60 @@
+name: Automated Code Review
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-code-review:
+    name: Local code review
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.COPILOT_TOKEN }}
+    steps:
+      - name: Check out full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Require Copilot token
+        run: |
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo "COPILOT_TOKEN is required and must have Copilot Requests permission."
+            exit 1
+          fi
+
+      - name: Install GitHub Copilot CLI
+        run: npm install --global @github/copilot@1.0.72
+
+      - name: Run local code review
+        shell: bash
+        run: |
+          mkdir -p code_reviews
+          set -o pipefail
+          copilot -p "/local-code-review" \
+            --stream off \
+            --allow-all-tools \
+            --allow-all-paths \
+            --allow-all-urls \
+            | tee code_reviews/copilot-cli-output.txt
+
+      - name: Upload review report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-review-${{ github.ref_name }}-${{ github.run_number }}
+          path: code_reviews/
+          if-no-files-found: warn
+          retention-days: 14
