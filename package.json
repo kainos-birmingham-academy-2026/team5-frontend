@@ -26,12 +26,15 @@
 	},
 	"homepage": "https://github.com/kainos-birmingham-academy-2026/team5-frontend#readme",
 	"dependencies": {
+		"@types/morgan": "^1.9.10",
 		"@types/nunjucks": "^3.2.6",
 		"axios": "^1.19.0",
 		"dotenv": "^17.4.2",
 		"express": "^5.2.1",
 		"express-session": "^1.19.0",
-		"nunjucks": "^3.2.4"
+		"morgan": "^1.11.0",
+		"nunjucks": "^3.2.4",
+		"winston": "^3.19.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.7",

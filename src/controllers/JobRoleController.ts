@@ -20,7 +20,9 @@ export class JobRoleController {
 		try {
 			const requestedPage = Number(req.query.page ?? 1);
 			const page =
-				Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+				Number.isInteger(requestedPage) && requestedPage > 0
+					? requestedPage
+					: 1;
 			const result = await this.jobRoleService.getAllJobRoles(page, 10);
 			res.render("job-role-list.njk", {
 				jobRoles: result.items,
