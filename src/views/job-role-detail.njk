@@ -1,0 +1,60 @@
+{% extends "layouts/base.njk" %}
+{% from "components/ui-macros.njk" import badge, breadcrumbs %}
+
+{% block title %}{{ jobRole.roleName if jobRole else "Role not found" }} | Kainos Careers{% endblock %}
+
+{% block content %}
+  {{ breadcrumbs([
+    { label: "Home", href: "/" },
+    { label: "Opportunities", href: "/job-roles" },
+    { label: jobRole.roleName if jobRole else "Role not found" }
+  ]) }}
+  <section class="container section section-tight">
+    <a href="/job-roles" class="inline-link">Back to opportunities</a>
+
+    {% if jobRole %}
+      <article class="detail-card">
+        <header class="detail-header">
+          <h1>{{ jobRole.roleName }}</h1>
+          {{ badge(jobRole.status, "success" if jobRole.status == "Open" else "neutral") }}
+        </header>
+
+        <dl class="meta-grid">
+          <div>
+            <dt>Location</dt>
+            <dd>{{ jobRole.location }}</dd>
+          </div>
+          <div>
+            <dt>Capability</dt>
+            <dd>{{ jobRole.capabilityName }}</dd>
+          </div>
+          <div>
+            <dt>Band</dt>
+            <dd>{{ jobRole.bandName }}</dd>
+          </div>
+          <div>
+            <dt>Closing date</dt>
+            <dd>{{ jobRole.closingDate }}</dd>
+          </div>
+        </dl>
+
+        <section class="detail-copy">
+          <h2>Role overview</h2>
+          <p>
+            Join Kainos and shape meaningful outcomes for clients through technology. This role contributes to strategy,
+            delivery excellence and long-term impact in a collaborative, high-growth environment.
+          </p>
+        </section>
+
+        <div class="detail-actions">
+          <a class="btn btn-primary" href="https://careers.kainos.com/gb/en" target="_blank" rel="noreferrer">Apply on Kainos Careers</a>
+        </div>
+      </article>
+    {% else %}
+      <article class="empty-state">
+        <h3>Role not found</h3>
+        <p><a href="/job-roles">Return to opportunities</a> to browse available roles.</p>
+      </article>
+    {% endif %}
+  </section>
+{% endblock %}

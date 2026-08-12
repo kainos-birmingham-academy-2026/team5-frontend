@@ -1,0 +1,50 @@
+{% extends "layouts/base.njk" %}
+{% from "components/ui-macros.njk" import hero, ctaBand, storyCard, jobCard %}
+
+{% block title %}Kainos Careers | Home{% endblock %}
+
+{% block content %}
+  {{ hero(
+    "Your Kainos story starts here",
+    "Build technology that improves millions of lives",
+    "Join a people-first team solving meaningful challenges across digital services, Workday and AI.",
+    "Browse opportunities",
+    "/job-roles",
+    "Explore culture",
+    "https://careers.kainos.com/gb/en/life-at-kainos"
+  ) }}
+
+  <section class="container section">
+    <h2>Why people choose Kainos</h2>
+    <div class="pillar-grid">
+      <article>
+        <h3>Put people first</h3>
+        <p>Collaborative teams where ideas are heard and growth is supported.</p>
+      </article>
+      <article>
+        <h3>Know your impact</h3>
+        <p>Work on services that transform healthcare, government and enterprise outcomes.</p>
+      </article>
+      <article>
+        <h3>Embrace the future</h3>
+        <p>Keep learning through academy pathways and real-world delivery opportunities.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="container section">
+    <h2>Featured opportunities</h2>
+    {% if featuredRoles and featuredRoles.length %}
+      <div class="job-grid">
+        {% for job in featuredRoles %}
+          {{ jobCard(job) }}
+        {% endfor %}
+      </div>
+    {% else %}
+      <article class="empty-state">
+        <h3>Roles are loading</h3>
+        <p>Open opportunities will appear here when available.</p>
+      </article>
+    {% endif %}
+  </section>
+{% endblock %}

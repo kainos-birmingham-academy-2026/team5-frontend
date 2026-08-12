@@ -42,3 +42,5 @@ code_reviews/
 
 # Misc
 *.pem
+
+/.github/prompts

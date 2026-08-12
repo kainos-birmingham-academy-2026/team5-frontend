@@ -1,0 +1,124 @@
+{% macro hero(eyebrow, title, subtitle, primaryLabel, primaryHref, secondaryLabel, secondaryHref, imageUrl="", imageAlt="") %}
+<section class="hero">
+  {% if imageUrl %}<img class="hero-media" src="{{ imageUrl }}" alt="{{ imageAlt }}" />{% endif %}
+  <div class="container hero-content">
+    <p class="eyebrow">{{ eyebrow }}</p>
+    <h1>{{ title }}</h1>
+    <p class="hero-copy">{{ subtitle }}</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ primaryHref }}">{{ primaryLabel }}</a>
+      <a class="btn btn-ghost" href="{{ secondaryHref }}">{{ secondaryLabel }}</a>
+    </div>
+  </div>
+</section>
+{% endmacro %}
+
+{% macro breadcrumbs(items) %}
+<nav class="breadcrumbs container" aria-label="Breadcrumb">
+  <ol>
+    {% for item in items %}
+      <li>
+        {% if item.href and not loop.last %}<a href="{{ item.href }}">{{ item.label }}</a>{% else %}<span aria-current="page">{{ item.label }}</span>{% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+</nav>
+{% endmacro %}
+
+{% macro badge(text, tone="neutral") %}
+<span class="badge badge-{{ tone }}">{{ text }}</span>
+{% endmacro %}
+
+{% macro filterBar() %}
+<form class="filter-bar" data-filter-form>
+  <label>
+    <span>Keyword</span>
+    <input type="search" name="q" placeholder="Role, capability or skill" data-filter="keyword" />
+  </label>
+  <label>
+    <span>Location</span>
+    <input type="search" name="location" placeholder="e.g. Belfast" data-filter="location" />
+  </label>
+  <button class="btn btn-primary" type="submit">Filter</button>
+</form>
+{% endmacro %}
+
+{% macro jobCard(job) %}
+<article class="job-card" data-role="{{ job.roleName | lower }}" data-location="{{ job.location | lower }}">
+  <header class="job-card-head">
+    <h3>{{ job.roleName }}</h3>
+    {{ badge(job.status, "success" if job.status == "Open" else "neutral") }}
+  </header>
+  <dl class="meta-grid">
+    <div>
+      <dt>Location</dt>
+      <dd>{{ job.location }}</dd>
+    </div>
+    <div>
+      <dt>Capability</dt>
+      <dd>{{ job.capabilityName }}</dd>
+    </div>
+    <div>
+      <dt>Band</dt>
+      <dd>{{ job.bandName }}</dd>
+    </div>
+    <div>
+      <dt>Closing date</dt>
+      <dd>{{ job.closingDate }}</dd>
+    </div>
+  </dl>
+  <a class="job-link" href="/job-roles/{{ job.jobRoleId }}">View role</a>
+</article>
+{% endmacro %}
+
+{% macro paginationShell(pagination) %}
+<nav class="pagination" aria-label="Pagination">
+  {% if pagination.page > 1 %}
+    <a class="page-btn" href="/job-roles?page={{ pagination.page - 1 }}">Previous</a>
+  {% endif %}
+  <span class="page-index">Page {{ pagination.page }} of {{ pagination.totalPages }}</span>
+  {% if pagination.page < pagination.totalPages %}
+    <a class="page-btn" href="/job-roles?page={{ pagination.page + 1 }}">Next</a>
+  {% endif %}
+</nav>
+{% endmacro %}
+
+{% macro storyCard(title, summary, href) %}
+<article class="story-card">
+  <h3>{{ title }}</h3>
+  <p>{{ summary }}</p>
+  <a href="{{ href }}" target="_blank" rel="noreferrer">Read more</a>
+</article>
+{% endmacro %}
+
+{% macro contentCard(title, summary, href, linkLabel="Learn more") %}
+<article class="content-card">
+  <h3>{{ title }}</h3>
+  <p>{{ summary }}</p>
+  <a class="card-link" href="{{ href }}">{{ linkLabel }}</a>
+</article>
+{% endmacro %}
+
+{% macro mediaCard(title, summary, href, imageUrl, imageAlt, linkLabel="Learn more") %}
+<article class="media-card">
+  <img class="media-card-image" src="{{ imageUrl }}" alt="{{ imageAlt }}" loading="lazy" />
+  <div class="media-card-content">
+    <h3>{{ title }}</h3>
+    <p>{{ summary }}</p>
+    <a class="card-link" href="{{ href }}">{{ linkLabel }}</a>
+  </div>
+</article>
+{% endmacro %}
+
+{% macro ctaBand(title, subtitle, primaryLabel, primaryHref, secondaryLabel="", secondaryHref="") %}
+<section class="cta-band">
+  <div class="container cta-content">
+    <h2>{{ title }}</h2>
+    <p>{{ subtitle }}</p>
+    <div class="cta-actions">
+      <a class="btn btn-primary" href="{{ primaryHref }}">{{ primaryLabel }}</a>
+      {% if secondaryLabel and secondaryHref %}<a class="btn btn-ghost" href="{{ secondaryHref }}">{{ secondaryLabel }}</a>{% endif %}
+    </div>
+  </div>
+</section>
+{% endmacro %}

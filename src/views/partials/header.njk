@@ -1,0 +1,25 @@
+<header class="site-header" data-site-header>
+  <div class="container nav-shell">
+    <a href="/" class="brand" aria-label="Kainos careers home">
+      <img class="brand-logo" src="/assets/images/logo.png" alt="Kainos" />
+      <span class="ds-sr-only">Kainos Careers</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
+      <span class="ds-sr-only">Open navigation</span>
+      <span class="nav-toggle-icon" aria-hidden="true"></span>
+    </button>
+    <nav class="site-nav" id="primary-navigation" aria-label="Primary navigation" data-site-nav>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/job-roles">Opportunities</a></li>
+        <li><a href="https://careers.kainos.com/gb/en" target="_blank" rel="noreferrer">Life at Kainos</a></li>
+        <li><a href="https://careers.kainos.com/gb/en/jointalentcommunity" target="_blank" rel="noreferrer">Talent community</a></li>
+        {% if isAuthenticated %}
+          <li><a href="/logout">Sign out</a></li>
+        {% else %}
+          <li><a href="/login">Sign in</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</header>

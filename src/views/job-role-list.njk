@@ -1,0 +1,35 @@
+{% extends "layouts/base.njk" %}
+{% from "components/ui-macros.njk" import hero, filterBar, jobCard, paginationShell %}
+
+{% block title %}Kainos Careers | Opportunities{% endblock %}
+
+{% block content %}
+  {{ hero(
+    "Opportunities",
+    "Browse open roles",
+    "Explore roles across capability areas and locations. Filter quickly by keyword or city.",
+    "Refresh roles",
+    "/job-roles",
+    "Visit Kainos careers",
+    "https://careers.kainos.com/gb/en"
+  ) }}
+
+  <section class="container section">
+    <h2>Current vacancies</h2>
+    {{ filterBar() }}
+
+    {% if jobRoles and jobRoles.length %}
+      <div class="job-grid">
+        {% for job in jobRoles %}
+          {{ jobCard(job) }}
+        {% endfor %}
+      </div>
+      {{ paginationShell(pagination) }}
+    {% else %}
+      <article class="empty-state">
+        <h3>No job roles found</h3>
+        <p>Try again later or visit the Kainos careers portal for updated postings.</p>
+      </article>
+    {% endif %}
+  </section>
+{% endblock %}
