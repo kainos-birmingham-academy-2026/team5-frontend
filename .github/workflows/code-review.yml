@@ -50,6 +50,21 @@ jobs:
             --allow-all-urls \
             | tee code_reviews/copilot-cli-output.txt
 
+      - name: Publish review to workflow summary
+        if: always()
+        shell: bash
+        run: |
+          report=$(find code_reviews -maxdepth 1 -type f -name '*.md' -print -quit)
+          if [[ -n "$report" ]]; then
+            cat "$report" >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "# Code review unavailable"
+              echo
+              echo "No Markdown review report was generated. Check the workflow logs."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Upload review report
         if: always()
         uses: actions/upload-artifact@v4
