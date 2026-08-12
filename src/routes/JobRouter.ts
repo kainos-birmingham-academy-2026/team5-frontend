@@ -1,9 +1,8 @@
 import { Router } from "express";
-
-const router = Router();
-
 import { JobRoleController } from "../controllers/JobRoleController";
 import { JobRoleService } from "../services/JobRoleService";
+
+const router = Router();
 
 const service = new JobRoleService();
 const controller = new JobRoleController(service);
