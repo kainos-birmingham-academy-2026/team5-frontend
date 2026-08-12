@@ -29,13 +29,21 @@ export class JobRoleService {
 		return response.data;
 	}
 
-	async getJobRoleById(jobRoleId: number): Promise<JobRole | null> {
+	async getJobRoleInformation(jobRoleId: number): Promise<JobRole | null> {
 		try {
 			const response = await apiClient.get<JobRole>(`/job-roles/${jobRoleId}`);
 			return response.data;
 		} catch {
+<<<<<<< HEAD
 			const roles = await this.getAllJobRoles();
 			return roles.items.find((role) => role.jobRoleId === jobRoleId) ?? null;
+=======
+			return null;
+>>>>>>> 4e13b89 (Axios and Controller endpoints added)
 		}
+	}
+
+	async getJobRoleById(jobRoleId: number): Promise<JobRole | null> {
+		return this.getJobRoleInformation(jobRoleId);
 	}
 }

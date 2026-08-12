@@ -21,6 +21,10 @@
 
         <dl class="meta-grid">
           <div>
+            <dt>Role ID</dt>
+            <dd>{{ jobRole.jobRoleId }}</dd>
+          </div>
+          <div>
             <dt>Location</dt>
             <dd>{{ jobRole.location }}</dd>
           </div>
@@ -28,23 +32,73 @@
             <dt>Capability</dt>
             <dd>{{ jobRole.capabilityName }}</dd>
           </div>
+          {% if jobRole.capabilityId %}
+            <div>
+              <dt>Capability ID</dt>
+              <dd>{{ jobRole.capabilityId }}</dd>
+            </div>
+          {% endif %}
           <div>
             <dt>Band</dt>
             <dd>{{ jobRole.bandName }}</dd>
           </div>
+          {% if jobRole.bandId %}
+            <div>
+              <dt>Band ID</dt>
+              <dd>{{ jobRole.bandId }}</dd>
+            </div>
+          {% endif %}
           <div>
             <dt>Closing date</dt>
             <dd>{{ jobRole.closingDate }}</dd>
           </div>
+          {% if jobRole.employmentType %}
+            <div>
+              <dt>Employment type</dt>
+              <dd>{{ jobRole.employmentType }}</dd>
+            </div>
+          {% endif %}
+          {% if jobRole.departmentName %}
+            <div>
+              <dt>Department</dt>
+              <dd>{{ jobRole.departmentName }}</dd>
+            </div>
+          {% endif %}
+          {% if jobRole.postedDate %}
+            <div>
+              <dt>Posted date</dt>
+              <dd>{{ jobRole.postedDate }}</dd>
+            </div>
+          {% endif %}
+          {% if jobRole.salaryRange %}
+            <div>
+              <dt>Salary range</dt>
+              <dd>{{ jobRole.salaryRange }}</dd>
+            </div>
+          {% endif %}
         </dl>
 
-        <section class="detail-copy">
-          <h2>Role overview</h2>
-          <p>
-            Join Kainos and shape meaningful outcomes for clients through technology. This role contributes to strategy,
-            delivery excellence and long-term impact in a collaborative, high-growth environment.
-          </p>
-        </section>
+        {% if jobRole.roleSummary %}
+          <section class="detail-copy">
+            <h2>Role overview</h2>
+            <p>{{ jobRole.roleSummary }}</p>
+          </section>
+        {% else %}
+          <section class="detail-copy">
+            <h2>Role overview</h2>
+            <p>
+              Join Kainos and shape meaningful outcomes for clients through technology. This role contributes to strategy,
+              delivery excellence and long-term impact in a collaborative, high-growth environment.
+            </p>
+          </section>
+        {% endif %}
+
+        {% if jobRole.responsibilities %}
+          <section class="detail-copy">
+            <h2>Key responsibilities</h2>
+            <p>{{ jobRole.responsibilities }}</p>
+          </section>
+        {% endif %}
 
         <div class="detail-actions">
           <a class="btn btn-primary" href="https://careers.kainos.com/gb/en" target="_blank" rel="noreferrer">Apply on Kainos Careers</a>
