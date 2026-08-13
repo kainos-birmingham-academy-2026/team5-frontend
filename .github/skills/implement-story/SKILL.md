@@ -52,23 +52,23 @@ Accept pasted story details or an issue/work-item URL or ID. For retrieval:
 ## Terminal Execution Rules
 
 - Keep the terminal in the workspace root. Never use `cd` to enter a
-   repository; scope Git commands with `git -C <repository-path>` and use the
-   execution tool's working directory for package commands when available.
+  repository; scope Git commands with `git -C <repository-path>` and use the
+  execution tool's working directory for package commands when available.
 - Run staging, inspection, validation, commit, and push as separate terminal
-   calls. Do not combine these steps into a long `&&` command.
+  calls. Do not combine these steps into a long `&&` command.
 - Run `git add` as a one-shot command. It normally prints nothing on success;
-   treat a completed exit code `0` with empty output as success and immediately
-   verify the index with a separate `git diff --cached --name-only` command. Do
-   not wait, poll, or rerun staging merely because stdout is empty.
+  treat a completed exit code `0` with empty output as success and immediately
+  verify the index with a separate `git diff --cached --name-only` command. Do
+  not wait, poll, or rerun staging merely because stdout is empty.
 - Do not use shell negation (`!`), quote-spliced regular expressions, or an ad
-   hoc credential regex against a piped diff. These constructs can be parsed as
-   incomplete interactive input and can also turn an expected no-match result
-   into an ambiguous command status.
+  hoc credential regex against a piped diff. These constructs can be parsed as
+  incomplete interactive input and can also turn an expected no-match result
+  into an ambiguous command status.
 - Use non-interactive commands. If a command unexpectedly requests input, stop
-   and handle the prompt explicitly rather than sending another shell command.
+  and handle the prompt explicitly rather than sending another shell command.
 - Prefer repository-provided secret scanning. If none exists, inspect the
-   staged file list and staged diff directly for credentials and sensitive data;
-   never print secret values in chat or terminal output.
+  staged file list and staged diff directly for credentials and sensitive data;
+  never print secret values in chat or terminal output.
 
 ## Phase 1: Understand and Propose
 
