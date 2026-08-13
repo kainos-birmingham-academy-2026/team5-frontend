@@ -37,14 +37,21 @@ export class JobRoleController {
 	constructor(private jobRoleService: JobRoleService) {}
 
 	async getHomePage(req: Request, res: Response): Promise<void> {
+		const registrationSuccessMessage = req.session.registrationSuccessMessage;
+		delete req.session.registrationSuccessMessage;
+
 		try {
 			const result = await this.jobRoleService.getAllJobRoles(1, 3);
 			res.render("careers-home.njk", {
 				featuredRoles: result.items,
+				registrationSuccessMessage,
 			});
 		} catch (error) {
 			console.error("Failed to retrieve featured job roles:", error);
-			res.render("careers-home.njk", { featuredRoles: [] });
+			res.render("careers-home.njk", {
+				featuredRoles: [],
+				registrationSuccessMessage,
+			});
 		}
 	}
 

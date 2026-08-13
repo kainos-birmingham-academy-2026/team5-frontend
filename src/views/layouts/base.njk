@@ -13,10 +13,17 @@
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
   {% include "partials/header.njk" %}
+  {% if registrationSuccessMessage %}
+    <div class="toast toast-success" role="status" aria-live="polite">
+      <span class="toast-icon" aria-hidden="true">&#10003;</span>
+      <span>{{ registrationSuccessMessage }}</span>
+    </div>
+  {% endif %}
   <main class="site-main" id="main-content" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
   {% include "partials/footer.njk" %}
   <script src="/assets/scripts/jobs.js" defer></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>
