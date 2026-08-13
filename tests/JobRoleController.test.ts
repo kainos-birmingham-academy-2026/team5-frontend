@@ -57,3 +57,26 @@ describe("JobRoleController filters", () => {
 		});
 	});
 });
+
+describe("JobRoleController home page", () => {
+	it("passes and consumes the registration success message", async () => {
+		const getAllJobRoles = vi.fn().mockResolvedValue({ items: [] });
+		const controller = new JobRoleController({
+			getAllJobRoles,
+		} as unknown as JobRoleService);
+		const req = {
+			session: {
+				registrationSuccessMessage: "Account successfully created.",
+			},
+		} as unknown as Request;
+		const res = { render: vi.fn() } as unknown as Response;
+
+		await controller.getHomePage(req, res);
+
+		expect(res.render).toHaveBeenCalledWith("careers-home.njk", {
+			featuredRoles: [],
+			registrationSuccessMessage: "Account successfully created.",
+		});
+		expect(req.session.registrationSuccessMessage).toBeUndefined();
+	});
+});

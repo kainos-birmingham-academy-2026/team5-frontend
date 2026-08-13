@@ -47,6 +47,7 @@ describe("shared accessibility contracts", () => {
 	it("links to a dedicated login page with required credentials", () => {
 		const header = readView("partials", "header.njk");
 		const loginPage = readView("login.njk");
+		const registerPage = readView("register.njk");
 		expect(header).toContain("{% if isAuthenticated %}");
 		expect(header).toContain('<a href="/login">Sign in</a>');
 		expect(header).toContain('<a href="/logout">Sign out</a>');
@@ -56,6 +57,11 @@ describe("shared accessibility contracts", () => {
 		);
 		expect(loginPage).toContain(
 			'name="password" type="password" autocomplete="current-password" required',
+		);
+		expect(loginPage).toContain('<a href="/register">create an account</a>');
+		expect(registerPage).toContain('method="post" action="/register"');
+		expect(registerPage).toContain(
+			'name="password" type="password" autocomplete="new-password" required',
 		);
 	});
 
