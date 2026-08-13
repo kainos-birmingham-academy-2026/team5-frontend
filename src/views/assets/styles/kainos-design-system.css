@@ -2117,3 +2117,99 @@ ul.download-list li {
 		color: inherit;
 	}
 }
+
+/* Live password requirements checklist (register page) */
+.password-checklist {
+	margin-block-start: calc(var(--space-4) * -1);
+	padding: var(--space-4);
+	border-inline-start: 3px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	background: var(--color-surface);
+}
+
+.password-checklist[data-touched="true"] {
+	border-inline-start-color: var(--color-brand-500);
+}
+
+.password-checklist-title {
+	margin: 0 0 var(--space-3);
+	color: var(--color-ink-700);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+}
+
+.password-checklist ul {
+	display: grid;
+	gap: var(--space-2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.password-rule {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	color: var(--color-ink-600);
+	font-size: var(--font-size-sm);
+	transition: color 150ms ease-in-out;
+}
+
+.password-rule-icon {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 1.25rem;
+	height: 1.25rem;
+	border: 1px solid var(--color-border);
+	border-radius: 50%;
+	background: var(--color-white);
+	color: var(--color-white);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	line-height: 1;
+	transition:
+		background-color 150ms ease-in-out,
+		border-color 150ms ease-in-out,
+		transform 150ms ease-in-out;
+}
+
+.password-rule.is-met {
+	color: var(--color-success);
+	font-weight: var(--font-weight-semibold);
+}
+
+.password-rule.is-met .password-rule-icon {
+	border-color: var(--color-success);
+	background: var(--color-success);
+	transform: scale(1.08);
+}
+
+.password-rule.is-met .password-rule-icon::before {
+	content: "\2713";
+}
+
+.password-rule.is-unmet {
+	color: var(--color-danger);
+}
+
+.password-rule.is-unmet .password-rule-icon {
+	border-color: var(--color-danger);
+	background: var(--color-danger);
+}
+
+.password-rule.is-unmet .password-rule-icon::before {
+	content: "\2715";
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.password-rule,
+	.password-rule-icon {
+		transition: none;
+	}
+
+	.password-rule.is-met .password-rule-icon {
+		transform: none;
+	}
+}

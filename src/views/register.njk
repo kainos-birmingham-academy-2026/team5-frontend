@@ -23,12 +23,37 @@
           </label>
           <label class="form-field" for="register-password">
             Password
-            <input id="register-password" name="password" type="password" autocomplete="new-password" required />
+            <input id="register-password" name="password" type="password" autocomplete="new-password" required aria-describedby="password-requirements" data-password-input />
           </label>
+          <div class="password-checklist" id="password-requirements" data-password-rules data-touched="false">
+            <p class="password-checklist-title">Your password must:</p>
+            <ul role="list">
+              <li class="password-rule" role="checkbox" aria-checked="false" data-rule="length">
+                <span class="password-rule-icon" aria-hidden="true"></span>
+                <span>Be longer than 8 characters</span>
+              </li>
+              <li class="password-rule" role="checkbox" aria-checked="false" data-rule="uppercase">
+                <span class="password-rule-icon" aria-hidden="true"></span>
+                <span>Contain an uppercase letter</span>
+              </li>
+              <li class="password-rule" role="checkbox" aria-checked="false" data-rule="lowercase">
+                <span class="password-rule-icon" aria-hidden="true"></span>
+                <span>Contain a lowercase letter</span>
+              </li>
+              <li class="password-rule" role="checkbox" aria-checked="false" data-rule="special">
+                <span class="password-rule-icon" aria-hidden="true"></span>
+                <span>Contain a special character</span>
+              </li>
+            </ul>
+          </div>
           <button class="btn btn-primary" type="submit">Register</button>
         </form>
         <p>Already have an account - <a href="/login">Sign In</a></p>
       </div>
     </div>
   </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/assets/scripts/password-requirements.js" defer></script>
 {% endblock %}
