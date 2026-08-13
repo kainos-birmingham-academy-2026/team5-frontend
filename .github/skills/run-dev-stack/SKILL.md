@@ -17,8 +17,7 @@ launcher.
    `npm run dev:stack --prefix team5-backend` from their parent workspace.
    This is a long-running development process, so start it in a persistent
    terminal.
-3. The launcher installs dependencies when `node_modules` is missing, either
-   package manifest or lockfile changes, or `npm ls` finds an invalid tree.
+3. The launcher installs dependencies only when `node_modules` is missing.
 4. If `team5-backend/.env` or the shell provides a local `DATABASE_URL`, the
    launcher starts a stopped Docker PostgreSQL container mapped to that port
    when one exists. Non-local URLs are left untouched. Without `DATABASE_URL`,
