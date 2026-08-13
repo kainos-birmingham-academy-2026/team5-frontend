@@ -44,10 +44,6 @@ Accept pasted story details or an issue/work-item URL or ID. For retrieval:
   branch, or approach changes materially.
 - Do not create a pull request or merge request until the user approves its
   exact target, title, and description.
-- Pre-implementation approval automatically authorizes capturing and attaching
-   non-sensitive UI screenshots as review evidence. Do not ask for separate
-   screenshot approval unless an image may expose personal data, credentials,
-   internal-only information, or unrelated user content.
 - Never force-push, discard user changes, expose secrets, bypass hooks, or
   include unrelated work in commits.
 - Do not push when relevant validation remains failing or the implementation
@@ -132,11 +128,9 @@ in Cleanup.
    repository configuration; normally include focused tests, the full relevant
    test suite, non-mutating lint or CI checks, type checking, and build checks.
 6. For UI changes, verify affected flows at representative desktop and mobile
-   sizes. Capture screenshots when browser tooling is available and retain the
-   image files until review-request creation and attachment are complete. Use
-   descriptive filenames that identify the flow and viewport. Do not commit
+   sizes. Capture screenshots when browser tooling is available. Do not commit
    screenshots solely as review evidence unless the repository convention
-   requires it or the user explicitly approves that approach.
+   requires it.
 7. If a failure is unrelated, record evidence that it predates the story. If a
    relevant failure cannot be resolved, stop before commit and push.
 
@@ -171,8 +165,7 @@ each repository. Show the user:
 - commit and changed-file summary;
 - exact review-request description;
 - validation commands and outcomes; and
-- UI screenshots that will be attached automatically, including their flow and
-   viewport, or a clear reason they could not be captured.
+- UI screenshots or a clear reason they could not be attached.
 
 Use this description structure, adapting headings to an existing repository
 template when one exists:
@@ -185,7 +178,7 @@ template when one exists:
 <what changed, key design choices, and notable files or components>
 
 ## Testing
-<commands run, outcomes, and the attached UI evidence>
+<commands run, outcomes, and UI evidence>
 
 ## Risks and follow-ups
 <migrations, compatibility concerns, limitations, or "None">
@@ -200,22 +193,11 @@ The user may approve all requests together or revise them individually.
 2. Verify the corresponding CLI or integration is installed and authenticated.
 3. Create a ready-for-review request, not a draft, using the approved feature
    branch, target branch, title, and description.
-4. For UI changes, inspect captured screenshots for secrets, personal data,
-   internal-only information, and unrelated user content. Automatically attach
-   every safe screenshot to the review request without requesting separate
-   approval. Use an authenticated host integration or browser upload to add the
-   images to the description or a review-request comment, then verify that each
-   attachment renders and is accessible from the request. Do not treat
-   temporary chat or browser-tool images as attached evidence. If the available
-   CLI cannot upload images, use an authenticated browser session; if neither
-   method is available, stop and report the attachment blocker rather than
-   creating a request that silently omits the evidence.
-5. Do not add reviewers, labels, assignees, or milestones unless the user asks
+4. Do not add reviewers, labels, assignees, or milestones unless the user asks
    during that run.
-6. Record each created request URL and its attached screenshot evidence. If
-   creation or attachment fails, preserve the pushed branch and provide the
-   error and a retry command that does not duplicate a successfully created
-   request.
+5. Record each created request URL. If creation fails, preserve the pushed
+   branch and provide the error and a retry command that does not duplicate a
+   successfully created request.
 
 ## Cleanup
 
