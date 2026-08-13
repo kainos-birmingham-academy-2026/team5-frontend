@@ -48,9 +48,9 @@
     </label>
   </div>
   <div class="filter-option-fields">
-    <fieldset class="filter-group">
+    <fieldset class="filter-group filter-group-row">
       <legend>Capability</legend>
-      <div class="filter-checks">
+      <div class="filter-checks filter-checks-sideways">
         {% for capability in options.capabilities %}
           <label class="checkbox-option">
             <input type="checkbox" name="capability" value="{{ capability }}" {% if capability in filters.capability %}checked{% endif %} />
@@ -59,9 +59,9 @@
         {% endfor %}
       </div>
     </fieldset>
-    <fieldset class="filter-group">
+    <fieldset class="filter-group filter-group-row">
       <legend>Band</legend>
-      <div class="filter-checks">
+      <div class="filter-checks filter-checks-sideways">
         {% for band in options.bands %}
           <label class="checkbox-option">
             <input type="checkbox" name="band" value="{{ band }}" {% if band in filters.band %}checked{% endif %} />
@@ -70,9 +70,9 @@
         {% endfor %}
       </div>
     </fieldset>
-    <fieldset class="filter-group">
+    <fieldset class="filter-group filter-group-row">
       <legend>Status</legend>
-      <div class="filter-checks">
+      <div class="filter-checks filter-checks-sideways">
         {% for status in options.statuses %}
           <label class="checkbox-option">
             <input type="checkbox" name="status" value="{{ status }}" {% if status in filters.status %}checked{% endif %} />

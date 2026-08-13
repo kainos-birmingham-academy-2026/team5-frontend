@@ -41,7 +41,7 @@ export class JobRoleController {
 		delete req.session.registrationSuccessMessage;
 
 		try {
-			const result = await this.jobRoleService.getAllJobRoles(1, 3);
+			const result = await this.jobRoleService.getAllJobRoles(1, 4);
 			res.render("careers-home.njk", {
 				featuredRoles: result.items,
 				registrationSuccessMessage,

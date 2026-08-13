@@ -351,14 +351,20 @@ svg {
 	bottom: 0.3125rem;
 }
 
+[data-site-header][data-menu-open="true"] .nav-toggle-icon {
+	background: transparent;
+}
+
 [data-site-header][data-menu-open="true"] .nav-toggle-icon::before {
+	inset-block-start: 0;
+	inset-block-end: auto;
 	transform: rotate(45deg);
-	top: 0.6875rem;
 }
 
 [data-site-header][data-menu-open="true"] .nav-toggle-icon::after {
+	inset-block-start: 0;
+	inset-block-end: auto;
 	transform: rotate(-45deg);
-	bottom: 0.6875rem;
 }
 
 .site-nav {
@@ -1582,6 +1588,10 @@ table {
 	gap: var(--space-4);
 }
 
+.filter-option-fields {
+	gap: var(--space-3);
+}
+
 .filter-bar label,
 .form-field {
 	display: grid;
@@ -1622,11 +1632,42 @@ table {
 	border: 0;
 }
 
+.filter-group-row {
+	display: grid;
+	gap: var(--space-2);
+	padding-block: var(--space-3);
+	border-block-start: 1px solid var(--color-border);
+}
+
+.filter-group-row:first-child {
+	padding-block-start: 0;
+	border-block-start: 0;
+}
+
 .filter-group legend {
 	margin-block-end: var(--space-2);
 	color: var(--color-ink-700);
 	font-size: var(--font-size-sm);
 	font-weight: var(--font-weight-semibold);
+}
+
+.filter-group-row legend {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	margin: 0;
+	color: var(--color-ink-900);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.filter-group-row legend::before {
+	content: "";
+	width: 0.25rem;
+	height: 1rem;
+	background: var(--color-brand-500);
 }
 
 .filter-checks {
@@ -1635,19 +1676,50 @@ table {
 	gap: var(--space-2) var(--space-4);
 }
 
+.filter-checks-sideways {
+	gap: var(--space-2) var(--space-3);
+}
+
 .filter-bar .checkbox-option {
 	display: flex;
-	min-height: 2.75rem;
+	min-height: 2.125rem;
 	align-items: center;
+	justify-content: center;
 	grid-template-columns: auto 1fr;
 	gap: var(--space-2);
+	padding-inline: var(--space-3);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-pill);
+	background: var(--color-white);
+	color: var(--color-ink-900);
+	font-size: var(--font-size-sm);
 	font-weight: var(--font-weight-regular);
+	text-align: center;
+	cursor: pointer;
+}
+
+.filter-bar .checkbox-option:hover {
+	border-color: var(--color-ink-700);
+}
+
+.filter-bar .checkbox-option:has(input:checked) {
+	border-color: var(--color-brand-500);
+	background: var(--color-brand-500);
+	color: var(--color-white);
+	font-weight: var(--font-weight-semibold);
+}
+
+.filter-bar .checkbox-option:has(input:focus-visible) {
+	outline: 3px solid var(--color-focus);
+	outline-offset: 2px;
 }
 
 .filter-bar .checkbox-option input {
-	width: 1.25rem;
-	height: 1.25rem;
-	accent-color: var(--color-brand-500);
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	clip-path: inset(50%);
+	white-space: nowrap;
 }
 
 .filter-actions {
@@ -1988,6 +2060,21 @@ ul.download-list li {
 	.filter-text-fields,
 	.filter-option-fields {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.filter-option-fields {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.filter-group-row {
+		grid-template-columns: minmax(7rem, 9rem) minmax(0, 1fr);
+		align-items: center;
+		column-gap: var(--space-5);
+	}
+
+	.filter-checks-sideways {
+		flex-wrap: nowrap;
+		gap: var(--space-2) var(--space-4);
 	}
 
 	.cta-grid {
