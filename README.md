@@ -26,11 +26,11 @@ Or, from the parent `Group project` workspace directory, run:
 npm run dev:stack --prefix team5-backend
 ```
 
-The command installs missing dependencies, starts the configured local Docker
-PostgreSQL container when needed, prepares Prisma, seeds development data
-without deleting unrelated records, and starts both servers. Logs are prefixed
-with `[backend]`, `[frontend]`, `[database]`, or `[setup]` so their source is
-clear.
+The command synchronizes dependencies whenever either package manifest or
+lockfile changes, starts the configured local Docker PostgreSQL container when
+needed, prepares Prisma, seeds development data without deleting unrelated
+records, and starts both servers. Logs are prefixed with `[backend]`,
+`[frontend]`, `[database]`, or `[setup]` so their source is clear.
 
 - Frontend: `http://localhost:4000`
 - Backend API: `http://localhost:3000`
