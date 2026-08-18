@@ -1,52 +1,61 @@
 {
-	"name": "team5-frontend",
-	"version": "1.0.0",
-	"description": "Team5 Frontend",
-	"main": "index.js",
-	"scripts": {
-		"test": "vitest run",
-		"test:ui": "vitest run tests/ui.test.ts",
-		"test:coverage": "vitest run --coverage",
-		"dev": "tsx watch src/index.ts",
-		"dev:stack": "node ../team5-backend/scripts/dev-stack.mjs",
-		"build": "tsc",
-		"start": "node dist/index.js",
-		"format": "biome format --write .",
-		"lint": "biome lint .",
-		"lint:fix": "biome check --write ."
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/kainos-birmingham-academy-2026/team5-frontend.git"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/kainos-birmingham-academy-2026/team5-frontend/issues"
-	},
-	"homepage": "https://github.com/kainos-birmingham-academy-2026/team5-frontend#readme",
-	"dependencies": {
-		"@types/morgan": "^1.9.10",
-		"@types/nunjucks": "^3.2.6",
-		"axios": "^1.19.0",
-		"dotenv": "^17.4.2",
-		"express": "^5.2.1",
-		"express-session": "^1.19.0",
-		"morgan": "^1.11.0",
-		"nunjucks": "^3.2.4",
-		"winston": "^3.19.0"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.5.7",
-		"@types/express": "^5.0.6",
-		"@types/express-session": "^1.19.0",
-		"@types/node": "^26.1.2",
-		"@types/supertest": "^7.2.1",
-		"@vitest/coverage-v8": "^4.1.10",
-		"supertest": "^7.2.2",
-		"tsx": "^4.23.5",
-		"typescript": "^7.0.2",
-		"vitest": "^4.1.10"
-	}
+  "name": "team5-frontend",
+  "version": "1.0.0",
+  "description": "Team5 Frontend",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "test:ui": "vitest run tests/ui.test.ts",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --project=chromium",
+    "test:e2e:api": "playwright test --project=api",
+    "test:e2e:headed": "playwright test --project=chromium --headed",
+    "test:e2e:debug": "playwright test --project=chromium --debug",
+    "test:e2e:dev": "TEST_ENV=dev playwright test",
+    "test:e2e:staging": "TEST_ENV=staging playwright test",
+    "test:e2e:report": "playwright show-report",
+    "dev": "tsx watch src/index.ts",
+    "dev:stack": "node ../team5-backend/scripts/dev-stack.mjs",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "lint:fix": "biome check --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kainos-birmingham-academy-2026/team5-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kainos-birmingham-academy-2026/team5-frontend/issues"
+  },
+  "homepage": "https://github.com/kainos-birmingham-academy-2026/team5-frontend#readme",
+  "dependencies": {
+    "@types/morgan": "^1.9.10",
+    "@types/nunjucks": "^3.2.6",
+    "axios": "^1.19.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "morgan": "^1.11.0",
+    "nunjucks": "^3.2.4",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.7",
+    "@playwright/test": "^1.62.1",
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
+    "@types/node": "^26.1.2",
+    "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^4.1.10",
+    "supertest": "^7.2.2",
+    "tsx": "^4.23.5",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
 }
