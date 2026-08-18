@@ -11,7 +11,6 @@ import {
 	getEnvironment,
 	getTestUser,
 } from "../config/environments";
-import { readRunContext } from "../config/run-context";
 import { HomePage } from "../pages/HomePage";
 import { JobRoleDetailPage } from "../pages/JobRoleDetailPage";
 import { JobRoleListPage } from "../pages/JobRoleListPage";
@@ -21,8 +20,6 @@ import { RegisterPage } from "../pages/RegisterPage";
 type WorkerFixtures = {
 	env: EnvironmentConfig;
 	apiContext: APIRequestContext;
-	/** Resolved during global setup; tests needing backend data can skip when false. */
-	apiAvailable: boolean;
 };
 
 type TestFixtures = {
@@ -54,14 +51,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 			});
 			await use(context);
 			await context.dispose();
-		},
-		{ scope: "worker" },
-	],
-
-	apiAvailable: [
-		// biome-ignore lint/correctness/noEmptyPattern: Playwright fixture signature
-		async ({}, use) => {
-			await use(readRunContext()?.apiUp ?? true);
 		},
 		{ scope: "worker" },
 	],

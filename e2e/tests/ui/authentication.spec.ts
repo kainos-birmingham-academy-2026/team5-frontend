@@ -1,4 +1,9 @@
-import { validPassword, weakPasswords } from "../../fixtures/test-data";
+import {
+	invalidCredentials,
+	uniqueEmail,
+	validPassword,
+	weakPasswords,
+} from "../../fixtures/test-data";
 import { expect, test } from "../../fixtures/test-fixtures";
 
 test.describe("Authentication", () => {
@@ -52,29 +57,24 @@ test.describe("Authentication", () => {
 	});
 });
 
-/*
- * Requires the local database (backend must authenticate against real users).
- * Re-enable when the API and database are reachable from the runner.
- *
- * test.describe("Authentication (database required)", () => {
- * 	test("rejects invalid credentials", async ({ loginPage }) => {
- * 		await loginPage.goto();
- * 		await loginPage.login(
- * 			invalidCredentials.email,
- * 			invalidCredentials.password,
- * 		);
- *
- * 		await expect(loginPage.errorMessage).toHaveText(
- * 			"Email or password is incorrect",
- * 		);
- * 	});
- *
- * 	test("registers a new candidate", async ({ registerPage }) => {
- * 		await registerPage.goto();
- * 		await registerPage.register(uniqueEmail(), validPassword);
- *
- * 		await expect(registerPage.page).toHaveURL(/\/$/);
- * 		await expect(registerPage.header.signOutLink).toBeVisible();
- * 	});
- * });
- */
+test.describe("Authentication (database)", { tag: "@database" }, () => {
+	test("rejects invalid credentials", async ({ loginPage }) => {
+		await loginPage.goto();
+		await loginPage.login(
+			invalidCredentials.email,
+			invalidCredentials.password,
+		);
+
+		await expect(loginPage.errorMessage).toHaveText(
+			"Email or password is incorrect",
+		);
+	});
+
+	test("registers a new candidate", async ({ registerPage }) => {
+		await registerPage.goto();
+		await registerPage.register(uniqueEmail(), validPassword);
+
+		await expect(registerPage.page).toHaveURL(/\/$/);
+		await expect(registerPage.header.signOutLink).toBeVisible();
+	});
+});

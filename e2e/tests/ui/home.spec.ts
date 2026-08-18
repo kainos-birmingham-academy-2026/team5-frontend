@@ -22,15 +22,11 @@ test.describe("Careers home", () => {
 	});
 });
 
-/*
- * Requires the local database (featured roles are served by the API).
- *
- * test.describe("Careers home (database required)", () => {
- * 	test("lists up to four featured roles", async ({ homePage }) => {
- * 		await homePage.goto();
- *
- * 		expect(await homePage.featuredRoleCount()).toBeGreaterThan(0);
- * 		expect(await homePage.featuredRoleCount()).toBeLessThanOrEqual(4);
- * 	});
- * });
- */
+test.describe("Careers home (database)", { tag: "@database" }, () => {
+	test("lists up to four featured roles", async ({ homePage }) => {
+		await homePage.goto();
+
+		expect(await homePage.featuredRoleCount()).toBeGreaterThan(0);
+		expect(await homePage.featuredRoleCount()).toBeLessThanOrEqual(4);
+	});
+});
