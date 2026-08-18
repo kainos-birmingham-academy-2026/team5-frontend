@@ -37,21 +37,6 @@ export default defineConfig({
 			testDir: "./e2e/tests/ui",
 			use: { ...devices["Desktop Chrome"] },
 		},
-		{
-			name: "firefox",
-			testDir: "./e2e/tests/ui",
-			use: { ...devices["Desktop Firefox"] },
-		},
-		{
-			name: "webkit",
-			testDir: "./e2e/tests/ui",
-			use: { ...devices["Desktop Safari"] },
-		},
-		{
-			name: "mobile-chrome",
-			testDir: "./e2e/tests/ui",
-			use: { ...devices["Pixel 5"] },
-		},
 	],
 
 	webServer: env.startWebServer

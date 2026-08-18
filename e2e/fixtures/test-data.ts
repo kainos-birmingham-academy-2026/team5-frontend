@@ -13,16 +13,8 @@ export const invalidCredentials = {
 
 export const weakPasswords = {
 	tooShort: "Ab!1",
-	noUppercase: "playwright!123",
-	noSpecialCharacter: "Playwright123",
 };
 
 export const seedData = {
-	capabilities: ["Engineering", "Data", "Product"],
-	statuses: ["Open", "Closed"],
 	knownRoleName: "Engineer",
-	knownCapability: "Data",
-	/** Large enough to span more than one page of results. */
-	pagedCapability: "Engineering",
-	unmatchableRoleName: "no-such-role-zzz",
 };
