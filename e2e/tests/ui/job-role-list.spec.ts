@@ -12,6 +12,8 @@ test.describe("Job role list", () => {
 	}) => {
 		await expect(page).toHaveTitle(/Opportunities/);
 		await expect(jobRoleListPage.heading).toBeVisible();
+
+		await jobRoleListPage.header.openNavigation();
 		await expect(jobRoleListPage.header.opportunitiesLink).toBeVisible();
 	});
 

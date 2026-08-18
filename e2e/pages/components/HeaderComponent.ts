@@ -25,11 +25,23 @@ export class HeaderComponent {
 		return this.signOutLink.isVisible();
 	}
 
+	/** Below 1024px the nav collapses behind the toggle. */
+	async openNavigation(): Promise<void> {
+		if (
+			(await this.navToggle.isVisible()) &&
+			(await this.navToggle.getAttribute("aria-expanded")) !== "true"
+		) {
+			await this.navToggle.click();
+		}
+	}
+
 	async goToOpportunities(): Promise<void> {
+		await this.openNavigation();
 		await this.opportunitiesLink.click();
 	}
 
 	async signOut(): Promise<void> {
+		await this.openNavigation();
 		await this.signOutLink.click();
 	}
 }
