@@ -22,7 +22,9 @@ export class RegisterPage extends BasePage {
 		this.submitButton = page.getByRole("button", { name: "Register" });
 		this.errorMessage = page.locator(".form-error");
 		this.passwordChecklist = page.locator("[data-password-rules]");
-		this.signInLink = page.getByRole("link", { name: "Sign In" });
+		this.signInLink = page
+			.locator(".login-panel")
+			.getByRole("link", { name: "Sign In" });
 	}
 
 	passwordRule(rule: PasswordRule): Locator {
@@ -33,5 +35,13 @@ export class RegisterPage extends BasePage {
 		await this.emailInput.fill(email);
 		await this.passwordInput.fill(password);
 		await this.submitButton.click();
+	}
+
+	async enterPassword(password: string): Promise<void> {
+		await this.passwordInput.fill(password);
+	}
+
+	async goToLogin(): Promise<void> {
+		await this.signInLink.click();
 	}
 }

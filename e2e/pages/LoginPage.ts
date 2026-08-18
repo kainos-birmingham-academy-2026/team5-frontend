@@ -26,4 +26,8 @@ export class LoginPage extends BasePage {
 		await this.passwordInput.fill(password);
 		await this.submitButton.click();
 	}
+
+	async goToRegister(): Promise<void> {
+		await this.registerLink.click();
+	}
 }

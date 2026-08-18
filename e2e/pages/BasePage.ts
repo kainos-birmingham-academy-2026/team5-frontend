@@ -7,7 +7,7 @@ export abstract class BasePage {
 
 	readonly header: HeaderComponent;
 
-	constructor(protected readonly page: Page) {
+	constructor(readonly page: Page) {
 		this.header = new HeaderComponent(page);
 	}
 

@@ -54,6 +54,13 @@ export class JobRoleListPage extends BasePage {
 		return this.jobCards.filter({ hasText: roleName }).first();
 	}
 
+	viewRoleLink(roleName?: string): Locator {
+		const card = roleName
+			? this.jobCardByRoleName(roleName)
+			: this.jobCards.first();
+		return card.getByRole("link", { name: "View role" });
+	}
+
 	async openFilterPanel(): Promise<void> {
 		if (
 			!(await this.filterPanel.evaluate(
@@ -93,17 +100,16 @@ export class JobRoleListPage extends BasePage {
 		return this.page.locator(`input[name="${group}"][value="${value}"]`);
 	}
 
+	async clearFilters(): Promise<void> {
+		await this.clearFiltersLink.click();
+	}
+
 	async openJobRole(roleName: string): Promise<void> {
-		await this.jobCardByRoleName(roleName)
-			.getByRole("link", { name: "View role" })
-			.click();
+		await this.viewRoleLink(roleName).click();
 	}
 
 	async openFirstJobRole(): Promise<void> {
-		await this.jobCards
-			.first()
-			.getByRole("link", { name: "View role" })
-			.click();
+		await this.viewRoleLink().click();
 	}
 
 	async jobCount(): Promise<number> {
