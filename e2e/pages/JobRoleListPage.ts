@@ -84,13 +84,13 @@ export class JobRoleListPage extends BasePage {
 			await this.closingDateInput.fill(filters.closingDate);
 		}
 		for (const capability of filters.capability ?? []) {
-			await this.checkboxFor("capability", capability).check();
+			await this.selectOption("capability", capability);
 		}
 		for (const band of filters.band ?? []) {
-			await this.checkboxFor("band", band).check();
+			await this.selectOption("band", band);
 		}
 		for (const status of filters.status ?? []) {
-			await this.checkboxFor("status", status).check();
+			await this.selectOption("status", status);
 		}
 
 		await this.applyFiltersButton.click();
@@ -98,6 +98,18 @@ export class JobRoleListPage extends BasePage {
 
 	checkboxFor(group: "capability" | "band" | "status", value: string): Locator {
 		return this.page.locator(`input[name="${group}"][value="${value}"]`);
+	}
+
+	/** The checkboxes are visually hidden behind pill labels, so toggle by keyboard. */
+	async selectOption(
+		group: "capability" | "band" | "status",
+		value: string,
+	): Promise<void> {
+		const checkbox = this.checkboxFor(group, value);
+		if (await checkbox.isChecked()) return;
+
+		await checkbox.focus();
+		await this.page.keyboard.press("Space");
 	}
 
 	async clearFilters(): Promise<void> {
@@ -116,7 +128,23 @@ export class JobRoleListPage extends BasePage {
 		return this.jobCards.count();
 	}
 
+	async roleNames(): Promise<string[]> {
+		return this.jobCards.locator("h3").allInnerTexts();
+	}
+
+	/** Reads a labelled value from a card, e.g. cardMeta(card, "Location"). */
+	cardMeta(card: Locator, term: string): Locator {
+		return card
+			.locator(".meta-grid div")
+			.filter({ has: this.page.getByText(term, { exact: true }) })
+			.locator("dd");
+	}
+
 	async goToNextPage(): Promise<void> {
 		await this.nextPageLink.click();
+	}
+
+	async goToPreviousPage(): Promise<void> {
+		await this.previousPageLink.click();
 	}
 }

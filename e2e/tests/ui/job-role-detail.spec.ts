@@ -1,7 +1,44 @@
 import { expect, test } from "../../fixtures/test-fixtures";
 
 test.describe("Job role detail", { tag: "@database" }, () => {
-	test("opens the detail page for the first advertised role", async ({
+	test("shows the full detail of a role from the API", async ({
+		jobRoleApi,
+		jobRoleDetailPage,
+	}) => {
+		const role = await jobRoleApi.getFirstJobRole();
+		expect(role).not.toBeNull();
+		const expected = role as NonNullable<typeof role>;
+
+		await jobRoleDetailPage.gotoRole(expected.jobRoleId);
+
+		await expect(jobRoleDetailPage.detailCard).toBeVisible();
+		await expect(jobRoleDetailPage.roleHeading).toHaveText(expected.roleName);
+		await expect(jobRoleDetailPage.metaValue("Location")).toHaveText(
+			expected.location,
+		);
+		await expect(jobRoleDetailPage.metaValue("Status")).toHaveText(
+			expected.status ?? "Unknown",
+		);
+		await expect(jobRoleDetailPage.statusBadge).toBeVisible();
+		await expect(jobRoleDetailPage.overviewHeading).toBeVisible();
+	});
+
+	test("shows the role name in the breadcrumb trail", async ({
+		jobRoleApi,
+		jobRoleDetailPage,
+	}) => {
+		const role = await jobRoleApi.getFirstJobRole();
+		const expected = role as NonNullable<typeof role>;
+
+		await jobRoleDetailPage.gotoRole(expected.jobRoleId);
+
+		await expect(jobRoleDetailPage.breadcrumbs).toBeVisible();
+		await expect(jobRoleDetailPage.breadcrumbCurrent()).toHaveText(
+			expected.roleName,
+		);
+	});
+
+	test("opens a role from the list and returns to it", async ({
 		jobRoleListPage,
 		jobRoleDetailPage,
 	}) => {
@@ -9,40 +46,27 @@ test.describe("Job role detail", { tag: "@database" }, () => {
 		await jobRoleListPage.openFirstJobRole();
 
 		await expect(jobRoleDetailPage.detailCard).toBeVisible();
-		await expect(jobRoleDetailPage.roleHeading).toBeVisible();
-		await expect(jobRoleDetailPage.metaValue("Location")).toBeVisible();
-		await expect(jobRoleDetailPage.overviewHeading).toBeVisible();
-	});
 
-	test("matches the role returned by the API", async ({
-		jobRoleApi,
-		jobRoleDetailPage,
-	}) => {
-		const role = await jobRoleApi.getFirstJobRole();
-		expect(role).not.toBeNull();
+		await jobRoleDetailPage.backToList();
 
-		await jobRoleDetailPage.gotoRole(
-			(role as NonNullable<typeof role>).jobRoleId,
-		);
-
-		await expect(jobRoleDetailPage.roleHeading).toHaveText(
-			(role as NonNullable<typeof role>).roleName,
-		);
+		await expect(jobRoleDetailPage.page).toHaveURL(/\/job-roles$/);
+		await expect(jobRoleListPage.heading).toBeVisible();
 	});
 
 	test("shows a not found state for an unknown role", async ({
 		jobRoleDetailPage,
 	}) => {
-		await jobRoleDetailPage.gotoRole(999999);
+		const response = await jobRoleDetailPage.gotoRole(999999);
 
+		expect(response?.status()).toBe(404);
 		await expect(jobRoleDetailPage.emptyState).toBeVisible();
 		await expect(jobRoleDetailPage.emptyState).toContainText("Role not found");
+		await expect(jobRoleDetailPage.detailCard).toHaveCount(0);
 	});
 
-	test("navigates back to the list", async ({ jobRoleDetailPage }) => {
-		await jobRoleDetailPage.gotoRole(1);
-		await jobRoleDetailPage.backToList();
+	test("rejects a non-numeric role id", async ({ jobRoleDetailPage }) => {
+		const response = await jobRoleDetailPage.gotoRole("not-a-number");
 
-		await expect(jobRoleDetailPage.page).toHaveURL(/\/job-roles$/);
+		expect(response?.status()).toBe(400);
 	});
 });

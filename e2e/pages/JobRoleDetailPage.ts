@@ -35,6 +35,10 @@ export class JobRoleDetailPage extends BasePage {
 			.locator("dd");
 	}
 
+	breadcrumbCurrent(): Locator {
+		return this.breadcrumbs.locator("[aria-current='page']");
+	}
+
 	async backToList(): Promise<void> {
 		await this.backLink.click();
 	}

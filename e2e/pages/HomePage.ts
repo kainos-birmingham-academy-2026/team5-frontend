@@ -27,6 +27,16 @@ export class HomePage extends BasePage {
 		await this.browseOpportunitiesButton.click();
 	}
 
+	featuredRoleLink(index = 0): Locator {
+		return this.featuredJobCards
+			.nth(index)
+			.getByRole("link", { name: "View role" });
+	}
+
+	async openFeaturedRole(index = 0): Promise<void> {
+		await this.featuredRoleLink(index).click();
+	}
+
 	async featuredRoleCount(): Promise<number> {
 		return this.featuredJobCards.count();
 	}

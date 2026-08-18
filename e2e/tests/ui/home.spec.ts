@@ -26,7 +26,16 @@ test.describe("Careers home (database)", { tag: "@database" }, () => {
 	test("lists up to four featured roles", async ({ homePage }) => {
 		await homePage.goto();
 
-		expect(await homePage.featuredRoleCount()).toBeGreaterThan(0);
-		expect(await homePage.featuredRoleCount()).toBeLessThanOrEqual(4);
+		const count = await homePage.featuredRoleCount();
+		expect(count).toBeGreaterThan(0);
+		expect(count).toBeLessThanOrEqual(4);
+	});
+
+	test("opens a featured role", async ({ homePage, jobRoleDetailPage }) => {
+		await homePage.goto();
+		await homePage.openFeaturedRole();
+
+		await expect(homePage.page).toHaveURL(/\/job-roles\/\d+$/);
+		await expect(jobRoleDetailPage.detailCard).toBeVisible();
 	});
 });

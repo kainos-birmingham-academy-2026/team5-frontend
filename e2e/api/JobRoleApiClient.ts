@@ -1,4 +1,4 @@
-import { BaseApiClient } from "./BaseApiClient";
+import { BaseApiClient, type QueryParams } from "./BaseApiClient";
 
 export type JobRole = {
 	jobRoleId: number;
@@ -25,25 +25,28 @@ export type JobRoleFilterOptions = {
 	statuses: string[];
 };
 
+export type ApiError = {
+	error: string;
+};
+
 export type JobRoleQuery = {
 	page?: number;
 	pageSize?: number;
 	roleName?: string;
 	location?: string;
 	closingDate?: string;
+	capability?: string[];
+	band?: string[];
+	status?: string[];
 };
 
 export class JobRoleApiClient extends BaseApiClient {
 	getAll(query: JobRoleQuery = {}) {
-		const params: Record<string, string | number> = {};
-		for (const [key, value] of Object.entries(query)) {
-			if (value !== undefined) params[key] = value;
-		}
-		return this.get<PaginatedJobRoles>("/job-roles", params);
+		return this.get<PaginatedJobRoles>("/job-roles", query as QueryParams);
 	}
 
-	getById(jobRoleId: number) {
-		return this.get<JobRole>(`/job-roles/${jobRoleId}`);
+	getById(jobRoleId: number | string) {
+		return this.get<JobRole & ApiError>(`/job-roles/${jobRoleId}`);
 	}
 
 	getFilterOptions() {

@@ -16,6 +16,7 @@ import { JobRoleDetailPage } from "../pages/JobRoleDetailPage";
 import { JobRoleListPage } from "../pages/JobRoleListPage";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
+import { uniqueEmail, validPassword } from "./test-data";
 
 type WorkerFixtures = {
 	env: EnvironmentConfig;
@@ -32,6 +33,8 @@ type TestFixtures = {
 	authApi: AuthApiClient;
 	healthApi: HealthApiClient;
 	testUser: { email: string; password: string };
+	/** A brand new account created through the API; requires the database. */
+	registeredUser: { email: string; password: string };
 };
 
 export const test = base.extend<TestFixtures, WorkerFixtures>({
@@ -96,6 +99,19 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 			"Set TEST_USER_EMAIL and TEST_USER_PASSWORD to run authenticated tests.",
 		);
 		await use(user as { email: string; password: string });
+	},
+
+	registeredUser: async ({ authApi }, use) => {
+		const credentials = { email: uniqueEmail(), password: validPassword };
+		const result = await authApi.register(credentials);
+
+		if (!result.ok) {
+			throw new Error(
+				`Could not provision a test account (status ${result.status}): ${JSON.stringify(result.body)}`,
+			);
+		}
+
+		await use(credentials);
 	},
 });
 
