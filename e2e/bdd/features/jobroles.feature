@@ -1,0 +1,7 @@
+Feature: Job Roles Viewing
+
+    Applicants Navigate to Job Roles page, filter through and open details.
+
+    Scenario: The Job Roles list is rendered
+        Given User is on job roles page
+        Then job roles are shown

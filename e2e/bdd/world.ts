@@ -4,6 +4,7 @@ import { uniqueEmail, validPassword } from "../fixtures/test-data";
 import { HomePage } from "../pages/HomePage";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
+import { JobRoleListPage } from "../pages/JobRoleListPage";
 
 export type Credentials = { email: string; password: string };
 
@@ -12,6 +13,7 @@ export class World {
 	readonly homePage: HomePage;
 	readonly loginPage: LoginPage;
 	readonly registerPage: RegisterPage;
+	readonly jobRoleListPage: JobRoleListPage;
 
 	private candidate?: Credentials;
 
@@ -22,6 +24,7 @@ export class World {
 		this.homePage = new HomePage(page);
 		this.loginPage = new LoginPage(page);
 		this.registerPage = new RegisterPage(page);
+		this.jobRoleListPage = new JobRoleListPage(page);
 	}
 
 	get credentials(): Credentials {
