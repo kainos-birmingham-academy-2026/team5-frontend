@@ -44,3 +44,14 @@ code_reviews/
 *.pem
 
 /.github/prompts
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/e2e/.artifacts/
+
+# playwright-bdd generated tests
+/.features-gen/
