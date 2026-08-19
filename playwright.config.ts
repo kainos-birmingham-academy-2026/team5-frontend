@@ -10,6 +10,9 @@ const bddTestDir = defineBddConfig({
 	outputDir: ".features-gen",
 });
 
+/** Delay between browser actions so headed runs are watchable, e.g. SLOW_MO=500. */
+const slowMo = Number(process.env.SLOW_MO ?? 0);
+
 export default defineConfig({
 	testDir: "./e2e/tests",
 	fullyParallel: true,
@@ -47,7 +50,7 @@ export default defineConfig({
 		{
 			name: "bdd",
 			testDir: bddTestDir,
-			use: { ...devices["Desktop Chrome"] },
+			use: { ...devices["Desktop Chrome"], launchOptions: { slowMo } },
 		},
 	],
 

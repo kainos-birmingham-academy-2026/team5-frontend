@@ -5,6 +5,7 @@ import { HomePage } from "../pages/HomePage";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { JobRoleListPage } from "../pages/JobRoleListPage";
+import { JobRoleDetailPage } from "../pages/JobRoleDetailPage";
 
 export type Credentials = { email: string; password: string };
 
@@ -14,6 +15,7 @@ export class World {
 	readonly loginPage: LoginPage;
 	readonly registerPage: RegisterPage;
 	readonly jobRoleListPage: JobRoleListPage;
+	readonly jobRoleDetailPage: JobRoleDetailPage;
 
 	private candidate?: Credentials;
 
@@ -25,6 +27,7 @@ export class World {
 		this.loginPage = new LoginPage(page);
 		this.registerPage = new RegisterPage(page);
 		this.jobRoleListPage = new JobRoleListPage(page);
+		this.jobRoleDetailPage = new JobRoleDetailPage(page);
 	}
 
 	get credentials(): Credentials {

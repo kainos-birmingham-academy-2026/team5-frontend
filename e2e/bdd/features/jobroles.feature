@@ -5,3 +5,8 @@ Feature: Job Roles Viewing
     Scenario: The Job Roles list is rendered
         Given User is on job roles page
         Then job roles are shown
+
+    Scenario: Moving from Job Roles list to Job Roles details page
+        Given User is on job roles page
+        When User clicks on a job role
+        Then job role detail page is shown
