@@ -52,3 +52,6 @@ code_reviews/
 /playwright/.cache/
 /playwright/.auth/
 /e2e/.artifacts/
+
+# playwright-bdd generated tests
+/.features-gen/

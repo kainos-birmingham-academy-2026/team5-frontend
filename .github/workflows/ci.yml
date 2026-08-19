@@ -39,7 +39,7 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       # Database-backed specs are tagged @database and excluded here.
-      - run: npm run test:e2e:ci -- --project=chromium --project=api
+      - run: npm run test:e2e:ci -- --project=chromium --project=api --project=bdd
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

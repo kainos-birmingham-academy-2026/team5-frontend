@@ -1,7 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
+import { defineBddConfig } from "playwright-bdd";
 import { getEnvironment } from "./e2e/config/environments";
 
 const env = getEnvironment();
+
+const bddTestDir = defineBddConfig({
+	features: "e2e/bdd/features/**/*.feature",
+	steps: ["e2e/bdd/fixtures.ts", "e2e/bdd/steps/**/*.ts"],
+	outputDir: ".features-gen",
+});
 
 export default defineConfig({
 	testDir: "./e2e/tests",
@@ -35,6 +42,11 @@ export default defineConfig({
 		{
 			name: "chromium",
 			testDir: "./e2e/tests/ui",
+			use: { ...devices["Desktop Chrome"] },
+		},
+		{
+			name: "bdd",
+			testDir: bddTestDir,
 			use: { ...devices["Desktop Chrome"] },
 		},
 	],
