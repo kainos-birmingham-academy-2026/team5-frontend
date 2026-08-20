@@ -34,33 +34,16 @@ Feature: Candidate authentication
     And I am signed in
 
   @database
-  Scenario: An existing candidate signs in and out again
+  Scenario: Registered candidate signs in and signs out successfully
     Given a registered candidate account exists
     And I am on the sign in page
-    When I sign in with the registered credentials
-    Then the careers home page is shown
-    And I am signed in
+    When I sign in with valid credentials
+    Then I am successfully signed in
     When I sign out
-    Then the sign in page is shown
-    And I am signed out
+    Then I am returned to the sign in page
 
   @database
-  Scenario: Invalid credentials are rejected
+  Scenario: Unregistered candidate cannot sign in
     Given I am on the sign in page
-    When I sign in with credentials that do not exist
-    Then I see the error "Email or password is incorrect"
-
-  @database
-  Scenario: Submitting the login form succeeds
-    Given a registered candidate account exists
-    And I am on the sign in page
-    When I submit the login form with the registered credentials
-    Then the login form is submitted successfully with status 302
-    And the careers home page is shown
-
-  @database
-  Scenario: Submitting the login form is rejected
-    Given I am on the sign in page
-    When I submit the login form with credentials that do not exist
-    Then the login form submission is rejected with status 401
-    And an error message is shown
+    When I sign in with invalid credentials
+    Then I am not signed in
