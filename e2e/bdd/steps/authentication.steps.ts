@@ -44,15 +44,33 @@ When(
 
 When("I sign in with the registered credentials", async function () {
 	const { email, password } = this.credentials;
-	await this.loginPage.login(email, password);
+	this.loginResponse = await this.loginPage.login(email, password);
 });
 
 When("I sign in with credentials that do not exist", async function () {
-	await this.loginPage.login(
+	this.loginResponse = await this.loginPage.login(
 		invalidCredentials.email,
 		invalidCredentials.password,
 	);
 });
+
+When(
+	"I submit the login form with the registered credentials",
+	async function () {
+		const { email, password } = this.credentials;
+		this.loginResponse = await this.loginPage.login(email, password);
+	},
+);
+
+When(
+	"I submit the login form with credentials that do not exist",
+	async function () {
+		this.loginResponse = await this.loginPage.login(
+			invalidCredentials.email,
+			invalidCredentials.password,
+		);
+	},
+);
 
 When("I sign out", async function () {
 	await this.loginPage.header.signOut();
@@ -110,6 +128,29 @@ Then("I see the confirmation {string}", async function (message: string) {
 
 Then("I see the error {string}", async function (message: string) {
 	await expect(this.loginPage.errorMessage).toHaveText(message);
+});
+
+Then(
+	"the login form is submitted successfully with status {int}",
+	async function (status: number) {
+		expect(this.loginResponse).toBeDefined();
+		expect(this.loginResponse?.status()).toBe(status);
+		expect(this.loginResponse?.headers().location).toBe("/");
+	},
+);
+
+Then(
+	"the login form submission is rejected with status {int}",
+	async function (status: number) {
+		expect(this.loginResponse).toBeDefined();
+		expect(this.loginResponse?.status()).toBe(status);
+		expect(this.loginResponse?.ok()).toBe(false);
+	},
+);
+
+Then("an error message is shown", async function () {
+	await expect(this.loginPage.errorMessage).toBeVisible();
+	await expect(this.loginPage.errorMessage).not.toHaveText("");
 });
 
 Then("I am signed in", async function () {

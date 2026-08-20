@@ -1,4 +1,4 @@
-import type { Locator, Page } from "@playwright/test";
+import type { Locator, Page, Response } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 export class LoginPage extends BasePage {
@@ -21,10 +21,18 @@ export class LoginPage extends BasePage {
 		this.registerLink = page.getByRole("link", { name: "create an account" });
 	}
 
-	async login(email: string, password: string): Promise<void> {
+	async login(email: string, password: string): Promise<Response> {
 		await this.emailInput.fill(email);
 		await this.passwordInput.fill(password);
-		await this.submitButton.click();
+		const [response] = await Promise.all([
+			this.page.waitForResponse(
+				(res) =>
+					res.request().method() === "POST" &&
+					new URL(res.url()).pathname === "/login",
+			),
+			this.submitButton.click(),
+		]);
+		return response;
 	}
 
 	async goToRegister(): Promise<void> {

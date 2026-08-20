@@ -49,3 +49,18 @@ Feature: Candidate authentication
     Given I am on the sign in page
     When I sign in with credentials that do not exist
     Then I see the error "Email or password is incorrect"
+
+  @database
+  Scenario: Submitting the login form succeeds
+    Given a registered candidate account exists
+    And I am on the sign in page
+    When I submit the login form with the registered credentials
+    Then the login form is submitted successfully with status 302
+    And the careers home page is shown
+
+  @database
+  Scenario: Submitting the login form is rejected
+    Given I am on the sign in page
+    When I submit the login form with credentials that do not exist
+    Then the login form submission is rejected with status 401
+    And an error message is shown

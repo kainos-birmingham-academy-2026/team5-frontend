@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Page, Response } from "@playwright/test";
 import type { AuthApiClient } from "../api/AuthApiClient";
 import { uniqueEmail, validPassword } from "../fixtures/test-data";
 import { HomePage } from "../pages/HomePage";
@@ -18,6 +18,7 @@ export class World {
 	readonly jobRoleDetailPage: JobRoleDetailPage;
 
 	private candidate?: Credentials;
+	loginResponse?: Response;
 
 	constructor(
 		readonly page: Page,
