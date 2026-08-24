@@ -24,9 +24,9 @@
 # Compile TypeScript. This stage is discarded after we copy dist/ out of it.
 # -----------------------------------------------------------------------------
 
-# FROM starts a new image. node:22-alpine is Node.js 22 on Alpine Linux
+# FROM starts a new image. node:24-alpine is Node.js 24 on Alpine Linux
 # (small official image). AS builder names this stage so stage 2 can copy from it.
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 # WORKDIR sets the current directory inside the container to /app.
 # Later COPY and RUN commands happen here. Docker creates /app if it is missing.
@@ -60,7 +60,7 @@ RUN npm run build
 
 # Start from the same small Node base. This is the image that gets tagged
 # (for example team5-frontend:1.0.0). It does not include TypeScript or tests.
-FROM node:22-alpine
+FROM node:24-alpine
 
 # Working directory again — each stage starts empty, so this must be set here too.
 WORKDIR /app
