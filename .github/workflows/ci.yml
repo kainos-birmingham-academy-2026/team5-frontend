@@ -52,11 +52,27 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      # Same as local `docker build -t team5-frontend:<tag> .`
-      # Tag with the commit SHA so every build is uniquely identifiable.
-      # Also tag :latest for convenience. Do not push — image stays on the runner.
-      # A failed docker build fails this job and the whole workflow.
+      # Always build so PRs still prove the Dockerfile works.
+      # Push only happens on main (login + tag + push steps below).
       - name: Build and tag image
         run: docker build -t team5-frontend:${{ github.sha }} -t team5-frontend:latest .
       - name: Confirm image tags
         run: docker images team5-frontend --format '{{.Repository}}:{{.Tag}} {{.ID}} {{.Size}}'
+
+      - name: Log in to ACR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_CLIENT_ID }}
+          password: ${{ secrets.ACR_CLIENT_SECRET }}
+
+      - name: Tag and push to ACR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          IMAGE="${{ secrets.ACR_LOGIN_SERVER }}/team5-frontend"
+          docker tag team5-frontend:${{ github.sha }} "$IMAGE:${{ github.sha }}"
+          docker tag team5-frontend:${{ github.sha }} "$IMAGE:latest"
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+          docker images "$IMAGE" --format '{{.Repository}}:{{.Tag}} {{.ID}} {{.Size}}'
