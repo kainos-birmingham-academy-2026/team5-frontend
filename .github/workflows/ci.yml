@@ -66,6 +66,7 @@ jobs:
           registry: ${{ secrets.ACR_LOGIN_SERVER }}
           username: ${{ secrets.ACR_CLIENT_ID }}
           password: ${{ secrets.ACR_CLIENT_SECRET }}
+          #Added a login server name to github secrets
 
       - name: Tag and push to ACR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
