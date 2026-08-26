@@ -4,12 +4,9 @@ terraform {
   # State lives in Azure Storage so the whole team shares it.
   # Locking is automatic via blob leases. Create these resources first with
   # scripts/bootstrap-remote-state.sh.
-  backend "azurerm" {
-    resource_group_name  = "rg-jaleel-team5-state"
-    storage_account_name = "jaleelteam5state"
-    container_name       = "tfstate"
-    key                  = "team5/infrastructure.tfstate"
-  }
+  # Left empty on purpose: each environment supplies its own settings, e.g.
+  #   terraform init -backend-config=backends/dev.hcl
+  backend "azurerm" {}
 
   required_providers {
     azurerm = {
@@ -19,24 +16,32 @@ terraform {
   }
 }
 
-# Subscription is taken from the ARM_SUBSCRIPTION_ID environment variable.
+# Credentials and subscription come from ARM_* environment variables, so the same
+# code runs locally (az login) and in CI (service principal).
 provider "azurerm" {
   features {}
 }
 
-module "resource_group" {
-  source = "./modules/resource-group"
+locals {
+  name_prefix         = "${var.project}-${var.environment}"
+  resource_group_name = coalesce(var.resource_group_name, "rg-${local.name_prefix}")
 
-  name     = var.resource_group_name
-  location = var.location
-
-  tags = merge(
+  common_tags = merge(
     {
+      project     = var.project
       environment = var.environment
       managed_by  = "terraform"
     },
     var.tags,
   )
+}
+
+module "resource_group" {
+  source = "./modules/resource-group"
+
+  name     = local.resource_group_name
+  location = var.location
+  tags     = local.common_tags
 }
 
 # Keeps the already-applied resource group instead of destroying and recreating it

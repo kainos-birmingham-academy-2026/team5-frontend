@@ -1,0 +1,88 @@
+name: Terraform
+
+on:
+  push:
+    paths:
+      - "my-infrastructure/**"
+      - ".github/workflows/terraform.yml"
+  pull_request:
+    paths:
+      - "my-infrastructure/**"
+      - ".github/workflows/terraform.yml"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to plan/apply"
+        type: choice
+        default: dev
+        options:
+          - dev
+
+permissions:
+  contents: read
+
+# One Terraform run per environment at a time; the remote state lock is shared.
+concurrency:
+  group: terraform-${{ inputs.environment || 'dev' }}
+  cancel-in-progress: false
+
+env:
+  TF_ENV: ${{ inputs.environment || 'dev' }}
+  TF_WORKING_DIR: my-infrastructure
+  # Never wait for a prompt in CI.
+  TF_INPUT: "false"
+  TF_IN_AUTOMATION: "true"
+  # Service principal credentials (az ad sp create-for-rbac --role Contributor).
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+jobs:
+  terraform:
+    name: Plan (${{ inputs.environment || 'dev' }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: my-infrastructure
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+          terraform_wrapper: false
+
+      - name: Format check
+        run: terraform fmt -check -recursive
+
+      - name: Init
+        run: terraform init -backend-config="backends/${TF_ENV}.hcl" -lockfile=readonly
+
+      - name: Validate
+        run: terraform validate
+
+      - name: Plan
+        run: |
+          terraform plan \
+            -var-file="environments/${TF_ENV}.tfvars" \
+            -lock-timeout=5m \
+            -out=tfplan
+
+      # Plans can contain resource attribute values, so keep them short-lived.
+      - name: Upload plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ env.TF_ENV }}-${{ github.sha }}
+          path: my-infrastructure/tfplan
+          retention-days: 5
+
+      # Branches and pull requests stop at the plan above.
+      - name: Apply
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve -lock-timeout=5m tfplan
+
+      - name: Outputs
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: terraform output -json
