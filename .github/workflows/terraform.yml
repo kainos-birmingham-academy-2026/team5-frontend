@@ -34,8 +34,8 @@ env:
   TF_INPUT: "false"
   TF_IN_AUTOMATION: "true"
   # Service principal credentials (az ad sp create-for-rbac --role Contributor).
+  ARM_USE_OICD: "true"
   ARM_CLIENT_ID: ${{ secrets.ACR_CLIENT_ID }}
-  ARM_CLIENT_SECRET: ${{ secrets.ACR_CLIENT_SECRET }}
   ARM_TENANT_ID: ${{ secrets.ACR_TENANT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ACR_SUBSCRIPTION_ID }}
 
