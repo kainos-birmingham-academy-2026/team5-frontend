@@ -33,10 +33,10 @@ env:
   TF_INPUT: "false"
   TF_IN_AUTOMATION: "true"
   # Service principal credentials (az ad sp create-for-rbac --role Contributor).
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ACR_CLIENT_ID: ${{ secrets.ACR_CLIENT_ID }}
+  ACR_CLIENT_SECRET: ${{ secrets.ACR_CLIENT_SECRET }}
+  ACR_TENANT_ID: ${{ secrets.ACR_TENANT_ID }}
+  ACR_SUBSCRIPTION_ID: ${{ secrets.ACR_SUBSCRIPTION_ID }}
 
 jobs:
   terraform:
@@ -48,6 +48,15 @@ jobs:
         working-directory: my-infrastructure
     steps:
       - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.ACR_CLIENT_ID }}
+          tenant-id: ${{ env.ACR_TENANT_ID }}
+          subscription-id: ${{ env.ACR_SUBSCRIPTION_ID }}
+        env:
+          AZURE_CLIENT_SECRET: ${{ env.ACR_CLIENT_SECRET }}
 
       - uses: hashicorp/setup-terraform@v3
         with:
@@ -86,4 +95,3 @@ jobs:
       - name: Outputs
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: terraform output -json
-
