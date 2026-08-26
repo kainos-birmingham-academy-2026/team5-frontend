@@ -19,6 +19,7 @@ on:
           - dev
 
 permissions:
+  id-token: write
   contents: read
 
 # One Terraform run per environment at a time; the remote state lock is shared.
