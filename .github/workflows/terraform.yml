@@ -65,7 +65,7 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Init
-        run: terraform init -input=false
+        run: terraform init -input=false -backend-config="backends/${TF_ENV}.hcl"
 
       - name: Validate
         run: terraform validate
