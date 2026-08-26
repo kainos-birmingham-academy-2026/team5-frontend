@@ -1,0 +1,15 @@
+.terraform/
+crash.log
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+# Per-environment inputs are shared config, not secrets, so they are committed.
+!environments/*.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc

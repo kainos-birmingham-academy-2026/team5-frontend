@@ -1,0 +1,102 @@
+name: Terraform
+
+on:
+  # Branch pushes use subject ...:ref:refs/heads/<branch>, and only main has a
+  # federated credential, so feature-branch pushes cannot log in.
+  push:
+    branches: ["main"]
+    paths:
+      - "my-infrastructure/**"
+      - ".github/workflows/terraform.yml"
+  # Pull requests use subject ...:pull_request.
+  pull_request:
+    paths:
+      - "my-infrastructure/**"
+      - ".github/workflows/terraform.yml"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to plan/apply"
+        type: choice
+        default: dev
+        options:
+          - dev
+
+permissions:
+  id-token: write
+  contents: read
+
+# One Terraform run per environment at a time; the remote state lock is shared.
+concurrency:
+  group: terraform-${{ inputs.environment || 'dev' }}
+  cancel-in-progress: false
+
+env:
+  TF_ENV: ${{ inputs.environment || 'dev' }}
+  TF_WORKING_DIR: my-infrastructure
+  # Never wait for a prompt in CI.
+  TF_INPUT: "false"
+  TF_IN_AUTOMATION: "true"
+  # Service principal credentials, authenticated with the job's OIDC token.
+  ARM_USE_OIDC: "true"
+  ARM_CLIENT_ID: ${{ secrets.ACR_CLIENT_ID }}
+  ARM_TENANT_ID: ${{ secrets.ACR_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ACR_SUBSCRIPTION_ID }}
+
+jobs:
+  terraform:
+    name: Plan (${{ inputs.environment || 'dev' }})
+    # workflow_dispatch on a feature branch would still present a branch subject.
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: my-infrastructure
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+          terraform_wrapper: false
+
+      - name: Azure login via OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.ACR_CLIENT_ID }}
+          tenant-id: ${{ secrets.ACR_TENANT_ID }}
+          subscription-id: ${{ secrets.ACR_SUBSCRIPTION_ID }}
+
+      - name: Format check
+        run: terraform fmt -check -recursive
+
+      - name: Init
+        run: terraform init -input=false -backend-config="backends/${TF_ENV}.hcl"
+
+      - name: Validate
+        run: terraform validate
+
+      - name: Plan
+        run: |
+          terraform plan \
+            -var-file="environments/${TF_ENV}.tfvars" \
+            -lock-timeout=5m \
+            -out=tfplan
+
+      # Plans can contain resource attribute values, so keep them short-lived.
+      - name: Upload plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ env.TF_ENV }}-${{ github.sha }}
+          path: my-infrastructure/tfplan
+          retention-days: 5
+
+      # Branches and pull requests stop at the plan above.
+      - name: Apply
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve -lock-timeout=5m tfplan
+
+      - name: Outputs
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: terraform output -json
