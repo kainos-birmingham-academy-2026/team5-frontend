@@ -35,6 +35,7 @@ env:
   TF_IN_AUTOMATION: "true"
   # Service principal credentials (az ad sp create-for-rbac --role Contributor).
   ARM_CLIENT_ID: ${{ secrets.ACR_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ACR_CLIENT_SECRET }}
   ARM_TENANT_ID: ${{ secrets.ACR_TENANT_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ACR_SUBSCRIPTION_ID }}
 
@@ -48,13 +49,6 @@ jobs:
         working-directory: my-infrastructure
     steps:
       - uses: actions/checkout@v4
-
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.ACR_CLIENT_ID }}
-          tenant-id: ${{ secrets.ACR_TENANT_ID }}
-          subscription-id: ${{ secrets.ACR_SUBSCRIPTION_ID }}
 
       - uses: hashicorp/setup-terraform@v3
         with:
