@@ -118,26 +118,26 @@ module "container_app_environment" {
   tags                         = local.common_tags
 }
 
-# Backend is deferred. Restore this module when deploying backend + database.
-# module "backend_app" {
-#   source = "./modules/container-app"
-#
-#   name                            = local.backend_app_name
-#   container_name                  = "backend"
-#   resource_group_name             = module.resource_group.name
-#   container_app_environment_id    = module.container_app_environment.id
-#   image                           = local.backend_image
-#   target_port                     = var.backend_target_port
-#   external_enabled                = false
-#   identity_id                     = module.container_app_identity.id
-#   container_registry_login_server = data.azurerm_container_registry.existing.login_server
-#   key_vault_uri                   = module.key_vault.uri
-#   env                             = var.backend_env
-#   secret_env                      = var.backend_secret_env
-#   tags                            = local.common_tags
-# }
+# Internal only. Frontend reaches this over the environment's private ingress.
+module "backend_app" {
+  source = "./modules/container-app"
 
-# Public-facing UI. API_BASE_URL is a placeholder until the backend app exists.
+  name                            = local.backend_app_name
+  container_name                  = "backend"
+  resource_group_name             = module.resource_group.name
+  container_app_environment_id    = module.container_app_environment.id
+  image                           = local.backend_image
+  target_port                     = var.backend_target_port
+  external_enabled                = false
+  identity_id                     = module.container_app_identity.id
+  container_registry_login_server = data.azurerm_container_registry.existing.login_server
+  key_vault_uri                   = module.key_vault.uri
+  env                             = var.backend_env
+  secret_env                      = var.backend_secret_env
+  tags                            = local.common_tags
+}
+
+# Public-facing UI. API_BASE_URL is the backend's internal HTTPS URL.
 module "frontend_app" {
   source = "./modules/container-app"
 
@@ -154,7 +154,7 @@ module "frontend_app" {
   env = merge(
     {
       NODE_ENV     = "production"
-      API_BASE_URL = "http://localhost:3000"
+      API_BASE_URL = module.backend_app.url
     },
     var.frontend_env,
   )

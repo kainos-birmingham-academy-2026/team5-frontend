@@ -92,3 +92,13 @@ output "frontend_url" {
   description = "Public HTTPS URL of the frontend."
   value       = module.frontend_app.url
 }
+
+output "backend_container_app_name" {
+  description = "Name of the internal backend Container App."
+  value       = module.backend_app.name
+}
+
+output "backend_url" {
+  description = "Internal HTTPS URL of the backend (reachable from the frontend, not the public internet)."
+  value       = module.backend_app.url
+}
