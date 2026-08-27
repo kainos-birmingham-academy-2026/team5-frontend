@@ -19,12 +19,34 @@ terraform {
 # Credentials and subscription come from ARM_* environment variables, so the same
 # code runs locally (az login) and in CI (service principal).
 provider "azurerm" {
-  features {}
+  features {
+    key_vault {
+      purge_soft_delete_on_destroy    = true
+      recover_soft_deleted_key_vaults = true
+    }
+  }
+}
+
+data "azurerm_client_config" "current" {}
+
+# Existing shared academy registry. CI already pushes team5-frontend here
+# (secrets.ACR_LOGIN_SERVER). Do not create a second ACR.
+data "azurerm_container_registry" "existing" {
+  name                = var.container_registry_name
+  resource_group_name = var.container_registry_resource_group_name
 }
 
 locals {
   name_prefix         = "${var.project}-${var.environment}"
   resource_group_name = coalesce(var.resource_group_name, "rg-${local.name_prefix}")
+  key_vault_name      = coalesce(var.key_vault_name, "kv-${local.name_prefix}")
+  identity_name       = coalesce(var.managed_identity_name, "id-${local.name_prefix}")
+  cae_name            = coalesce(var.container_app_environment_name, "cae-${local.name_prefix}")
+  log_analytics_name  = coalesce(var.log_analytics_workspace_name, "log-${local.name_prefix}")
+  frontend_app_name   = coalesce(var.frontend_container_app_name, "ca-frontend-${local.name_prefix}")
+  backend_app_name    = coalesce(var.backend_container_app_name, "ca-backend-${local.name_prefix}")
+  frontend_image      = "${data.azurerm_container_registry.existing.login_server}/${var.frontend_image_name}:${var.frontend_image_tag}"
+  backend_image       = "${data.azurerm_container_registry.existing.login_server}/${var.backend_image_name}:${var.backend_image_tag}"
 
   common_tags = merge(
     {
@@ -49,4 +71,93 @@ module "resource_group" {
 moved {
   from = azurerm_resource_group.main
   to   = module.resource_group.azurerm_resource_group.this
+}
+
+# Shared identity for Container Apps to read Key Vault secrets and pull from ACR.
+# AcrPull is assigned when container_registry_id is passed (once ACR exists).
+module "container_app_identity" {
+  source = "./modules/user-assigned-identity"
+
+  name                  = local.identity_name
+  resource_group_name   = module.resource_group.name
+  location              = module.resource_group.location
+  container_registry_id = data.azurerm_container_registry.existing.id
+  tags                  = local.common_tags
+}
+
+# Empty vault. Secret values are never stored in Terraform; add them in the portal.
+# The user-assigned identity is granted Key Vault Secrets User so a later
+# Container App can reference secrets without embedding values.
+module "key_vault" {
+  source = "./modules/key-vault"
+
+  name                = local.key_vault_name
+  resource_group_name = module.resource_group.name
+  location            = module.resource_group.location
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  admin_object_ids = distinct(concat(
+    [data.azurerm_client_config.current.object_id],
+    var.key_vault_admin_object_ids,
+  ))
+  secrets_users = merge(
+    { container_app = module.container_app_identity.principal_id },
+    { for object_id in var.key_vault_secrets_user_object_ids : object_id => object_id },
+  )
+  tags = local.common_tags
+}
+
+# Shared platform for later Container Apps. Log Analytics is required so
+# replica logs are queryable in the portal.
+module "container_app_environment" {
+  source = "./modules/container-apps-environment"
+
+  name                         = local.cae_name
+  log_analytics_workspace_name = local.log_analytics_name
+  resource_group_name          = module.resource_group.name
+  location                     = module.resource_group.location
+  tags                         = local.common_tags
+}
+
+# Backend is deferred. Restore this module when deploying backend + database.
+# module "backend_app" {
+#   source = "./modules/container-app"
+#
+#   name                            = local.backend_app_name
+#   container_name                  = "backend"
+#   resource_group_name             = module.resource_group.name
+#   container_app_environment_id    = module.container_app_environment.id
+#   image                           = local.backend_image
+#   target_port                     = var.backend_target_port
+#   external_enabled                = false
+#   identity_id                     = module.container_app_identity.id
+#   container_registry_login_server = data.azurerm_container_registry.existing.login_server
+#   key_vault_uri                   = module.key_vault.uri
+#   env                             = var.backend_env
+#   secret_env                      = var.backend_secret_env
+#   tags                            = local.common_tags
+# }
+
+# Public-facing UI. API_BASE_URL is a placeholder until the backend app exists.
+module "frontend_app" {
+  source = "./modules/container-app"
+
+  name                            = local.frontend_app_name
+  container_name                  = "frontend"
+  resource_group_name             = module.resource_group.name
+  container_app_environment_id    = module.container_app_environment.id
+  image                           = local.frontend_image
+  target_port                     = var.frontend_target_port
+  external_enabled                = true
+  identity_id                     = module.container_app_identity.id
+  container_registry_login_server = data.azurerm_container_registry.existing.login_server
+  key_vault_uri                   = module.key_vault.uri
+  env = merge(
+    {
+      NODE_ENV     = "production"
+      API_BASE_URL = "http://localhost:3000"
+    },
+    var.frontend_env,
+  )
+  secret_env = var.frontend_secret_env
+  tags       = local.common_tags
 }
