@@ -16,6 +16,52 @@ environment. Only `dev` exists today.
 
 Resources are named `<type>-<project>-<environment>`, e.g. `rg-jaleel-team5-dev`.
 
+## Key Vault
+
+`modules/key-vault` creates an empty vault (`kv-<project>-<environment>`).
+Secret **values are not defined in Terraform**, tfvars, or application code.
+
+After apply:
+
+1. Open the vault in the Azure portal.
+2. Create secrets there (for example `SESSION-SECRET`, `API-BASE-URL`).
+3. Attach the user-assigned identity (`id-<project>-<environment>`) to the Container App, then reference each secret on the app:
+
+   `@Microsoft.KeyVault(SecretUri=https://<vault>.vault.azure.net/secrets/<secret-name>)`
+
+The identity that runs Terraform is granted **Key Vault Administrator** so it can manage secrets in the portal. Add teammate object IDs with `key_vault_admin_object_ids` in the environment tfvars if they also need portal access.
+
+## User-assigned managed identity
+
+`modules/user-assigned-identity` creates `id-<project>-<environment>` for Container Apps.
+Terraform grants it **Key Vault Secrets User** on the vault automatically.
+
+The identity is also granted **AcrPull** on the existing shared registry (`acraiacademy26` in `rg-ai-academy-26`). That registry is **looked up**, not created — CI already pushes `team5-frontend` there (`secrets.ACR_LOGIN_SERVER`).
+
+Set `container_registry_name` and `container_registry_resource_group_name` in the environment tfvars.
+
+## Container Apps environment
+
+`modules/container-apps-environment` creates the shared platform:
+
+- Log Analytics workspace `log-<project>-<environment>`
+- Container Apps environment `cae-<project>-<environment>`
+
+Later Container Apps (frontend, backend) attach to this environment.
+
+## Container Apps
+
+`modules/container-app` is used twice:
+
+| App | Name | Ingress | Image |
+| --- | --- | --- | --- |
+| Frontend | `ca-frontend-<project>-<environment>` | **external** (public) | `acraiacademy26.azurecr.io/team5-frontend:latest` |
+| Backend | `ca-backend-<project>-<environment>` | **internal** only | `acraiacademy26.azurecr.io/team5-backend:latest` |
+
+Both apps use the user-assigned identity to pull from ACR. The frontend gets `API_BASE_URL` from the backend's internal URL. `SESSION_SECRET` is read from Key Vault secret `SESSION-SECRET` — create that secret in the portal **before** apply, or the frontend revision will fail.
+
+Add backend secrets (for example a database URL) with `backend_secret_env` in tfvars; do not put secret values in Terraform.
+
 ## Running locally
 
 ```bash
