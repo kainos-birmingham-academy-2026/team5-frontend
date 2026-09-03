@@ -85,9 +85,7 @@ module "container_app_identity" {
   tags                  = local.common_tags
 }
 
-# Empty vault. Secret values are never stored in Terraform; add them in the portal.
-# The user-assigned identity is granted Key Vault Secrets User so a later
-# Container App can reference secrets without embedding values.
+# Empty vault. Secret values and access assignments are managed outside Terraform.
 module "key_vault" {
   source = "./modules/key-vault"
 
@@ -95,15 +93,25 @@ module "key_vault" {
   resource_group_name = module.resource_group.name
   location            = module.resource_group.location
   tenant_id           = data.azurerm_client_config.current.tenant_id
-  # Do not grant the Terraform runner Key Vault Administrator here. That
-  # assignment requires Role Based Access Control Administrator. Give the CI
-  # service principal Key Vault Secrets Officer on the resource group instead.
-  admin_object_ids = var.key_vault_admin_object_ids
-  secrets_users = merge(
-    { container_app = module.container_app_identity.principal_id },
-    { for object_id in var.key_vault_secrets_user_object_ids : object_id => object_id },
-  )
-  tags = local.common_tags
+  tags                = local.common_tags
+}
+
+# Keep the existing manually managed assignments in Azure while removing them
+# from Terraform state. This avoids requiring RBAC administrator permissions.
+removed {
+  from = module.key_vault.azurerm_role_assignment.administrators
+
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = module.key_vault.azurerm_role_assignment.secrets_users
+
+  lifecycle {
+    destroy = false
+  }
 }
 
 # Shared platform for later Container Apps. Log Analytics is required so

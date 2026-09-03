@@ -72,18 +72,6 @@ variable "key_vault_name" {
   }
 }
 
-variable "key_vault_admin_object_ids" {
-  description = "Entra object IDs granted Key Vault Administrator so they can add secrets in the portal. The Terraform runner is not included; grant that principal Key Vault Secrets Officer outside Terraform."
-  type        = list(string)
-  default     = []
-}
-
-variable "key_vault_secrets_user_object_ids" {
-  description = "Extra Entra object IDs granted Key Vault Secrets User. The user-assigned Container App identity is always included."
-  type        = list(string)
-  default     = []
-}
-
 variable "managed_identity_name" {
   description = "Optional override for the user-assigned identity name. Leave null to use id-<project>-<environment>."
   type        = string
