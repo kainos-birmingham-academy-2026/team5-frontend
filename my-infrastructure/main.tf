@@ -95,10 +95,10 @@ module "key_vault" {
   resource_group_name = module.resource_group.name
   location            = module.resource_group.location
   tenant_id           = data.azurerm_client_config.current.tenant_id
-  admin_object_ids = distinct(concat(
-    [data.azurerm_client_config.current.object_id],
-    var.key_vault_admin_object_ids,
-  ))
+  # Do not grant the Terraform runner Key Vault Administrator here. That
+  # assignment requires Role Based Access Control Administrator. Give the CI
+  # service principal Key Vault Secrets Officer on the resource group instead.
+  admin_object_ids = var.key_vault_admin_object_ids
   secrets_users = merge(
     { container_app = module.container_app_identity.principal_id },
     { for object_id in var.key_vault_secrets_user_object_ids : object_id => object_id },
