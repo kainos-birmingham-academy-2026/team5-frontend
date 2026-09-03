@@ -23,18 +23,6 @@ variable "tenant_id" {
   type        = string
 }
 
-variable "admin_object_ids" {
-  description = "Principals granted Key Vault Administrator so they can add secrets in the portal."
-  type        = list(string)
-  default     = []
-}
-
-variable "secrets_users" {
-  description = "Map of principals granted Key Vault Secrets User. Keys must be static (e.g. container_app); values may be apply-time object IDs."
-  type        = map(string)
-  default     = {}
-}
-
 variable "tags" {
   description = "Tags applied to the Key Vault."
   type        = map(string)

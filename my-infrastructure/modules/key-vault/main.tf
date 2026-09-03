@@ -26,23 +26,3 @@ resource "azurerm_key_vault" "this" {
 
   tags = var.tags
 }
-
-# Portal / CLI operators who add and rotate secrets.
-resource "azurerm_role_assignment" "administrators" {
-  for_each = toset(var.admin_object_ids)
-
-  scope                = azurerm_key_vault.this.id
-  role_definition_name = "Key Vault Administrator"
-  principal_id         = each.value
-}
-
-# Identities that only need to read secrets (Container App managed identity).
-# Map keys are static so for_each can plan before principal IDs exist.
-resource "azurerm_role_assignment" "secrets_users" {
-  for_each = var.secrets_users
-
-  scope                            = azurerm_key_vault.this.id
-  role_definition_name             = "Key Vault Secrets User"
-  principal_id                     = each.value
-  skip_service_principal_aad_check = true
-}

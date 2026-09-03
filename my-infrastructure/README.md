@@ -29,7 +29,10 @@ After apply:
 
    `@Microsoft.KeyVault(SecretUri=https://<vault>.vault.azure.net/secrets/<secret-name>)`
 
-The CI service principal is **not** granted Key Vault roles by Terraform (that would need Role Based Access Control Administrator). Grant it **Key Vault Secrets Officer** on the environment resource group instead:
+Key Vault role assignments are managed manually because the Terraform service
+principal does not have permission to administer Azure RBAC. Grant the CI
+service principal **Key Vault Secrets Officer** on the environment resource
+group:
 
 ```bash
 az role assignment create \
@@ -39,12 +42,32 @@ az role assignment create \
   --scope "/subscriptions/<subscription-id>/resourceGroups/rg-<project>-<environment>"
 ```
 
-Add teammate object IDs with `key_vault_admin_object_ids` in the environment tfvars if they need portal access.
+Azure has no built-in role named `Key Vault Secret Administrator`; **Key Vault
+Secrets Officer** is the secrets-management role. Assign **Key Vault
+Administrator** manually to teammates who need full portal access.
 
 ## User-assigned managed identity
 
 `modules/user-assigned-identity` creates `id-<project>-<environment>` for Container Apps.
-Terraform grants it **Key Vault Secrets User** on the vault automatically.
+Grant it **Key Vault Secrets User** on the vault after the identity and vault
+exist:
+
+```bash
+IDENTITY_OBJECT_ID="$(az identity show \
+  --name "id-<project>-<environment>" \
+  --resource-group "rg-<project>-<environment>" \
+  --query principalId -o tsv)"
+KEY_VAULT_ID="$(az keyvault show \
+  --name "kv-<project>-<environment>" \
+  --resource-group "rg-<project>-<environment>" \
+  --query id -o tsv)"
+
+az role assignment create \
+  --assignee-object-id "$IDENTITY_OBJECT_ID" \
+  --assignee-principal-type ServicePrincipal \
+  --role "Key Vault Secrets User" \
+  --scope "$KEY_VAULT_ID"
+```
 
 The identity is also granted **AcrPull** on the existing shared registry (`acraiacademy26` in `rg-ai-academy-26`). That registry is **looked up**, not created — CI already pushes `team5-frontend` there (`secrets.ACR_LOGIN_SERVER`).
 
