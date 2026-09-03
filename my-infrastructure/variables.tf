@@ -73,7 +73,7 @@ variable "key_vault_name" {
 }
 
 variable "key_vault_admin_object_ids" {
-  description = "Extra Entra object IDs granted Key Vault Administrator so they can add secrets in the portal. The identity running Terraform is always included."
+  description = "Entra object IDs granted Key Vault Administrator so they can add secrets in the portal. The Terraform runner is not included; grant that principal Key Vault Secrets Officer outside Terraform."
   type        = list(string)
   default     = []
 }

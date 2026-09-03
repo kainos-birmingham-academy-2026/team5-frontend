@@ -29,7 +29,17 @@ After apply:
 
    `@Microsoft.KeyVault(SecretUri=https://<vault>.vault.azure.net/secrets/<secret-name>)`
 
-The identity that runs Terraform is granted **Key Vault Administrator** so it can manage secrets in the portal. Add teammate object IDs with `key_vault_admin_object_ids` in the environment tfvars if they also need portal access.
+The CI service principal is **not** granted Key Vault roles by Terraform (that would need Role Based Access Control Administrator). Grant it **Key Vault Secrets Officer** on the environment resource group instead:
+
+```bash
+az role assignment create \
+  --assignee-object-id "<terraform-sp-object-id>" \
+  --assignee-principal-type ServicePrincipal \
+  --role "Key Vault Secrets Officer" \
+  --scope "/subscriptions/<subscription-id>/resourceGroups/rg-<project>-<environment>"
+```
+
+Add teammate object IDs with `key_vault_admin_object_ids` in the environment tfvars if they need portal access.
 
 ## User-assigned managed identity
 
