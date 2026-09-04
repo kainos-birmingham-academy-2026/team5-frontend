@@ -1728,6 +1728,63 @@ table {
 	gap: var(--space-3);
 }
 
+.sort-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-3);
+	margin-block: var(--space-5);
+}
+
+.sort-bar-label {
+	color: var(--color-ink-600);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	text-transform: uppercase;
+}
+
+.sort-bar-columns {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.sort-column {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	min-height: 2.75rem;
+	padding: var(--space-2) var(--space-4);
+	border: 1px solid var(--color-border);
+	color: var(--color-ink-900);
+	background: var(--color-white);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	text-decoration: none;
+}
+
+.sort-column:hover {
+	border-color: var(--color-ink-700);
+}
+
+.sort-column:focus-visible {
+	outline: 3px solid var(--color-focus);
+	outline-offset: 2px;
+}
+
+.sort-column.is-active {
+	color: var(--color-white);
+	border-color: var(--color-brand-700);
+	background: var(--color-brand-700);
+}
+
+.sort-indicator {
+	font-size: var(--font-size-xs);
+}
+
 .field-hint,
 .field-error {
 	font-size: var(--font-size-sm);

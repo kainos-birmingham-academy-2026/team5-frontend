@@ -55,16 +55,21 @@ describe("JobRoleController filters", () => {
 			status: ["Open"],
 			closingDate: "2027-12-31",
 		};
-		expect(getAllJobRoles).toHaveBeenCalledWith(2, 10, filters);
+		expect(getAllJobRoles).toHaveBeenCalledWith(2, 10, filters, {});
 		expect(getFilterOptions).toHaveBeenCalledOnce();
-		expect(res.render).toHaveBeenCalledWith("job-role-list.njk", {
-			jobRoles: [],
-			pagination: expect.objectContaining({ page: 2 }),
-			filters,
-			filterOptions,
-			filterQuery:
-				"roleName=engineer&location=Belfast&capability=Data&capability=Engineering&band=Band+2&status=Open&closingDate=2027-12-31",
-		});
+		expect(res.render).toHaveBeenCalledWith(
+			"job-role-list.njk",
+			expect.objectContaining({
+				jobRoles: [],
+				pagination: expect.objectContaining({ page: 2 }),
+				filters,
+				filterOptions,
+				filterQuery:
+					"roleName=engineer&location=Belfast&capability=Data&capability=Engineering&band=Band+2&status=Open&closingDate=2027-12-31",
+				paginationQuery:
+					"roleName=engineer&location=Belfast&capability=Data&capability=Engineering&band=Band+2&status=Open&closingDate=2027-12-31",
+			}),
+		);
 	});
 
 	it("returns a server error when job roles cannot be retrieved", async () => {
@@ -86,6 +91,127 @@ describe("JobRoleController filters", () => {
 		expect(response.status).toHaveBeenCalledWith(500);
 		expect(response.send).toHaveBeenCalledWith("Failed to retrieve job roles");
 		consoleError.mockRestore();
+	});
+});
+
+describe("JobRoleController sorting", () => {
+	const renderSorted = async (query: Record<string, string>) => {
+		const getAllJobRoles = vi.fn().mockResolvedValue({
+			items: [],
+			page: 1,
+			pageSize: 10,
+			totalItems: 0,
+			totalPages: 0,
+		});
+		const controller = new JobRoleController({
+			getAllJobRoles,
+			getFilterOptions: vi.fn().mockResolvedValue({
+				capabilities: [],
+				bands: [],
+				statuses: [],
+			}),
+		} as unknown as JobRoleService);
+		const res = { render: vi.fn() } as unknown as Response;
+
+		await controller.getAllJobRoles({ query } as unknown as Request, res);
+
+		return {
+			getAllJobRoles,
+			view: vi.mocked(res.render).mock.calls[0][1] as Record<string, unknown>,
+		};
+	};
+
+	const columnFor = (view: Record<string, unknown>, field: string) =>
+		(
+			view.sortColumns as {
+				field: string;
+				href: string;
+				order?: string;
+			}[]
+		).find((column) => column.field === field);
+
+	it("exposes a clickable link for every sortable column", async () => {
+		const { view } = await renderSorted({});
+
+		expect(view.sortColumns).toHaveLength(6);
+		expect(
+			(view.sortColumns as { field: string }[]).map((column) => column.field),
+		).toEqual([
+			"roleName",
+			"location",
+			"capability",
+			"band",
+			"closingDate",
+			"status",
+		]);
+	});
+
+	it("links an unsorted column to an ascending sort", async () => {
+		const { view, getAllJobRoles } = await renderSorted({});
+
+		expect(getAllJobRoles).toHaveBeenCalledWith(1, 10, expect.anything(), {});
+		expect(columnFor(view, "roleName")).toMatchObject({
+			href: "/job-roles?sortBy=roleName&sortOrder=asc",
+			order: undefined,
+		});
+	});
+
+	it("links an ascending column to a descending sort", async () => {
+		const { view, getAllJobRoles } = await renderSorted({
+			sortBy: "roleName",
+			sortOrder: "asc",
+		});
+
+		expect(getAllJobRoles).toHaveBeenCalledWith(1, 10, expect.anything(), {
+			sortBy: "roleName",
+			sortOrder: "asc",
+		});
+		expect(columnFor(view, "roleName")).toMatchObject({
+			href: "/job-roles?sortBy=roleName&sortOrder=desc",
+			order: "asc",
+		});
+	});
+
+	it("links a descending column back to no ordering", async () => {
+		const { view, getAllJobRoles } = await renderSorted({
+			sortBy: "roleName",
+			sortOrder: "desc",
+		});
+
+		expect(getAllJobRoles).toHaveBeenCalledWith(1, 10, expect.anything(), {
+			sortBy: "roleName",
+			sortOrder: "desc",
+		});
+		expect(columnFor(view, "roleName")).toMatchObject({
+			href: "/job-roles",
+			order: "desc",
+			actionLabel: "Remove sorting by Role name",
+		});
+	});
+
+	it("keeps active filters in the sort links and the sort in pagination links", async () => {
+		const { view } = await renderSorted({
+			location: "Belfast",
+			sortBy: "band",
+			sortOrder: "asc",
+		});
+
+		expect(columnFor(view, "capability")?.href).toBe(
+			"/job-roles?location=Belfast&sortBy=capability&sortOrder=asc",
+		);
+		expect(view.paginationQuery).toBe(
+			"location=Belfast&sortBy=band&sortOrder=asc",
+		);
+	});
+
+	it("ignores an unknown sort column", async () => {
+		const { view, getAllJobRoles } = await renderSorted({
+			sortBy: "salary",
+			sortOrder: "desc",
+		});
+
+		expect(getAllJobRoles).toHaveBeenCalledWith(1, 10, expect.anything(), {});
+		expect(view.paginationQuery).toBe("");
 	});
 });
 

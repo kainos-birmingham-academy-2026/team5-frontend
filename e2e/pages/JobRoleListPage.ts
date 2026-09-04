@@ -10,6 +10,14 @@ export type JobRoleFilters = {
 	status?: string[];
 };
 
+export type JobRoleSortField =
+	| "roleName"
+	| "location"
+	| "capability"
+	| "band"
+	| "closingDate"
+	| "status";
+
 export class JobRoleListPage extends BasePage {
 	protected readonly path = "/job-roles";
 
@@ -21,6 +29,8 @@ export class JobRoleListPage extends BasePage {
 	readonly closingDateInput: Locator;
 	readonly applyFiltersButton: Locator;
 	readonly clearFiltersLink: Locator;
+	readonly sortBar: Locator;
+	readonly sortColumns: Locator;
 	readonly jobCards: Locator;
 	readonly emptyState: Locator;
 	readonly pagination: Locator;
@@ -40,6 +50,8 @@ export class JobRoleListPage extends BasePage {
 			name: "Apply filters",
 		});
 		this.clearFiltersLink = page.getByRole("link", { name: "Clear filters" });
+		this.sortBar = page.getByRole("navigation", { name: "Sort roles" });
+		this.sortColumns = this.sortBar.locator(".sort-column");
 		this.jobCards = page.locator(".job-card");
 		this.emptyState = page.locator(".empty-state");
 		this.pagination = page.getByRole("navigation", { name: "Pagination" });
@@ -114,6 +126,20 @@ export class JobRoleListPage extends BasePage {
 
 	async clearFilters(): Promise<void> {
 		await this.clearFiltersLink.click();
+	}
+
+	sortColumn(field: JobRoleSortField): Locator {
+		return this.sortBar.locator(`[data-sort-field="${field}"]`);
+	}
+
+	async sortBy(field: JobRoleSortField): Promise<void> {
+		await this.sortColumn(field).click();
+	}
+
+	async sortOrder(field: JobRoleSortField): Promise<string> {
+		return (
+			(await this.sortColumn(field).getAttribute("data-sort-order")) ?? "none"
+		);
 	}
 
 	async openJobRole(roleName: string): Promise<void> {

@@ -36,6 +36,65 @@ describe("JobRoleService filters", () => {
 		});
 	});
 
+	it("sends the requested sort column and direction to the API", async () => {
+		apiClientMock.get.mockResolvedValue({
+			data: {
+				items: [],
+				page: 1,
+				pageSize: 10,
+				totalItems: 0,
+				totalPages: 0,
+			},
+		});
+		const filters = {
+			capability: [],
+			band: [],
+			status: [],
+		};
+
+		await new JobRoleService().getAllJobRoles(1, 10, filters, {
+			sortBy: "location",
+			sortOrder: "desc",
+		});
+
+		expect(apiClientMock.get).toHaveBeenCalledWith("/job-roles", {
+			params: {
+				page: 1,
+				pageSize: 10,
+				...filters,
+				sortBy: "location",
+				sortOrder: "desc",
+			},
+			paramsSerializer: { indexes: null },
+		});
+	});
+
+	it("defaults to ascending when a sort column has no direction", async () => {
+		apiClientMock.get.mockResolvedValue({
+			data: {
+				items: [],
+				page: 1,
+				pageSize: 10,
+				totalItems: 0,
+				totalPages: 0,
+			},
+		});
+
+		await new JobRoleService().getAllJobRoles(1, 10, undefined, {
+			sortBy: "roleName",
+		});
+
+		expect(apiClientMock.get).toHaveBeenCalledWith(
+			"/job-roles",
+			expect.objectContaining({
+				params: expect.objectContaining({
+					sortBy: "roleName",
+					sortOrder: "asc",
+				}),
+			}),
+		);
+	});
+
 	it("returns the available filter options", async () => {
 		const filterOptions = {
 			capabilities: ["Engineering"],

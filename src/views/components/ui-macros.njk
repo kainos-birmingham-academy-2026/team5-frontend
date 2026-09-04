@@ -90,6 +90,26 @@
 </details>
 {% endmacro %}
 
+{% macro sortBar(columns) %}
+<nav class="sort-bar" aria-label="Sort roles" data-testid="sort-bar">
+  <span class="sort-bar-label">Sort by</span>
+  <ul class="sort-bar-columns">
+    {% for column in columns %}
+      <li>
+        <a class="sort-column{% if column.order %} is-active{% endif %}"
+           href="{{ column.href }}"
+           data-sort-field="{{ column.field }}"
+           data-sort-order="{{ column.order or 'none' }}"
+           aria-label="{{ column.actionLabel }}">
+          <span>{{ column.label }}</span>
+          <span class="sort-indicator" aria-hidden="true">{% if column.order == 'asc' %}&#9650;{% elif column.order == 'desc' %}&#9660;{% else %}&#8597;{% endif %}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endmacro %}
+
 {% macro jobCard(job) %}
 <article class="job-card" data-role="{{ job.roleName | lower }}" data-location="{{ job.location | lower }}">
   <header class="job-card-head">

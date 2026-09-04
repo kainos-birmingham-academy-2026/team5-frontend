@@ -12,3 +12,13 @@ Feature: Job Roles Viewing
         Given User is on job roles page
         When User clicks on a job role
         Then job role detail page is shown
+
+    @database
+    Scenario: Ordering the Job Roles list by a column
+        Given User is on job roles page
+        When User clicks the "roleName" column heading
+        Then the "roleName" column is ordered "asc"
+        When User clicks the "roleName" column heading
+        Then the "roleName" column is ordered "desc"
+        When User clicks the "roleName" column heading
+        Then the "roleName" column is ordered "none"

@@ -51,6 +51,23 @@ export type JobRoleFilterOptions = {
 	statuses: string[];
 };
 
+export const JOB_ROLE_SORT_FIELDS = [
+	"roleName",
+	"location",
+	"capability",
+	"band",
+	"closingDate",
+	"status",
+] as const;
+
+export type JobRoleSortField = (typeof JOB_ROLE_SORT_FIELDS)[number];
+export type JobRoleSortOrder = "asc" | "desc";
+
+export type JobRoleSort = {
+	sortBy?: JobRoleSortField;
+	sortOrder?: JobRoleSortOrder;
+};
+
 const emptyFilters = (): JobRoleFilters => ({
 	capability: [],
 	band: [],
@@ -62,9 +79,17 @@ export class JobRoleService {
 		page = 1,
 		pageSize = 10,
 		filters: JobRoleFilters = emptyFilters(),
+		sort: JobRoleSort = {},
 	): Promise<PaginatedJobRoles> {
 		const response = await apiClient.get<PaginatedJobRoles>("/job-roles", {
-			params: { page, pageSize, ...filters },
+			params: {
+				page,
+				pageSize,
+				...filters,
+				...(sort.sortBy
+					? { sortBy: sort.sortBy, sortOrder: sort.sortOrder ?? "asc" }
+					: {}),
+			},
 			paramsSerializer: { indexes: null },
 		});
 

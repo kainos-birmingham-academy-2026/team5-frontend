@@ -65,3 +65,50 @@ test.describe("Viewing job roles", { tag: "@database" }, () => {
 		await expect(jobRoleDetailPage.emptyState).toContainText("Role not found");
 	});
 });
+
+test.describe("Ordering job roles", { tag: "@database" }, () => {
+	test.beforeEach(async ({ jobRoleListPage }) => {
+		await jobRoleListPage.goto();
+	});
+
+	test("cycles a column through ascending, descending and no ordering", async ({
+		jobRoleListPage,
+	}) => {
+		expect(await jobRoleListPage.sortOrder("roleName")).toBe("none");
+
+		await jobRoleListPage.sortBy("roleName");
+		await expect(jobRoleListPage.page).toHaveURL(
+			/sortBy=roleName&sortOrder=asc/,
+		);
+		expect(await jobRoleListPage.sortOrder("roleName")).toBe("asc");
+		const ascending = await jobRoleListPage.roleNames();
+		expect(ascending).toEqual([...ascending].sort((a, b) => a.localeCompare(b)));
+
+		await jobRoleListPage.sortBy("roleName");
+		await expect(jobRoleListPage.page).toHaveURL(
+			/sortBy=roleName&sortOrder=desc/,
+		);
+		expect(await jobRoleListPage.sortOrder("roleName")).toBe("desc");
+		const descending = await jobRoleListPage.roleNames();
+		expect(descending).toEqual(
+			[...descending].sort((a, b) => b.localeCompare(a)),
+		);
+
+		await jobRoleListPage.sortBy("roleName");
+		await expect(jobRoleListPage.page).toHaveURL(/\/job-roles$/);
+		expect(await jobRoleListPage.sortOrder("roleName")).toBe("none");
+	});
+
+	test("keeps active filters when ordering", async ({ jobRoleListPage }) => {
+		await jobRoleListPage.applyFilters({ roleName: seedData.knownRoleName });
+		await jobRoleListPage.sortBy("location");
+
+		await expect(jobRoleListPage.page).toHaveURL(/roleName=/);
+		await expect(jobRoleListPage.page).toHaveURL(/sortBy=location/);
+		for (const roleName of await jobRoleListPage.roleNames()) {
+			expect(roleName.toLowerCase()).toContain(
+				seedData.knownRoleName.toLowerCase(),
+			);
+		}
+	});
+});

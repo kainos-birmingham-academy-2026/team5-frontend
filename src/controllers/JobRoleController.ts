@@ -1,8 +1,21 @@
 import type { Request, Response } from "express";
-import type {
-	JobRoleFilters,
-	JobRoleService,
+import {
+	JOB_ROLE_SORT_FIELDS,
+	type JobRoleFilters,
+	type JobRoleService,
+	type JobRoleSort,
+	type JobRoleSortField,
+	type JobRoleSortOrder,
 } from "../services/JobRoleService";
+
+const SORT_COLUMN_LABELS: Record<JobRoleSortField, string> = {
+	roleName: "Role name",
+	location: "Location",
+	capability: "Capability",
+	band: "Band",
+	closingDate: "Closing date",
+	status: "Status",
+};
 
 const firstQueryValue = (value: unknown): string | undefined =>
 	typeof value === "string" && value.trim() ? value.trim() : undefined;
@@ -21,6 +34,27 @@ const getFilters = (query: Request["query"]): JobRoleFilters => ({
 	closingDate: firstQueryValue(query.closingDate),
 });
 
+const isSortField = (value: string): value is JobRoleSortField =>
+	JOB_ROLE_SORT_FIELDS.includes(value as JobRoleSortField);
+
+const getSort = (query: Request["query"]): JobRoleSort => {
+	const sortBy = firstQueryValue(query.sortBy);
+	if (!sortBy || !isSortField(sortBy)) return {};
+	return {
+		sortBy,
+		sortOrder: firstQueryValue(query.sortOrder) === "desc" ? "desc" : "asc",
+	};
+};
+
+// Cycles a column through ascending, descending, then back to no ordering.
+const nextSortOrder = (
+	field: JobRoleSortField,
+	sort: JobRoleSort,
+): JobRoleSortOrder | undefined => {
+	if (sort.sortBy !== field) return "asc";
+	return sort.sortOrder === "asc" ? "desc" : undefined;
+};
+
 const getFilterQuery = (filters: JobRoleFilters): string => {
 	const query = new URLSearchParams();
 	if (filters.roleName) query.set("roleName", filters.roleName);
@@ -32,6 +66,32 @@ const getFilterQuery = (filters: JobRoleFilters): string => {
 	if (filters.closingDate) query.set("closingDate", filters.closingDate);
 	return query.toString();
 };
+
+const withSort = (filterQuery: string, sort: JobRoleSort): string => {
+	if (!sort.sortBy) return filterQuery;
+	const query = new URLSearchParams(filterQuery);
+	query.set("sortBy", sort.sortBy);
+	query.set("sortOrder", sort.sortOrder ?? "asc");
+	return query.toString();
+};
+
+const getSortColumns = (sort: JobRoleSort, filterQuery: string) =>
+	JOB_ROLE_SORT_FIELDS.map((field) => {
+		const label = SORT_COLUMN_LABELS[field];
+		const nextOrder = nextSortOrder(field, sort);
+		const query = nextOrder
+			? withSort(filterQuery, { sortBy: field, sortOrder: nextOrder })
+			: filterQuery;
+		return {
+			field,
+			label,
+			href: query ? `/job-roles?${query}` : "/job-roles",
+			order: sort.sortBy === field ? (sort.sortOrder ?? "asc") : undefined,
+			actionLabel: nextOrder
+				? `Sort by ${label} ${nextOrder === "asc" ? "ascending" : "descending"}`
+				: `Remove sorting by ${label}`,
+		};
+	});
 
 export class JobRoleController {
 	constructor(private jobRoleService: JobRoleService) {}
@@ -63,16 +123,21 @@ export class JobRoleController {
 					? requestedPage
 					: 1;
 			const filters = getFilters(req.query);
+			const sort = getSort(req.query);
 			const [result, filterOptions] = await Promise.all([
-				this.jobRoleService.getAllJobRoles(page, 10, filters),
+				this.jobRoleService.getAllJobRoles(page, 10, filters, sort),
 				this.jobRoleService.getFilterOptions(),
 			]);
+			const filterQuery = getFilterQuery(filters);
 			res.render("job-role-list.njk", {
 				jobRoles: result.items,
 				pagination: result,
 				filters,
 				filterOptions,
-				filterQuery: getFilterQuery(filters),
+				filterQuery,
+				sort,
+				sortColumns: getSortColumns(sort, filterQuery),
+				paginationQuery: withSort(filterQuery, sort),
 			});
 		} catch (error) {
 			console.error("Failed to retrieve job roles:", error);

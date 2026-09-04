@@ -29,6 +29,14 @@ export type ApiError = {
 	error: string;
 };
 
+export type JobRoleSortField =
+	| "roleName"
+	| "location"
+	| "capability"
+	| "band"
+	| "closingDate"
+	| "status";
+
 export type JobRoleQuery = {
 	page?: number;
 	pageSize?: number;
@@ -38,6 +46,8 @@ export type JobRoleQuery = {
 	capability?: string[];
 	band?: string[];
 	status?: string[];
+	sortBy?: JobRoleSortField | string;
+	sortOrder?: "asc" | "desc" | string;
 };
 
 export class JobRoleApiClient extends BaseApiClient {

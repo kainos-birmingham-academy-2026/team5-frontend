@@ -1,5 +1,5 @@
 {% extends "layouts/base.njk" %}
-{% from "components/ui-macros.njk" import hero, filterBar, jobCard, paginationShell %}
+{% from "components/ui-macros.njk" import hero, filterBar, sortBar, jobCard, paginationShell %}
 
 {% block title %}Kainos Careers | Opportunities{% endblock %}
 
@@ -17,6 +17,7 @@
   <section class="container section">
     <h2>Current vacancies</h2>
     {{ filterBar(filterOptions, filters) }}
+    {{ sortBar(sortColumns) }}
 
     {% if jobRoles and jobRoles.length %}
       <div class="job-grid">
@@ -24,7 +25,7 @@
           {{ jobCard(job) }}
         {% endfor %}
       </div>
-      {{ paginationShell(pagination, filterQuery) }}
+      {{ paginationShell(pagination, paginationQuery) }}
     {% else %}
       <article class="empty-state">
         <h3>No job roles found</h3>
