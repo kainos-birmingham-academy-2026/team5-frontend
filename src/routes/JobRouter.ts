@@ -8,7 +8,7 @@ const router = Router();
 const service = new JobRoleService();
 const controller = new JobRoleController(service);
 
-router.get("/health", requireAuthentication, (_req, res) => {
+router.get("/health", (_req, res) => {
 	res.json({ status: "UP", time: new Date().toISOString() });
 });
 
