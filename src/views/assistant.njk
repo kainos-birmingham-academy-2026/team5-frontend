@@ -1,0 +1,72 @@
+{% extends "layouts/base.njk" %}
+
+{% block title %}Kainos Careers | Careers assistant{% endblock %}
+
+{% block content %}
+  <section class="assistant-page">
+    <div class="container assistant-layout">
+      <div class="assistant-intro">
+        <p class="assistant-eyebrow">Careers assistant</p>
+        <h1>Ask about our open roles</h1>
+        <p>Get quick answers about locations, capabilities, bands and closing dates, drawn only from the roles published on this site.</p>
+
+        <h2 class="assistant-suggestions-title">Try asking</h2>
+        <ul class="assistant-suggestions">
+          <li>
+            <button class="assistant-suggestion" type="button" data-assistant-suggestion>Which engineering roles are open in Belfast?</button>
+          </li>
+          <li>
+            <button class="assistant-suggestion" type="button" data-assistant-suggestion>What roles are closing soonest?</button>
+          </li>
+          <li>
+            <button class="assistant-suggestion" type="button" data-assistant-suggestion>What does a Band 5 role involve?</button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="assistant-panel">
+        <div class="assistant-panel-head">
+          <span class="assistant-avatar assistant-avatar-bot" aria-hidden="true">K</span>
+          <div>
+            <h2>Kainos careers assistant</h2>
+            <p class="assistant-status">Answers based on live job role data</p>
+          </div>
+        </div>
+
+        <div class="assistant-log" data-assistant-log role="log" aria-live="polite" aria-label="Conversation with the careers assistant" tabindex="0">
+          <article class="assistant-message assistant-message-bot">
+            <span class="assistant-avatar assistant-avatar-bot" aria-hidden="true">K</span>
+            <div class="assistant-bubble">
+              <p class="assistant-author">Assistant</p>
+              <p class="assistant-text">Hello. Ask me anything about the roles we currently have open and I will answer using our published job role information.</p>
+            </div>
+          </article>
+        </div>
+
+        <form class="assistant-form" data-assistant-form novalidate>
+          <label class="ds-sr-only" for="assistant-question">Your question</label>
+          <textarea
+            id="assistant-question"
+            name="question"
+            rows="1"
+            maxlength="{{ maxQuestionLength }}"
+            placeholder="Ask about locations, capabilities, bands or closing dates&hellip;"
+            data-assistant-input
+            data-assistant-max="{{ maxQuestionLength }}"
+            autocomplete="off"
+          ></textarea>
+          <div class="assistant-form-actions">
+            <p class="assistant-counter" data-assistant-counter>0 / {{ maxQuestionLength }}</p>
+            <button class="btn btn-primary assistant-send" type="submit" data-assistant-send disabled>Send</button>
+          </div>
+        </form>
+
+        <p class="assistant-hint">Press Enter to send, Shift + Enter for a new line.</p>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/assets/scripts/assistant.js" defer></script>
+{% endblock %}
