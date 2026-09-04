@@ -39,9 +39,10 @@ export class JobRoleController {
 	async getHomePage(req: Request, res: Response): Promise<void> {
 		const registrationSuccessMessage = req.session.registrationSuccessMessage;
 		delete req.session.registrationSuccessMessage;
+		const jwtToken = req.session.jwtToken;
 
 		try {
-			const result = await this.jobRoleService.getAllJobRoles(1, 4);
+			const result = await this.jobRoleService.getAllJobRoles(1, 4, undefined, jwtToken);
 			res.render("careers-home.njk", {
 				featuredRoles: result.items,
 				registrationSuccessMessage,
@@ -57,6 +58,7 @@ export class JobRoleController {
 
 	async getAllJobRoles(req: Request, res: Response): Promise<void> {
 		try {
+			const jwtToken = req.session.jwtToken;
 			const requestedPage = Number(req.query.page ?? 1);
 			const page =
 				Number.isInteger(requestedPage) && requestedPage > 0
@@ -64,8 +66,8 @@ export class JobRoleController {
 					: 1;
 			const filters = getFilters(req.query);
 			const [result, filterOptions] = await Promise.all([
-				this.jobRoleService.getAllJobRoles(page, 10, filters),
-				this.jobRoleService.getFilterOptions(),
+				this.jobRoleService.getAllJobRoles(page, 10, filters, jwtToken),
+				this.jobRoleService.getFilterOptions(jwtToken),
 			]);
 			res.render("job-role-list.njk", {
 				jobRoles: result.items,
@@ -80,12 +82,9 @@ export class JobRoleController {
 		}
 	}
 
-	async getJobRoleInformation(
-		req: Request<{ id: string }>,
-		res: Response,
-	): Promise<void> {
+	async getJobRoleInformation(req: Request, res: Response): Promise<void> {
 		const rawJobRoleId = req.params.id;
-		await this.renderJobRoleDetail(rawJobRoleId, res);
+		await this.renderJobRoleDetail(rawJobRoleId, req.session.jwtToken, res);
 	}
 
 	async getJobRoleById(
@@ -93,11 +92,12 @@ export class JobRoleController {
 		res: Response,
 	): Promise<void> {
 		const rawJobRoleId = req.params.jobRoleId;
-		await this.renderJobRoleDetail(rawJobRoleId, res);
+		await this.renderJobRoleDetail(rawJobRoleId, req.session.jwtToken, res);
 	}
 
 	private async renderJobRoleDetail(
 		rawJobRoleId: string | undefined,
+		jwtToken: string | undefined,
 		res: Response,
 	): Promise<void> {
 		const jobRoleId = Number.parseInt(rawJobRoleId ?? "", 10);
@@ -107,7 +107,7 @@ export class JobRoleController {
 		}
 
 		try {
-			const jobRole = await this.jobRoleService.getJobRoleById(jobRoleId);
+			const jobRole = await this.jobRoleService.getJobRoleById(jobRoleId, jwtToken);
 			if (!jobRole) {
 				res.status(404).render("job-role-detail.njk", { jobRole: null });
 				return;
