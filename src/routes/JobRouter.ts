@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import { JobRoleController } from "../controllers/JobRoleController";
 import { requireAuthentication } from "../middleware/authMiddleware";
 import { JobRoleService } from "../services/JobRoleService";
@@ -19,7 +19,7 @@ router.get("/", requireAuthentication, (req, res) =>
 router.get("/job-roles", requireAuthentication, (req, res) =>
 	controller.getAllJobRoles(req, res),
 );
-router.get("/job-roles/:id", requireAuthentication, (req, res) =>
+router.get("/job-roles/:id", requireAuthentication, (req: Request<{ id: string }>, res: Response) =>
 	controller.getJobRoleInformation(req, res),
 );
 

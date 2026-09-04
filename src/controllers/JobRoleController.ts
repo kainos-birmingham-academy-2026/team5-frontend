@@ -82,7 +82,10 @@ export class JobRoleController {
 		}
 	}
 
-	async getJobRoleInformation(req: Request, res: Response): Promise<void> {
+	async getJobRoleInformation(
+		req: Request<{ id: string }>,
+		res: Response,
+	): Promise<void> {
 		const rawJobRoleId = req.params.id;
 		await this.renderJobRoleDetail(rawJobRoleId, req.session.jwtToken, res);
 	}
