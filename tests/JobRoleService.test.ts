@@ -28,11 +28,12 @@ describe("JobRoleService filters", () => {
 			closingDate: "2027-12-31",
 		};
 
-		await new JobRoleService().getAllJobRoles(1, 10, filters);
+		await new JobRoleService().getAllJobRoles(1, 10, filters, "session-token");
 
 		expect(apiClientMock.get).toHaveBeenCalledWith("/job-roles", {
 			params: { page: 1, pageSize: 10, ...filters },
 			paramsSerializer: { indexes: null },
+			headers: { Authorization: "Bearer session-token" },
 		});
 	});
 
@@ -44,9 +45,11 @@ describe("JobRoleService filters", () => {
 		};
 		apiClientMock.get.mockResolvedValue({ data: filterOptions });
 
-		const result = await new JobRoleService().getFilterOptions();
+		const result = await new JobRoleService().getFilterOptions("session-token");
 
-		expect(apiClientMock.get).toHaveBeenCalledWith("/job-roles/filter-options");
+		expect(apiClientMock.get).toHaveBeenCalledWith("/job-roles/filter-options", {
+			headers: { Authorization: "Bearer session-token" },
+		});
 		expect(result).toEqual(filterOptions);
 	});
 });
@@ -58,9 +61,14 @@ describe("JobRoleService job role details", () => {
 		const jobRole = { jobRoleId: 12, roleName: "Software Engineer" };
 		apiClientMock.get.mockResolvedValue({ data: jobRole });
 
-		const result = await new JobRoleService().getJobRoleInformation(12);
+		const result = await new JobRoleService().getJobRoleInformation(
+			12,
+			"session-token",
+		);
 
-		expect(apiClientMock.get).toHaveBeenCalledWith("/job-roles/12");
+		expect(apiClientMock.get).toHaveBeenCalledWith("/job-roles/12", {
+			headers: { Authorization: "Bearer session-token" },
+		});
 		expect(result).toEqual(jobRole);
 	});
 
@@ -89,6 +97,7 @@ describe("JobRoleService job role details", () => {
 				status: [],
 			},
 			paramsSerializer: { indexes: null },
+			headers: undefined,
 		});
 		expect(result).toEqual(jobRole);
 	});
@@ -120,7 +129,7 @@ describe("JobRoleService job role details", () => {
 
 		const result = await service.getJobRoleById(12);
 
-		expect(getJobRoleInformation).toHaveBeenCalledWith(12);
+		expect(getJobRoleInformation).toHaveBeenCalledWith(12, undefined);
 		expect(result).toEqual(jobRole);
 	});
 });
