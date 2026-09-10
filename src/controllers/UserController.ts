@@ -1,19 +1,7 @@
 import axios from "axios";
 import type { Request, Response } from "express";
+import { getRoleIdFromToken } from "../lib/jwt";
 import type { UserService } from "../services/UserService";
-
-const getRoleIdFromToken = (token: string): number | undefined => {
-	try {
-		const payload = token.split(".")[1];
-		if (!payload) return undefined;
-		const decoded = JSON.parse(
-			Buffer.from(payload, "base64url").toString("utf8"),
-		) as { roleId?: unknown };
-		return typeof decoded.roleId === "number" ? decoded.roleId : undefined;
-	} catch {
-		return undefined;
-	}
-};
 
 export class UserController {
 	constructor(private userService: UserService) {}
