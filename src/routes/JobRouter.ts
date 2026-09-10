@@ -1,5 +1,6 @@
-import { Router } from "express";
+import { Router, type Request, type Response } from "express";
 import { JobRoleController } from "../controllers/JobRoleController";
+import { requireAuthentication } from "../middleware/authMiddleware";
 import { JobRoleService } from "../services/JobRoleService";
 
 const router = Router();
@@ -11,10 +12,14 @@ router.get("/health", (_req, res) => {
 	res.json({ status: "UP", time: new Date().toISOString() });
 });
 
-router.get("/", (req, res) => controller.getHomePage(req, res));
+router.get("/", requireAuthentication, (req, res) =>
+	controller.getHomePage(req, res),
+);
 
-router.get("/job-roles", (req, res) => controller.getAllJobRoles(req, res));
-router.get("/job-roles/:id", (req, res) =>
+router.get("/job-roles", requireAuthentication, (req, res) =>
+	controller.getAllJobRoles(req, res),
+);
+router.get("/job-roles/:id", requireAuthentication, (req: Request<{ id: string }>, res: Response) =>
 	controller.getJobRoleInformation(req, res),
 );
 

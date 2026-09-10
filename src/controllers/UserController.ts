@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { Request, Response } from "express";
+import { getRoleIdFromToken } from "../lib/jwt";
 import type { UserService } from "../services/UserService";
 
 export class UserController {
@@ -42,6 +43,7 @@ export class UserController {
 		try {
 			const jwtToken = await this.userService.login(email, password);
 			req.session.jwtToken = jwtToken;
+			req.session.userRoleId = getRoleIdFromToken(jwtToken);
 			res.redirect("/");
 		} catch (error) {
 			const status = axios.isAxiosError(error)
@@ -72,6 +74,7 @@ export class UserController {
 		try {
 			const jwtToken = await this.userService.register(email, password);
 			req.session.jwtToken = jwtToken;
+			req.session.userRoleId = getRoleIdFromToken(jwtToken);
 			req.session.registrationSuccessMessage = "Account successfully created.";
 			res.redirect("/");
 		} catch (error) {

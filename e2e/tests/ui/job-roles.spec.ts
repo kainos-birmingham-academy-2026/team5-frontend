@@ -2,16 +2,27 @@ import { seedData } from "../../fixtures/test-data";
 import { expect, test } from "../../fixtures/test-fixtures";
 
 test.describe("Browsing jobs", () => {
-	test("reaches the job list from the home page", async ({
+	test("redirects signed-out users from the home page to login", async ({
 		homePage,
-		jobRoleListPage,
 	}) => {
 		await homePage.goto();
 
-		await expect(homePage.heroHeading).toBeVisible();
-		await homePage.browseOpportunities();
+		await expect(homePage.page).toHaveURL(/\/login$/);
+	});
 
+	test("lets signed-in users browse the job list from home", { tag: "@database" }, async ({
+		homePage,
+		loginPage,
+		jobRoleListPage,
+		registeredUser,
+	}) => {
+		await loginPage.goto();
+		await loginPage.login(registeredUser.email, registeredUser.password);
+		await homePage.goto();
+
+		await homePage.browseOpportunities();
 		await expect(jobRoleListPage.page).toHaveURL(/\/job-roles$/);
+		await expect(jobRoleListPage.heading).toBeVisible();
 	});
 });
 

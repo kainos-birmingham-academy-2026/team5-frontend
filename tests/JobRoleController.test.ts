@@ -42,6 +42,7 @@ describe("JobRoleController filters", () => {
 				status: "Open",
 				closingDate: "2027-12-31",
 			},
+			session: {},
 		} as unknown as Request;
 		const res = { render: vi.fn() } as unknown as Response;
 
@@ -55,8 +56,8 @@ describe("JobRoleController filters", () => {
 			status: ["Open"],
 			closingDate: "2027-12-31",
 		};
-		expect(getAllJobRoles).toHaveBeenCalledWith(2, 10, filters);
-		expect(getFilterOptions).toHaveBeenCalledOnce();
+		expect(getAllJobRoles).toHaveBeenCalledWith(2, 10, filters, undefined);
+		expect(getFilterOptions).toHaveBeenCalledWith(undefined);
 		expect(res.render).toHaveBeenCalledWith("job-role-list.njk", {
 			jobRoles: [],
 			pagination: expect.objectContaining({ page: 2 }),
@@ -75,7 +76,7 @@ describe("JobRoleController filters", () => {
 			getAllJobRoles,
 			getFilterOptions: vi.fn(),
 		} as unknown as JobRoleService);
-		const request = { query: {} } as unknown as Request;
+		const request = { query: {}, session: {} } as unknown as Request;
 		const response = createResponse();
 		const consoleError = vi
 			.spyOn(console, "error")
@@ -142,14 +143,14 @@ describe("JobRoleController job role details", () => {
 		const controller = new JobRoleController({
 			getJobRoleById,
 		} as unknown as JobRoleService);
-		const request = { params: { id: "12" } } as unknown as Request<{
+		const request = { params: { id: "12" }, session: {} } as unknown as Request<{
 			id: string;
 		}>;
 		const response = createResponse();
 
 		await controller.getJobRoleInformation(request, response);
 
-		expect(getJobRoleById).toHaveBeenCalledWith(12);
+		expect(getJobRoleById).toHaveBeenCalledWith(12, undefined);
 		expect(response.render).toHaveBeenCalledWith("job-role-detail.njk", {
 			jobRole,
 		});
@@ -162,6 +163,7 @@ describe("JobRoleController job role details", () => {
 		} as unknown as JobRoleService);
 		const request = {
 			params: { jobRoleId: "invalid" },
+			session: {},
 		} as unknown as Request<{ jobRoleId: string }>;
 		const response = createResponse();
 
@@ -176,7 +178,7 @@ describe("JobRoleController job role details", () => {
 		const controller = new JobRoleController({
 			getJobRoleById: vi.fn().mockResolvedValue(null),
 		} as unknown as JobRoleService);
-		const request = { params: { id: "99" } } as unknown as Request<{
+		const request = { params: { id: "99" }, session: {} } as unknown as Request<{
 			id: string;
 		}>;
 		const response = createResponse();
@@ -193,7 +195,7 @@ describe("JobRoleController job role details", () => {
 		const controller = new JobRoleController({
 			getJobRoleById: vi.fn().mockRejectedValue(new Error("API unavailable")),
 		} as unknown as JobRoleService);
-		const request = { params: { id: "12" } } as unknown as Request<{
+		const request = { params: { id: "12" }, session: {} } as unknown as Request<{
 			id: string;
 		}>;
 		const response = createResponse();

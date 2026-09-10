@@ -57,38 +57,54 @@ const emptyFilters = (): JobRoleFilters => ({
 	status: [],
 });
 
+const authorizationHeader = (jwtToken: string | undefined) => ({
+	headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : undefined,
+});
+
 export class JobRoleService {
 	async getAllJobRoles(
 		page = 1,
 		pageSize = 10,
 		filters: JobRoleFilters = emptyFilters(),
+		jwtToken?: string,
 	): Promise<PaginatedJobRoles> {
 		const response = await apiClient.get<PaginatedJobRoles>("/job-roles", {
 			params: { page, pageSize, ...filters },
 			paramsSerializer: { indexes: null },
+			...authorizationHeader(jwtToken),
 		});
 
 		return response.data;
 	}
 
-	async getFilterOptions(): Promise<JobRoleFilterOptions> {
+	async getFilterOptions(jwtToken?: string): Promise<JobRoleFilterOptions> {
 		const response = await apiClient.get<JobRoleFilterOptions>(
 			"/job-roles/filter-options",
+			authorizationHeader(jwtToken),
 		);
 		return response.data;
 	}
 
-	async getJobRoleInformation(jobRoleId: number): Promise<JobRole | null> {
+	async getJobRoleInformation(
+		jobRoleId: number,
+		jwtToken?: string,
+	): Promise<JobRole | null> {
 		try {
-			const response = await apiClient.get<JobRole>(`/job-roles/${jobRoleId}`);
+			const response = await apiClient.get<JobRole>(
+				`/job-roles/${jobRoleId}`,
+				authorizationHeader(jwtToken),
+			);
 			return response.data;
 		} catch {
-			const roles = await this.getAllJobRoles();
+			const roles = await this.getAllJobRoles(1, 10, emptyFilters(), jwtToken);
 			return roles.items.find((role) => role.jobRoleId === jobRoleId) ?? null;
 		}
 	}
 
-	async getJobRoleById(jobRoleId: number): Promise<JobRole | null> {
-		return this.getJobRoleInformation(jobRoleId);
+	async getJobRoleById(
+		jobRoleId: number,
+		jwtToken?: string,
+	): Promise<JobRole | null> {
+		return this.getJobRoleInformation(jobRoleId, jwtToken);
 	}
 }

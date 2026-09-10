@@ -15,11 +15,19 @@ const createResponse = () => {
 	return { response, render };
 };
 
+type TestRequest = Request & {
+	session: {
+		jwtToken?: string;
+		userRoleId?: number;
+		registrationSuccessMessage?: string;
+	};
+};
+
 const createRequest = () =>
 	({
 		body: { email: "candidate@example.com", password: "wrong-password" },
 		session: {},
-	}) as unknown as Request;
+	}) as unknown as TestRequest;
 
 describe("UserController authentication pages", () => {
 	it.each([
@@ -54,8 +62,12 @@ describe("UserController authentication pages", () => {
 });
 
 describe("UserController login", () => {
-	it("stores the token and redirects home after a successful login", async () => {
-		const login = vi.fn().mockResolvedValue("signed-in-token");
+	it("stores the token and applicant role before redirecting home", async () => {
+		const login = vi
+			.fn()
+			.mockResolvedValue(
+				`${Buffer.from('{"alg":"none"}').toString("base64url")}.${Buffer.from('{"roleId":1}').toString("base64url")}.signature`,
+			);
 		const controller = new UserController({ login } as unknown as UserService);
 		const request = createRequest();
 		const { response } = createResponse();
@@ -66,7 +78,8 @@ describe("UserController login", () => {
 			"candidate@example.com",
 			"wrong-password",
 		);
-		expect(request.session.jwtToken).toBe("signed-in-token");
+		expect(request.session.jwtToken).toBeDefined();
+		expect(request.session.userRoleId).toBe(1);
 		expect(response.redirect).toHaveBeenCalledWith("/");
 	});
 
@@ -132,8 +145,12 @@ describe("UserController login errors", () => {
 });
 
 describe("UserController registration", () => {
-	it("registers the user, stores the token, and redirects home", async () => {
-		const register = vi.fn().mockResolvedValue("registered-token");
+	it("registers the user, stores the applicant role, and redirects home", async () => {
+		const register = vi
+			.fn()
+			.mockResolvedValue(
+				`${Buffer.from('{"alg":"none"}').toString("base64url")}.${Buffer.from('{"roleId":1}').toString("base64url")}.signature`,
+			);
 		const controller = new UserController({
 			register,
 		} as unknown as UserService);
@@ -146,7 +163,8 @@ describe("UserController registration", () => {
 			"candidate@example.com",
 			"wrong-password",
 		);
-		expect(request.session.jwtToken).toBe("registered-token");
+		expect(request.session.jwtToken).toBeDefined();
+		expect(request.session.userRoleId).toBe(1);
 		expect(request.session.registrationSuccessMessage).toBe(
 			"Account successfully created.",
 		);
