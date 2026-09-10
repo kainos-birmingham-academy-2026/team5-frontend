@@ -10,7 +10,7 @@ test.describe("Browsing jobs", () => {
 		await expect(homePage.page).toHaveURL(/\/login$/);
 	});
 
-	test("lets signed-in users browse the job list from home", async ({
+	test("lets signed-in users browse the job list from home", { tag: "@database" }, async ({
 		homePage,
 		loginPage,
 		jobRoleListPage,
