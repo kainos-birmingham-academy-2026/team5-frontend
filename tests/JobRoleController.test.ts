@@ -137,8 +137,22 @@ describe("JobRoleController home page", () => {
 });
 
 describe("JobRoleController job role details", () => {
-	it("renders a job role requested by id", async () => {
-		const jobRole = { jobRoleId: 12, roleName: "Software Engineer" };
+	it.each([
+		["open role with vacancies", "Open", 2, true],
+		["open role with no vacancies", "Open", 0, false],
+		["closed role with vacancies", "Closed", 2, false],
+	] as const)("sets application eligibility for an %s", async (
+		_description,
+		status,
+		numberOfOpenPositions,
+		canApply,
+	) => {
+		const jobRole = {
+			jobRoleId: 12,
+			roleName: "Software Engineer",
+			status,
+			numberOfOpenPositions,
+		};
 		const getJobRoleById = vi.fn().mockResolvedValue(jobRole);
 		const controller = new JobRoleController({
 			getJobRoleById,
@@ -153,6 +167,7 @@ describe("JobRoleController job role details", () => {
 		expect(getJobRoleById).toHaveBeenCalledWith(12, undefined);
 		expect(response.render).toHaveBeenCalledWith("job-role-detail.njk", {
 			jobRole,
+			canApply,
 		});
 	});
 

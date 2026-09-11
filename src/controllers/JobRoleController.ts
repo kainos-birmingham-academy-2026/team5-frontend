@@ -116,7 +116,12 @@ export class JobRoleController {
 				return;
 			}
 
-			res.render("job-role-detail.njk", { jobRole });
+			const status = jobRole.statusRef?.statusName ?? jobRole.status;
+			const canApply =
+				status?.toLowerCase() === "open" &&
+				(jobRole.numberOfOpenPositions ?? 0) > 0;
+
+			res.render("job-role-detail.njk", { jobRole, canApply });
 		} catch (error) {
 			console.error("Failed to retrieve job role:", error);
 			res.status(500).send("Failed to retrieve job role");
