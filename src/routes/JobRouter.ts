@@ -19,8 +19,11 @@ router.get("/", requireAuthentication, (req, res) =>
 router.get("/job-roles", requireAuthentication, (req, res) =>
 	controller.getAllJobRoles(req, res),
 );
-router.get("/job-roles/:id", requireAuthentication, (req: Request<{ id: string }>, res: Response) =>
-	controller.getJobRoleInformation(req, res),
+router.get(
+	"/job-roles/:id",
+	requireAuthentication,
+	(req: Request<{ id: string }>, res: Response) =>
+		controller.getJobRoleInformation(req, res),
 );
 
 export default router;
