@@ -45,13 +45,17 @@ const messageForStatus = (status: number): AiAssistantError => {
 	}
 };
 
+const authorizationHeader = (jwtToken: string | undefined) => ({
+	headers: jwtToken ? { Authorization: `Bearer ${jwtToken}` } : undefined,
+});
+
 export class AiAssistantService {
-	async ask(question: string): Promise<string> {
+	async ask(question: string, jwtToken?: string): Promise<string> {
 		try {
 			const response = await apiClient.post<AiAssistantAnswer>(
 				"/assistant/questions",
 				{ question },
-				{ timeout: ASSISTANT_TIMEOUT_MS },
+				{ timeout: ASSISTANT_TIMEOUT_MS, ...authorizationHeader(jwtToken) },
 			);
 
 			return response.data.answer;

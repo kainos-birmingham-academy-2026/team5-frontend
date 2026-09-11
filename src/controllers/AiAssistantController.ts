@@ -24,7 +24,8 @@ export class AiAssistantController {
 		}
 
 		try {
-			const answer = await this.aiAssistantService.ask(question);
+			const jwtToken = req.session.jwtToken;
+			const answer = await this.aiAssistantService.ask(question, jwtToken);
 			res.status(200).json({ answer });
 		} catch (error) {
 			if (error instanceof AiAssistantError) {

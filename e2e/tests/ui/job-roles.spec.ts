@@ -10,12 +10,9 @@ test.describe("Browsing jobs", () => {
 		await expect(homePage.page).toHaveURL(/\/login$/);
 	});
 
-	test("lets signed-in users browse the job list from home", { tag: "@database" }, async ({
-		homePage,
-		loginPage,
-		jobRoleListPage,
-		registeredUser,
-	}) => {
+	test("lets signed-in users browse the job list from home", {
+		tag: "@database",
+	}, async ({ homePage, loginPage, jobRoleListPage, registeredUser }) => {
 		await loginPage.goto();
 		await loginPage.login(registeredUser.email, registeredUser.password);
 		await homePage.goto();
