@@ -71,6 +71,14 @@ describe("shared accessibility contracts", () => {
 		expect(detail).toContain("</dl>");
 	});
 
+	it("only shows the application link to eligible applicants", () => {
+		const detail = readView("job-role-detail.njk");
+		expect(detail).toContain("{% if isApplicant and canApply %}");
+		expect(detail).toContain(
+			'href="/job-roles/{{ jobRole.jobRoleId }}/apply">Apply for this role</a>',
+		);
+	});
+
 	it("submits every role column filter to the server", () => {
 		const macros = readView("components", "ui-macros.njk");
 		const jobsScript = readView("assets", "scripts", "jobs.ts");
