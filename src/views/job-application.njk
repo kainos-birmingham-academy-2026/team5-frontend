@@ -18,6 +18,10 @@
         <h1>Apply for {{ jobRole.roleName }}</h1>
       </header>
 
+      {% if applicationErrorMessage %}
+        <p class="form-error" role="alert">{{ applicationErrorMessage }}</p>
+      {% endif %}
+
       <form class="login-form" method="post" action="/job-roles/{{ jobRole.jobRoleId }}/apply" enctype="multipart/form-data">
         <label class="form-field" for="application-cv">
           Upload your CV

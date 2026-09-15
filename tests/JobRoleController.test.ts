@@ -252,6 +252,51 @@ describe("JobRoleController application form", () => {
 		});
 	});
 
+	it("submits a valid CV to the backend and redirects to the role", async () => {
+		const submitJobApplication = vi.fn().mockResolvedValue({
+			applicationId: 7,
+			jobRoleId: 12,
+			cvFileName: "cv.pdf",
+			cvMimeType: "application/pdf",
+			status: "Submitted",
+		});
+		const controller = new JobRoleController({
+			submitJobApplication,
+		} as unknown as JobRoleService);
+		const session: { jwtToken?: string; applicationSuccessMessage?: string } = {
+			jwtToken: JWT_TOKEN,
+		};
+		const request = {
+			params: { id: "12" },
+			session,
+			file: {
+				originalname: "cv.pdf",
+				mimetype: "application/pdf",
+				buffer: Buffer.from("pdf-data"),
+			},
+		} as unknown as Request<{ id: string }>;
+		const response = {
+			status: vi.fn().mockReturnThis(),
+			render: vi.fn(),
+			send: vi.fn(),
+			redirect: vi.fn(),
+		} as unknown as Response;
+
+		await controller.submitApplication(request, response);
+
+		expect(submitJobApplication).toHaveBeenCalledWith(
+			12,
+			expect.objectContaining({
+				originalname: "cv.pdf",
+				mimetype: "application/pdf",
+				buffer: Buffer.from("pdf-data"),
+			}),
+			JWT_TOKEN,
+		);
+		expect(session.applicationSuccessMessage).toBe("Application submitted successfully.");
+		expect(response.redirect).toHaveBeenCalledWith("/job-roles/12");
+	});
+
 	it.each([
 		["Closed", 2],
 		["Open", 0],

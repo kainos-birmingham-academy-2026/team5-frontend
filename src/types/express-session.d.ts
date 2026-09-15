@@ -5,5 +5,7 @@ declare module "express-session" {
 		jwtToken?: string;
 		userRoleId?: number;
 		registrationSuccessMessage?: string;
+		applicationSuccessMessage?: string;
+		applicationErrorMessage?: string;
 	}
 }

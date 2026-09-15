@@ -1,3 +1,4 @@
+import multer from "multer";
 import { Router, type Request, type Response } from "express";
 import { JobRoleController } from "../controllers/JobRoleController";
 import {
@@ -5,6 +6,29 @@ import {
 	requireAuthentication,
 } from "../middleware/authMiddleware";
 import { JobRoleService } from "../services/JobRoleService";
+
+const upload = multer({
+	storage: multer.memoryStorage(),
+	limits: { fileSize: 5 * 1024 * 1024 },
+	fileFilter: (
+		_req: Request,
+		file: { mimetype: string },
+		callback: (error: Error | null, acceptFile?: boolean) => void,
+	) => {
+		const allowedMimeTypes = new Set([
+			"application/pdf",
+			"application/msword",
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		]);
+
+		if (!allowedMimeTypes.has(file.mimetype)) {
+			callback(new Error("CV must be a PDF, DOC, or DOCX file"));
+			return;
+		}
+
+		callback(null, true);
+	},
+});
 
 const router = Router();
 
@@ -36,7 +60,9 @@ router.post(
 	"/job-roles/:id/apply",
 	requireAuthentication,
 	requireApplicant,
-	(_req, res) => res.sendStatus(501),
+	upload.single("cv"),
+	(req: Request<{ id: string }>, res: Response) =>
+		controller.submitApplication(req, res),
 );
 
 export default router;
