@@ -98,6 +98,42 @@ export class JobRoleController {
 		await this.renderJobRoleDetail(rawJobRoleId, req.session.jwtToken, res);
 	}
 
+	async getApplicationForm(
+		req: Request<{ id: string }>,
+		res: Response,
+	): Promise<void> {
+		const jobRoleId = Number.parseInt(req.params.id, 10);
+		if (Number.isNaN(jobRoleId)) {
+			res.status(400).send("Invalid job role id");
+			return;
+		}
+
+		try {
+			const jobRole = await this.jobRoleService.getJobRoleById(
+				jobRoleId,
+				req.session.jwtToken,
+			);
+			if (!jobRole) {
+				res.status(404).send("Job role not found");
+				return;
+			}
+
+			const status = jobRole.statusRef?.statusName ?? jobRole.status;
+			const canApply =
+				status?.toLowerCase() === "open" &&
+				(jobRole.numberOfOpenPositions ?? 0) > 0;
+			if (!canApply) {
+				res.status(400).send("This role is not accepting applications");
+				return;
+			}
+
+			res.render("job-application.njk", { jobRole });
+		} catch (error) {
+			console.error("Failed to retrieve job role application form:", error);
+			res.status(500).send("Failed to retrieve job role");
+		}
+	}
+
 	private async renderJobRoleDetail(
 		rawJobRoleId: string | undefined,
 		jwtToken: string | undefined,

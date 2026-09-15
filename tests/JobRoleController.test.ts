@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { JobRoleController } from "../src/controllers/JobRoleController";
 import type { JobRoleService } from "../src/services/JobRoleService";
 
+const JWT_TOKEN = "session-token";
+
 const createResponse = () => {
 	const response = {
 		status: vi.fn(),
@@ -224,4 +226,57 @@ describe("JobRoleController job role details", () => {
 		expect(response.send).toHaveBeenCalledWith("Failed to retrieve job role");
 		consoleError.mockRestore();
 	});
+});
+
+describe("JobRoleController application form", () => {
+	it("renders the CV upload form for an open role with vacancies", async () => {
+		const jobRole = {
+			jobRoleId: 12,
+			roleName: "Software Engineer",
+			status: "Open",
+			numberOfOpenPositions: 2,
+		};
+		const controller = new JobRoleController({
+			getJobRoleById: vi.fn().mockResolvedValue(jobRole),
+		} as unknown as JobRoleService);
+		const request = {
+			params: { id: "12" },
+			session: { jwtToken: JWT_TOKEN },
+		} as unknown as Request<{ id: string }>;
+		const response = createResponse();
+
+		await controller.getApplicationForm(request, response);
+
+		expect(response.render).toHaveBeenCalledWith("job-application.njk", {
+			jobRole,
+		});
+	});
+
+	it.each([
+		["Closed", 2],
+		["Open", 0],
+	] as const)(
+		"rejects an application form for status %s with %i vacancies",
+		async (status, numberOfOpenPositions) => {
+			const controller = new JobRoleController({
+				getJobRoleById: vi.fn().mockResolvedValue({
+					jobRoleId: 12,
+					status,
+					numberOfOpenPositions,
+				}),
+			} as unknown as JobRoleService);
+			const request = {
+				params: { id: "12" },
+				session: { jwtToken: JWT_TOKEN },
+			} as unknown as Request<{ id: string }>;
+			const response = createResponse();
+
+			await controller.getApplicationForm(request, response);
+
+			expect(response.status).toHaveBeenCalledWith(400);
+			expect(response.send).toHaveBeenCalledWith(
+				"This role is not accepting applications",
+			);
+		},
+	);
 });

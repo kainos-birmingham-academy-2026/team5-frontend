@@ -1,0 +1,31 @@
+{% extends "layouts/base.njk" %}
+{% from "components/ui-macros.njk" import breadcrumbs %}
+
+{% block title %}Apply for {{ jobRole.roleName }} | Kainos Careers{% endblock %}
+
+{% block content %}
+  {{ breadcrumbs([
+    { label: "Home", href: "/" },
+    { label: "Opportunities", href: "/job-roles" },
+    { label: jobRole.roleName, href: "/job-roles/" + jobRole.jobRoleId },
+    { label: "Apply" }
+  ]) }}
+  <section class="container section section-tight">
+    <a href="/job-roles/{{ jobRole.jobRoleId }}" class="inline-link">Back to role details</a>
+
+    <article class="detail-card">
+      <header class="detail-header">
+        <h1>Apply for {{ jobRole.roleName }}</h1>
+      </header>
+
+      <form class="login-form" method="post" action="/job-roles/{{ jobRole.jobRoleId }}/apply" enctype="multipart/form-data">
+        <label class="form-field" for="application-cv">
+          Upload your CV
+          <input id="application-cv" name="cv" type="file" accept=".pdf,.doc,.docx" required />
+        </label>
+        <p>Upload a PDF, DOC, or DOCX file up to 5 MB.</p>
+        <button class="btn btn-primary" type="submit">Submit application</button>
+      </form>
+    </article>
+  </section>
+{% endblock %}

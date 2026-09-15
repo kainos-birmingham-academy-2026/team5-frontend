@@ -29,7 +29,8 @@ router.get(
 	"/job-roles/:id/apply",
 	requireAuthentication,
 	requireApplicant,
-	(_req, res) => res.sendStatus(501),
+	(req: Request<{ id: string }>, res: Response) =>
+		controller.getApplicationForm(req, res),
 );
 router.post(
 	"/job-roles/:id/apply",
