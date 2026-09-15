@@ -47,9 +47,12 @@ describe("JobRoleService filters", () => {
 
 		const result = await new JobRoleService().getFilterOptions("session-token");
 
-		expect(apiClientMock.get).toHaveBeenCalledWith("/job-roles/filter-options", {
-			headers: { Authorization: "Bearer session-token" },
-		});
+		expect(apiClientMock.get).toHaveBeenCalledWith(
+			"/job-roles/filter-options",
+			{
+				headers: { Authorization: "Bearer session-token" },
+			},
+		);
 		expect(result).toEqual(filterOptions);
 	});
 });
