@@ -219,3 +219,320 @@ describe("JobRoleController job role details", () => {
 		consoleError.mockRestore();
 	});
 });
+
+const axiosError = (message: string) =>
+	Object.assign(new Error(message), {
+		isAxiosError: true,
+		response: { data: { error: message } },
+	});
+
+describe("JobRoleController admin job role form", () => {
+	it("renders the new job role form with reference options", async () => {
+		const referenceOptions = {
+			capabilities: [{ capabilityId: 1, capabilityName: "Engineering" }],
+			bands: [{ nameId: 2, bandName: "Band 2" }],
+		};
+		const getReferenceOptions = vi.fn().mockResolvedValue(referenceOptions);
+		const controller = new JobRoleController({
+			getReferenceOptions,
+		} as unknown as JobRoleService);
+		const request = { session: {} } as unknown as Request;
+		const response = { render: vi.fn() } as unknown as Response;
+
+		await controller.showNewJobRoleForm(request, response);
+
+		expect(response.render).toHaveBeenCalledWith("job-role-form.njk", {
+			mode: "create",
+			formValues: expect.objectContaining({ roleName: "" }),
+			referenceOptions,
+		});
+	});
+
+	it("re-renders the create form with validation errors and no service call", async () => {
+		const createJobRole = vi.fn();
+		const controller = new JobRoleController({
+			createJobRole,
+			getReferenceOptions: vi.fn().mockResolvedValue({
+				capabilities: [],
+				bands: [],
+			}),
+			getFilterOptions: vi.fn().mockResolvedValue({
+				capabilities: [],
+				bands: [],
+				statuses: [],
+			}),
+		} as unknown as JobRoleService);
+		const request = { body: {}, session: {} } as unknown as Request;
+		const response = createResponse();
+
+		await controller.createJobRole(request, response);
+
+		expect(createJobRole).not.toHaveBeenCalled();
+		expect(response.status).toHaveBeenCalledWith(400);
+		expect(response.render).toHaveBeenCalledWith(
+			"job-role-form.njk",
+			expect.objectContaining({ mode: "create" }),
+		);
+	});
+
+	it("creates a job role and redirects to its detail page", async () => {
+		const createJobRole = vi
+			.fn()
+			.mockResolvedValue({ jobRoleId: 5, roleName: "QA Engineer" });
+		const controller = new JobRoleController({
+			createJobRole,
+		} as unknown as JobRoleService);
+		const session: { jwtToken?: string; flashSuccess?: string } = {
+			jwtToken: "token",
+		};
+		const request = {
+			body: {
+				roleName: "QA Engineer",
+				location: "Remote",
+				capabilityId: "1",
+				bandId: "2",
+				closingDate: "2027-10-10",
+			},
+			session,
+		} as unknown as Request;
+		const response = { redirect: vi.fn() } as unknown as Response;
+
+		await controller.createJobRole(request, response);
+
+		expect(createJobRole).toHaveBeenCalledWith(
+			{
+				roleName: "QA Engineer",
+				location: "Remote",
+				capabilityId: 1,
+				bandId: 2,
+				closingDate: "2027-10-10",
+			},
+			"token",
+		);
+		expect(response.redirect).toHaveBeenCalledWith("/job-roles/5");
+		expect(session.flashSuccess).toBe("QA Engineer was created.");
+	});
+
+	it("re-renders the create form with the API error message when the service throws", async () => {
+		const createJobRole = vi
+			.fn()
+			.mockRejectedValue(axiosError("Capability 1 does not exist"));
+		const controller = new JobRoleController({
+			createJobRole,
+			getReferenceOptions: vi.fn().mockResolvedValue({
+				capabilities: [],
+				bands: [],
+			}),
+			getFilterOptions: vi.fn().mockResolvedValue({
+				capabilities: [],
+				bands: [],
+				statuses: [],
+			}),
+		} as unknown as JobRoleService);
+		const request = {
+			body: {
+				roleName: "QA Engineer",
+				location: "Remote",
+				capabilityId: "1",
+				bandId: "2",
+				closingDate: "2027-10-10",
+			},
+			session: {},
+		} as unknown as Request;
+		const response = createResponse();
+		const consoleError = vi
+			.spyOn(console, "error")
+			.mockImplementation(() => {});
+
+		await controller.createJobRole(request, response);
+
+		expect(response.status).toHaveBeenCalledWith(400);
+		expect(response.render).toHaveBeenCalledWith(
+			"job-role-form.njk",
+			expect.objectContaining({ errorMessage: "Capability 1 does not exist" }),
+		);
+		consoleError.mockRestore();
+	});
+
+	it("renders the edit form pre-populated with the existing job role", async () => {
+		const jobRole = {
+			jobRoleId: 5,
+			roleName: "QA Engineer",
+			location: "Remote",
+			capabilityId: 1,
+			bandId: 2,
+			closingDate: "2027-10-10",
+			status: "Open",
+		};
+		const controller = new JobRoleController({
+			getJobRoleById: vi.fn().mockResolvedValue(jobRole),
+			getReferenceOptions: vi.fn().mockResolvedValue({
+				capabilities: [],
+				bands: [],
+			}),
+			getFilterOptions: vi
+				.fn()
+				.mockResolvedValue({ capabilities: [], bands: [], statuses: ["Open", "Closed"] }),
+		} as unknown as JobRoleService);
+		const request = {
+			params: { id: "5" },
+			session: {},
+		} as unknown as Request<{ id: string }>;
+		const response = { status: vi.fn(), render: vi.fn(), send: vi.fn() } as unknown as Response;
+		vi.mocked(response.status).mockReturnValue(response);
+
+		await controller.showEditJobRoleForm(request, response);
+
+		expect(response.render).toHaveBeenCalledWith(
+			"job-role-form.njk",
+			expect.objectContaining({
+				mode: "edit",
+				jobRoleId: 5,
+				formValues: expect.objectContaining({ roleName: "QA Engineer" }),
+			}),
+		);
+	});
+
+	it("returns 404 when editing a job role that does not exist", async () => {
+		const controller = new JobRoleController({
+			getJobRoleById: vi.fn().mockResolvedValue(null),
+			getReferenceOptions: vi.fn().mockResolvedValue({
+				capabilities: [],
+				bands: [],
+			}),
+			getFilterOptions: vi
+				.fn()
+				.mockResolvedValue({ capabilities: [], bands: [], statuses: [] }),
+		} as unknown as JobRoleService);
+		const request = {
+			params: { id: "999" },
+			session: {},
+		} as unknown as Request<{ id: string }>;
+		const response = createResponse();
+
+		await controller.showEditJobRoleForm(request, response);
+
+		expect(response.status).toHaveBeenCalledWith(404);
+		expect(response.send).toHaveBeenCalledWith("Job role not found");
+	});
+
+	it("updates a job role and redirects to its detail page", async () => {
+		const updateJobRole = vi
+			.fn()
+			.mockResolvedValue({ jobRoleId: 5, roleName: "QA Engineer" });
+		const controller = new JobRoleController({
+			updateJobRole,
+		} as unknown as JobRoleService);
+		const session: { jwtToken?: string; flashSuccess?: string } = {};
+		const request = {
+			params: { id: "5" },
+			body: {
+				roleName: "QA Engineer",
+				location: "Remote",
+				capabilityId: "1",
+				bandId: "2",
+				closingDate: "2027-10-10",
+				status: "Closed",
+			},
+			session,
+		} as unknown as Request<{ id: string }>;
+		const response = { redirect: vi.fn() } as unknown as Response;
+
+		await controller.updateJobRole(request, response);
+
+		expect(updateJobRole).toHaveBeenCalledWith(
+			5,
+			{
+				roleName: "QA Engineer",
+				location: "Remote",
+				capabilityId: 1,
+				bandId: 2,
+				closingDate: "2027-10-10",
+				status: "Closed",
+			},
+			undefined,
+		);
+		expect(response.redirect).toHaveBeenCalledWith("/job-roles/5");
+		expect(session.flashSuccess).toBe("QA Engineer was updated.");
+	});
+
+	it("re-renders the edit form when status is missing", async () => {
+		const updateJobRole = vi.fn();
+		const controller = new JobRoleController({
+			updateJobRole,
+			getReferenceOptions: vi.fn().mockResolvedValue({
+				capabilities: [],
+				bands: [],
+			}),
+			getFilterOptions: vi
+				.fn()
+				.mockResolvedValue({ capabilities: [], bands: [], statuses: [] }),
+		} as unknown as JobRoleService);
+		const request = {
+			params: { id: "5" },
+			body: {
+				roleName: "QA Engineer",
+				location: "Remote",
+				capabilityId: "1",
+				bandId: "2",
+				closingDate: "2027-10-10",
+			},
+			session: {},
+		} as unknown as Request<{ id: string }>;
+		const response = createResponse();
+
+		await controller.updateJobRole(request, response);
+
+		expect(updateJobRole).not.toHaveBeenCalled();
+		expect(response.status).toHaveBeenCalledWith(400);
+	});
+});
+
+describe("JobRoleController delete job role", () => {
+	it("deletes a job role and redirects to the list with a success message", async () => {
+		const deleteJobRole = vi.fn().mockResolvedValue(undefined);
+		const controller = new JobRoleController({
+			deleteJobRole,
+		} as unknown as JobRoleService);
+		const session: { flashSuccess?: string } = {};
+		const request = {
+			params: { id: "5" },
+			session,
+		} as unknown as Request<{ id: string }>;
+		const response = { redirect: vi.fn() } as unknown as Response;
+
+		await controller.deleteJobRole(request, response);
+
+		expect(deleteJobRole).toHaveBeenCalledWith(5, undefined);
+		expect(response.redirect).toHaveBeenCalledWith("/job-roles");
+		expect(session.flashSuccess).toBe("Job role deleted.");
+	});
+
+	it("redirects back to the role with a flash error when deletion conflicts", async () => {
+		const deleteJobRole = vi
+			.fn()
+			.mockRejectedValue(
+				axiosError("Cannot delete a job role with existing applications"),
+			);
+		const controller = new JobRoleController({
+			deleteJobRole,
+		} as unknown as JobRoleService);
+		const session: { flashError?: string } = {};
+		const request = {
+			params: { id: "5" },
+			session,
+		} as unknown as Request<{ id: string }>;
+		const response = { redirect: vi.fn() } as unknown as Response;
+		const consoleError = vi
+			.spyOn(console, "error")
+			.mockImplementation(() => {});
+
+		await controller.deleteJobRole(request, response);
+
+		expect(response.redirect).toHaveBeenCalledWith("/job-roles/5");
+		expect(session.flashError).toBe(
+			"Cannot delete a job role with existing applications",
+		);
+		consoleError.mockRestore();
+	});
+});

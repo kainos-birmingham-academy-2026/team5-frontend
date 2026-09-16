@@ -5,7 +5,7 @@ import session from "express-session";
 import nunjucks from "nunjucks";
 import morganMiddleware from "./config/morganMiddleware";
 import Logger from "./lib/logger";
-import { APPLICANT_ROLE_ID } from "./lib/jwt";
+import { ADMIN_ROLE_ID, APPLICANT_ROLE_ID } from "./lib/jwt";
 import AiAssistantRouter from "./routes/AiAssistantRouter";
 import JobRouter from "./routes/JobRouter";
 import UserRouter from "./routes/UserRouter";
@@ -40,6 +40,7 @@ app.use(
 app.use((req, res, next) => {
 	res.locals.isAuthenticated = Boolean(req.session.jwtToken);
 	res.locals.isApplicant = req.session.userRoleId === APPLICANT_ROLE_ID;
+	res.locals.isAdmin = req.session.userRoleId === ADMIN_ROLE_ID;
 	next();
 });
 app.use(

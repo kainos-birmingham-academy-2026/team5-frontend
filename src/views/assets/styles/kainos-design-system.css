@@ -245,6 +245,14 @@ svg {
 	font-size: var(--font-size-sm);
 }
 
+.toast-error {
+	background: var(--color-danger);
+}
+
+.toast-error .toast-icon {
+	color: var(--color-danger);
+}
+
 @keyframes toast-enter {
 	from {
 		opacity: 0;
@@ -639,6 +647,31 @@ svg {
 .job-card-head h3 {
 	margin: 0;
 	flex: 1;
+}
+
+.job-card-id {
+	margin: 0 0 var(--space-4);
+	color: var(--color-ink-600);
+	font-size: var(--font-size-sm);
+}
+
+.admin-job-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-3);
+	margin-top: var(--space-4);
+}
+
+.admin-job-actions form {
+	margin: 0;
+}
+
+.section-head-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-4);
 }
 
 .meta-grid {
@@ -1296,6 +1329,17 @@ table {
 	color: var(--color-ink-950);
 	border-color: var(--color-brand-400);
 	background: var(--color-brand-400);
+}
+
+.btn-danger {
+	color: var(--color-white);
+	background: var(--color-danger);
+	border-color: var(--color-danger);
+}
+
+.btn-danger:hover {
+	background: #8f1c13;
+	border-color: #8f1c13;
 }
 
 .btn[aria-disabled="true"],
