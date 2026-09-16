@@ -47,6 +47,10 @@ locals {
   backend_app_name    = coalesce(var.backend_container_app_name, "ca-backend-${local.name_prefix}")
   frontend_image      = "${data.azurerm_container_registry.existing.login_server}/${var.frontend_image_name}:${var.frontend_image_tag}"
   backend_image       = "${data.azurerm_container_registry.existing.login_server}/${var.backend_image_name}:${var.backend_image_tag}"
+  cv_storage_account_name = coalesce(
+    var.cv_storage_account_name,
+    "st${replace(var.project, "-", "")}${var.environment}cv",
+  )
 
   common_tags = merge(
     {
@@ -83,6 +87,21 @@ module "container_app_identity" {
   location              = module.resource_group.location
   container_registry_id = data.azurerm_container_registry.existing.id
   tags                  = local.common_tags
+}
+
+module "cv_blob_storage" {
+  source = "./modules/blob-storage"
+
+  name                = local.cv_storage_account_name
+  resource_group_name = module.resource_group.name
+  location            = module.resource_group.location
+  tags                = local.common_tags
+}
+
+resource "azurerm_role_assignment" "cv_blob_contributor" {
+  scope                = module.cv_blob_storage.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = module.container_app_identity.principal_id
 }
 
 # Empty vault. Secret values and access assignments are managed outside Terraform.

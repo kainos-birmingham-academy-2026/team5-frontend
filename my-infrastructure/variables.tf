@@ -151,6 +151,17 @@ variable "backend_container_app_name" {
   }
 }
 
+variable "cv_storage_account_name" {
+  description = "Optional override for the applicant CV Storage Account. Leave null to use st<project-without-hyphens><environment>cv."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.cv_storage_account_name == null || can(regex("^[a-z0-9]{3,24}$", coalesce(var.cv_storage_account_name, "placeholder")))
+    error_message = "CV Storage Account name must be 3-24 lowercase letters or numbers."
+  }
+}
+
 variable "frontend_image_name" {
   description = "Repository name in ACR for the frontend image."
   type        = string

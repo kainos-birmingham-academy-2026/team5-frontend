@@ -102,3 +102,13 @@ output "backend_url" {
   description = "Internal HTTPS URL of the backend (reachable from the frontend, not the public internet)."
   value       = module.backend_app.url
 }
+
+output "cv_storage_account_name" {
+  description = "Name of the private Storage Account containing applicant CVs."
+  value       = module.cv_blob_storage.name
+}
+
+output "cv_blob_endpoint" {
+  description = "Blob endpoint for applicant CV files."
+  value       = module.cv_blob_storage.primary_blob_endpoint
+}
