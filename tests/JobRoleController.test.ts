@@ -159,7 +159,10 @@ describe("JobRoleController job role details", () => {
 		const controller = new JobRoleController({
 			getJobRoleById,
 		} as unknown as JobRoleService);
-		const request = { params: { id: "12" }, session: {} } as unknown as Request<{
+		const request = {
+			params: { id: "12" },
+			session: {},
+		} as unknown as Request<{
 			id: string;
 		}>;
 		const response = createResponse();
@@ -195,7 +198,10 @@ describe("JobRoleController job role details", () => {
 		const controller = new JobRoleController({
 			getJobRoleById: vi.fn().mockResolvedValue(null),
 		} as unknown as JobRoleService);
-		const request = { params: { id: "99" }, session: {} } as unknown as Request<{
+		const request = {
+			params: { id: "99" },
+			session: {},
+		} as unknown as Request<{
 			id: string;
 		}>;
 		const response = createResponse();
@@ -212,7 +218,10 @@ describe("JobRoleController job role details", () => {
 		const controller = new JobRoleController({
 			getJobRoleById: vi.fn().mockRejectedValue(new Error("API unavailable")),
 		} as unknown as JobRoleService);
-		const request = { params: { id: "12" }, session: {} } as unknown as Request<{
+		const request = {
+			params: { id: "12" },
+			session: {},
+		} as unknown as Request<{
 			id: string;
 		}>;
 		const response = createResponse();

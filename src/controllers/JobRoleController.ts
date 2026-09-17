@@ -42,7 +42,12 @@ export class JobRoleController {
 		const jwtToken = req.session.jwtToken;
 
 		try {
-			const result = await this.jobRoleService.getAllJobRoles(1, 4, undefined, jwtToken);
+			const result = await this.jobRoleService.getAllJobRoles(
+				1,
+				4,
+				undefined,
+				jwtToken,
+			);
 			res.render("careers-home.njk", {
 				featuredRoles: result.items,
 				registrationSuccessMessage,
@@ -199,7 +204,10 @@ export class JobRoleController {
 		delete req.session.applicationSuccessMessage;
 
 		try {
-			const jobRole = await this.jobRoleService.getJobRoleById(jobRoleId, jwtToken);
+			const jobRole = await this.jobRoleService.getJobRoleById(
+				jobRoleId,
+				jwtToken,
+			);
 			if (!jobRole) {
 				res.status(404).render("job-role-detail.njk", { jobRole: null });
 				return;
