@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const apiClientMock = vi.hoisted(() => ({ get: vi.fn() }));
+const apiClientMock = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }));
 
 vi.mock("../src/config/apiClient", () => ({ default: apiClientMock }));
 
@@ -155,5 +155,29 @@ describe("JobRoleService application eligibility", () => {
 		});
 
 		expect(eligible).toBe(expected);
+	});
+});
+
+describe("JobRoleService CV uploads", () => {
+	beforeEach(() => vi.resetAllMocks());
+
+	it("lets Axios set the multipart Content-Type boundary", async () => {
+		apiClientMock.post.mockResolvedValue({ data: { applicationId: 7 } });
+
+		await new JobRoleService().submitJobApplication(
+			12,
+			{
+				originalname: "cv.pdf",
+				mimetype: "application/pdf",
+				buffer: Buffer.from("pdf-data"),
+			},
+			"session-token",
+		);
+
+		expect(apiClientMock.post).toHaveBeenCalledWith(
+			"/job-roles/12/applications",
+			expect.any(FormData),
+			{ headers: { Authorization: "Bearer session-token" } },
+		);
 	});
 });

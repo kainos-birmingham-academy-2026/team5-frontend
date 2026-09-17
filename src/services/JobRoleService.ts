@@ -149,10 +149,7 @@ export class JobRoleService {
 			`/job-roles/${jobRoleId}/applications`,
 			formData,
 			{
-				headers: {
-					...authorizationHeader(jwtToken)?.headers,
-					"Content-Type": "multipart/form-data",
-				},
+				headers: authorizationHeader(jwtToken).headers,
 			},
 		);
 		return response.data;
