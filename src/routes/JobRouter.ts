@@ -84,25 +84,28 @@ router.use(
 		res: Response,
 		next: NextFunction,
 	) => {
-		const isKnownUploadError =
-			error instanceof multer.MulterError ||
-			(error instanceof Error && error.message === INVALID_CV_TYPE_MESSAGE);
-		if (!isKnownUploadError) {
-			next(error);
-			return;
-		}
-
 		const jobRoleId = Number.parseInt(req.params.id, 10);
 		if (Number.isNaN(jobRoleId)) {
 			next(error);
 			return;
 		}
 
-		req.session.applicationErrorMessage =
-			error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE"
-				? "CV must not exceed 5 MB"
-				: error.message;
-		res.redirect(`/job-roles/${jobRoleId}/apply`);
+		if (error instanceof multer.MulterError) {
+			req.session.applicationErrorMessage =
+				error.code === "LIMIT_FILE_SIZE"
+					? "CV must not exceed 5 MB"
+					: "Unable to upload CV";
+			res.redirect(`/job-roles/${jobRoleId}/apply`);
+			return;
+		}
+
+		if (error instanceof Error && error.message === INVALID_CV_TYPE_MESSAGE) {
+			req.session.applicationErrorMessage = error.message;
+			res.redirect(`/job-roles/${jobRoleId}/apply`);
+			return;
+		}
+
+		next(error);
 	},
 );
 
