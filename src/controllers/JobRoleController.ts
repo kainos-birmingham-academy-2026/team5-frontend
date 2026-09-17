@@ -362,12 +362,14 @@ export class JobRoleController {
 	): Promise<void> {
 		const jwtToken = req.session.jwtToken;
 		const [referenceOptions, filterOptions] = await Promise.all([
-			this.jobRoleService
-				.getReferenceOptions(jwtToken)
-				.catch(() => ({ capabilities: [], bands: [] })),
-			this.jobRoleService
-				.getFilterOptions(jwtToken)
-				.catch(() => ({ capabilities: [], bands: [], statuses: [] })),
+			this.jobRoleService.getReferenceOptions(jwtToken).catch((error) => {
+				console.error("Failed to load job role reference data:", error);
+				return { capabilities: [], bands: [] };
+			}),
+			this.jobRoleService.getFilterOptions(jwtToken).catch((error) => {
+				console.error("Failed to load job role filter options:", error);
+				return { capabilities: [], bands: [], statuses: [] };
+			}),
 		]);
 
 		res.status(options.status).render("job-role-form.njk", {

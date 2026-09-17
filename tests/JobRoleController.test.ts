@@ -275,6 +275,38 @@ describe("JobRoleController admin job role form", () => {
 		);
 	});
 
+	it("logs when reference and filter options fail while re-rendering the form", async () => {
+		const error = new Error("api down");
+		const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+		const controller = new JobRoleController({
+			createJobRole: vi.fn(),
+			getReferenceOptions: vi.fn().mockRejectedValue(error),
+			getFilterOptions: vi.fn().mockRejectedValue(error),
+		} as unknown as JobRoleService);
+		const request = { body: {}, session: {} } as unknown as Request;
+		const response = createResponse();
+
+		await controller.createJobRole(request, response);
+
+		expect(consoleError).toHaveBeenCalledWith(
+			"Failed to load job role reference data:",
+			error,
+		);
+		expect(consoleError).toHaveBeenCalledWith(
+			"Failed to load job role filter options:",
+			error,
+		);
+		expect(response.render).toHaveBeenCalledWith(
+			"job-role-form.njk",
+			expect.objectContaining({
+				mode: "create",
+				referenceOptions: { capabilities: [], bands: [] },
+				statusOptions: [],
+			}),
+		);
+		consoleError.mockRestore();
+	});
+
 	it("creates a job role and redirects to its detail page", async () => {
 		const createJobRole = vi
 			.fn()

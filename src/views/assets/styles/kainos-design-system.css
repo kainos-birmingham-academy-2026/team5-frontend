@@ -2542,12 +2542,6 @@ ul.download-list li {
 	white-space: pre-wrap;
 }
 
-.assistant-text + .assistant-text,
-.assistant-text + .assistant-list,
-.assistant-list + .assistant-text {
-	margin-block-start: var(--space-3);
-}
-
 .assistant-list {
 	display: grid;
 	gap: var(--space-1);
@@ -2555,6 +2549,12 @@ ul.download-list li {
 	margin: 0;
 	padding-inline-start: var(--space-5);
 	font-size: var(--font-size-sm);
+}
+
+.assistant-text + .assistant-text,
+.assistant-text + .assistant-list,
+.assistant-list + .assistant-text {
+	margin-block-start: var(--space-3);
 }
 
 .assistant-bubble-typing {

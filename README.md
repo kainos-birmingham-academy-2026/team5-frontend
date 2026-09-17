@@ -66,6 +66,7 @@ Open `http://localhost:4000`.
 | `npm run lint` | Lint with Biome |
 | `npm run lint:fix` | Lint and apply safe fixes |
 | `npm run format` | Format with Biome |
+| `npm run ci` | Build, lint, and run unit tests |
 
 ## Automated Code Review
 
