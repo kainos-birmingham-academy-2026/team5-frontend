@@ -159,9 +159,16 @@ module "backend_app" {
   identity_id                     = module.container_app_identity.id
   container_registry_login_server = data.azurerm_container_registry.existing.login_server
   key_vault_uri                   = module.key_vault.uri
-  env                             = var.backend_env
-  secret_env                      = var.backend_secret_env
-  tags                            = local.common_tags
+  env = merge(
+    {
+      AZURE_STORAGE_ACCOUNT_NAME = module.cv_blob_storage.name
+      CV_QUARANTINE_CONTAINER    = "cv-quarantine"
+      AZURE_CLIENT_ID            = module.container_app_identity.client_id
+    },
+    var.backend_env,
+  )
+  secret_env = var.backend_secret_env
+  tags       = local.common_tags
 }
 
 # Public-facing UI. API_BASE_URL is the backend's internal HTTPS URL.

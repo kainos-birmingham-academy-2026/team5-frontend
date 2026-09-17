@@ -8,7 +8,7 @@ resource "azurerm_storage_account" "this" {
   min_tls_version                 = "TLS1_2"
   https_traffic_only_enabled      = true
   allow_nested_items_to_be_public = false
-  shared_access_key_enabled       = false
+  shared_access_key_enabled       = true
   public_network_access_enabled   = true
 
   blob_properties {
