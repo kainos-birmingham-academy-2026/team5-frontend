@@ -15,11 +15,13 @@ const createResponse = () => {
 	return { response, render };
 };
 
-type TestRequest = Request & {
+type TestRequest = Omit<Request, "protocol"> & {
+	protocol: string;
 	session: {
 		jwtToken?: string;
 		userRoleId?: number;
 		registrationSuccessMessage?: string;
+		returnTo?: string;
 	};
 };
 
@@ -27,6 +29,9 @@ const createRequest = () =>
 	({
 		body: { email: "candidate@example.com", password: "wrong-password" },
 		session: {},
+		protocol: "http",
+		get: ((name: string) =>
+			name.toLowerCase() === "host" ? "localhost:4000" : undefined) as Request["get"],
 	}) as unknown as TestRequest;
 
 describe("UserController authentication pages", () => {
@@ -46,7 +51,7 @@ describe("UserController authentication pages", () => {
 	});
 
 	it.each(["showLogin", "showRegister"] as const)(
-		"redirects %s when the user is already signed in",
+		"redirects %s home when the user is already signed in",
 		(method) => {
 			const controller = new UserController({} as UserService);
 			const request = createRequest();
@@ -59,15 +64,30 @@ describe("UserController authentication pages", () => {
 			expect(render).not.toHaveBeenCalled();
 		},
 	);
+
+	it.each(["showLogin", "showRegister"] as const)(
+		"redirects %s to a safe returnTo when the user is already signed in",
+		(method) => {
+			const controller = new UserController({} as UserService);
+			const request = createRequest();
+			request.session.jwtToken = "existing-token";
+			request.session.returnTo = "/job-roles/new";
+			const { response, render } = createResponse();
+
+			controller[method](request, response);
+
+			expect(response.redirect).toHaveBeenCalledWith("/job-roles/new");
+			expect(request.session.returnTo).toBeUndefined();
+			expect(render).not.toHaveBeenCalled();
+		},
+	);
 });
+
+const applicantToken = `${Buffer.from('{"alg":"none"}').toString("base64url")}.${Buffer.from('{"roleId":1}').toString("base64url")}.signature`;
 
 describe("UserController login", () => {
 	it("stores the token and applicant role before redirecting home", async () => {
-		const login = vi
-			.fn()
-			.mockResolvedValue(
-				`${Buffer.from('{"alg":"none"}').toString("base64url")}.${Buffer.from('{"roleId":1}').toString("base64url")}.signature`,
-			);
+		const login = vi.fn().mockResolvedValue(applicantToken);
 		const controller = new UserController({ login } as unknown as UserService);
 		const request = createRequest();
 		const { response } = createResponse();
@@ -82,6 +102,54 @@ describe("UserController login", () => {
 		expect(request.session.userRoleId).toBe(1);
 		expect(response.redirect).toHaveBeenCalledWith("/");
 	});
+
+	it("redirects to a stored returnTo after login and clears it", async () => {
+		const login = vi.fn().mockResolvedValue(applicantToken);
+		const controller = new UserController({ login } as unknown as UserService);
+		const request = createRequest();
+		request.session.returnTo = "/job-roles/new";
+		const { response } = createResponse();
+
+		await controller.login(request, response);
+
+		expect(response.redirect).toHaveBeenCalledWith("/job-roles/new");
+		expect(request.session.returnTo).toBeUndefined();
+	});
+
+	it("accepts a same-origin Azure URL and redirects to its path", async () => {
+		const login = vi.fn().mockResolvedValue(applicantToken);
+		const controller = new UserController({ login } as unknown as UserService);
+		const request = createRequest();
+		request.protocol = "https";
+		request.get = ((name: string) =>
+			name.toLowerCase() === "host"
+				? "app.azurecontainerapps.io"
+				: undefined) as Request["get"];
+		request.session.returnTo =
+			"https://app.azurecontainerapps.io/job-roles/new";
+		const { response } = createResponse();
+
+		await controller.login(request, response);
+
+		expect(response.redirect).toHaveBeenCalledWith("/job-roles/new");
+		expect(request.session.returnTo).toBeUndefined();
+	});
+
+	it.each(["https://evil.com", "//evil.com", "/\\", "/\\evil.com", "/\\\\evil.com"])(
+		"ignores unsafe returnTo %s after login",
+		async (returnTo) => {
+			const login = vi.fn().mockResolvedValue(applicantToken);
+			const controller = new UserController({ login } as unknown as UserService);
+			const request = createRequest();
+			request.session.returnTo = returnTo;
+			const { response } = createResponse();
+
+			await controller.login(request, response);
+
+			expect(response.redirect).toHaveBeenCalledWith("/");
+			expect(request.session.returnTo).toBeUndefined();
+		},
+	);
 
 	it("renders a validation error when credentials are incomplete", async () => {
 		const login = vi.fn();
@@ -171,6 +239,42 @@ describe("UserController registration", () => {
 		expect(response.redirect).toHaveBeenCalledWith("/");
 	});
 
+	it("redirects to a stored returnTo after registration and clears it", async () => {
+		const register = vi.fn().mockResolvedValue(applicantToken);
+		const controller = new UserController({
+			register,
+		} as unknown as UserService);
+		const request = createRequest();
+		request.session.returnTo = "/assistant";
+		const { response } = createResponse();
+
+		await controller.register(request, response);
+
+		expect(response.redirect).toHaveBeenCalledWith("/assistant");
+		expect(request.session.returnTo).toBeUndefined();
+		expect(request.session.registrationSuccessMessage).toBe(
+			"Account successfully created.",
+		);
+	});
+
+	it.each(["https://evil.com", "//evil.com", "/\\", "/\\evil.com", "/\\\\evil.com"])(
+		"ignores unsafe returnTo %s after registration",
+		async (returnTo) => {
+			const register = vi.fn().mockResolvedValue(applicantToken);
+			const controller = new UserController({
+				register,
+			} as unknown as UserService);
+			const request = createRequest();
+			request.session.returnTo = returnTo;
+			const { response } = createResponse();
+
+			await controller.register(request, response);
+
+			expect(response.redirect).toHaveBeenCalledWith("/");
+			expect(request.session.returnTo).toBeUndefined();
+		},
+	);
+
 	it("shows a user-friendly message when the email is already registered", async () => {
 		const register = vi.fn().mockRejectedValue({
 			isAxiosError: true,
@@ -229,7 +333,7 @@ describe("UserController registration", () => {
 });
 
 describe("UserController logout", () => {
-	it("destroys the session, clears its cookie, and redirects to login", () => {
+	it("destroys the session, clears its cookie, and redirects home", () => {
 		const destroy = vi.fn((callback: (error?: unknown) => void) => callback());
 		const request = { session: { destroy } } as unknown as Request;
 		const controller = new UserController({} as UserService);
@@ -239,6 +343,6 @@ describe("UserController logout", () => {
 
 		expect(destroy).toHaveBeenCalledOnce();
 		expect(response.clearCookie).toHaveBeenCalledWith("connect.sid");
-		expect(response.redirect).toHaveBeenCalledWith("/login");
+		expect(response.redirect).toHaveBeenCalledWith("/");
 	});
 });

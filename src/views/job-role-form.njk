@@ -1,0 +1,84 @@
+{% extends "layouts/base.njk" %}
+{% from "components/ui-macros.njk" import breadcrumbs %}
+
+{% block title %}{{ "Edit job role" if mode == "edit" else "Add job role" }} | Kainos Careers{% endblock %}
+
+{% block content %}
+  {{ breadcrumbs([
+    { label: "Home", href: "/" },
+    { label: "Opportunities", href: "/job-roles" },
+    { label: "Edit job role" if mode == "edit" else "Add job role" }
+  ]) }}
+  <section class="container section section-tight">
+    <div class="login-panel">
+      <h1>{{ "Edit job role" if mode == "edit" else "Add job role" }}</h1>
+      {% if errorMessage %}
+        <p class="form-error" role="alert">{{ errorMessage }}</p>
+      {% endif %}
+      <form
+        class="login-form"
+        method="post"
+        action="{{ '/job-roles/' + jobRoleId + '/edit' if mode == 'edit' else '/job-roles/new' }}"
+      >
+        <label class="form-field" for="job-role-name">
+          Job role name
+          <input id="job-role-name" name="roleName" type="text" required value="{{ formValues.roleName }}" />
+        </label>
+        <label class="form-field" for="job-role-location">
+          Location
+          <input id="job-role-location" name="location" type="text" required value="{{ formValues.location }}" />
+        </label>
+        <label class="form-field" for="job-role-capability">
+          Capability
+          <select id="job-role-capability" name="capabilityId" required>
+            <option value="" disabled {% if not formValues.capabilityId %}selected{% endif %}>Select a capability</option>
+            {% for capability in referenceOptions.capabilities %}
+              <option value="{{ capability.capabilityId }}" {% if formValues.capabilityId == capability.capabilityId | string %}selected{% endif %}>{{ capability.capabilityName }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="form-field" for="job-role-band">
+          Band
+          <select id="job-role-band" name="bandId" required>
+            <option value="" disabled {% if not formValues.bandId %}selected{% endif %}>Select a band</option>
+            {% for band in referenceOptions.bands %}
+              <option value="{{ band.nameId }}" {% if formValues.bandId == band.nameId | string %}selected{% endif %}>{{ band.bandName }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        {% if mode == "edit" %}
+          <label class="form-field" for="job-role-status">
+            Status
+            <select id="job-role-status" name="status" required>
+              {% for status in statusOptions %}
+                <option value="{{ status }}" {% if formValues.status == status %}selected{% endif %}>{{ status }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        {% endif %}
+        <label class="form-field" for="job-role-closing-date">
+          Closing date
+          <input id="job-role-closing-date" name="closingDate" type="date" required value="{{ formValues.closingDate }}" />
+        </label>
+        <label class="form-field" for="job-role-positions">
+          Number of open positions
+          <input id="job-role-positions" name="numberOfOpenPositions" type="number" min="0" value="{{ formValues.numberOfOpenPositions }}" />
+        </label>
+        <label class="form-field" for="job-role-description">
+          Job spec summary
+          <textarea id="job-role-description" name="description" rows="4">{{ formValues.description }}</textarea>
+        </label>
+        <label class="form-field" for="job-role-responsibilities">
+          Responsibilities
+          <textarea id="job-role-responsibilities" name="responsibilities" rows="4">{{ formValues.responsibilities }}</textarea>
+        </label>
+        <label class="form-field" for="job-role-sharepoint">
+          Sharepoint link
+          <input id="job-role-sharepoint" name="sharepointUrl" type="url" value="{{ formValues.sharepointUrl }}" />
+        </label>
+        <button class="btn btn-primary" type="submit">{{ "Save changes" if mode == "edit" else "Create job role" }}</button>
+        <a class="btn btn-ghost" href="{{ '/job-roles/' + jobRoleId if mode == 'edit' else '/job-roles' }}">Cancel</a>
+      </form>
+    </div>
+  </section>
+{% endblock %}

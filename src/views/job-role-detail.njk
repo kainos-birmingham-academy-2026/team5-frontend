@@ -1,5 +1,5 @@
 {% extends "layouts/base.njk" %}
-{% from "components/ui-macros.njk" import badge, breadcrumbs %}
+{% from "components/ui-macros.njk" import badge, breadcrumbs, adminJobRoleActions %}
 
 {% block title %}{{ jobRole.roleName if jobRole else "Role not found" }} | Kainos Careers{% endblock %}
 
@@ -21,6 +21,10 @@
           <h1>{{ jobRole.roleName }}</h1>
           {{ badge(statusText, "success" if statusText == "Open" else "neutral") }}
         </header>
+
+        {% if isAdmin %}
+          <p class="job-card-id">ID: {{ jobRole.jobRoleId }}</p>
+        {% endif %}
 
         <dl class="meta-grid">
           <div>
@@ -78,6 +82,10 @@
             <h2>More information</h2>
             <p><a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noreferrer">View related documents on SharePoint</a></p>
           </section>
+        {% endif %}
+
+        {% if isAdmin %}
+          {{ adminJobRoleActions(jobRole.jobRoleId) }}
         {% endif %}
       </article>
     {% else %}

@@ -6,7 +6,7 @@ const apiClientMock = vi.hoisted(() => ({ post: vi.fn() }));
 vi.mock("../src/config/apiClient", () => ({ default: apiClientMock }));
 
 import {
-	AiAssistantError,
+	type AiAssistantError,
 	AiAssistantService,
 } from "../src/services/AiAssistantService";
 
