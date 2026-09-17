@@ -177,7 +177,10 @@ describe("JobRoleService CV uploads", () => {
 		expect(apiClientMock.post).toHaveBeenCalledWith(
 			"/job-roles/12/applications",
 			expect.any(FormData),
-			{ headers: { Authorization: "Bearer session-token" } },
+			{
+				headers: { Authorization: "Bearer session-token" },
+				timeout: 30000,
+			},
 		);
 	});
 });

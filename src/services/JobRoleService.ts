@@ -150,6 +150,7 @@ export class JobRoleService {
 			formData,
 			{
 				headers: authorizationHeader(jwtToken).headers,
+				timeout: 30000,
 			},
 		);
 		return response.data;
