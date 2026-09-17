@@ -7,5 +7,8 @@ declare module "express-session" {
 		registrationSuccessMessage?: string;
 		applicationSuccessMessage?: string;
 		applicationErrorMessage?: string;
+		flashSuccess?: string;
+		flashError?: string;
+		returnTo?: string;
 	}
 }

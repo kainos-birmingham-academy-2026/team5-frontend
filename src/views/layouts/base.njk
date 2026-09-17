@@ -19,6 +19,18 @@
       <span>{{ registrationSuccessMessage or applicationSuccessMessage }}</span>
     </div>
   {% endif %}
+  {% if flashSuccess %}
+    <div class="toast toast-success" role="status" aria-live="polite">
+      <span class="toast-icon" aria-hidden="true">&#10003;</span>
+      <span>{{ flashSuccess }}</span>
+    </div>
+  {% endif %}
+  {% if flashError %}
+    <div class="toast toast-error" role="alert" aria-live="assertive">
+      <span class="toast-icon" aria-hidden="true">&#33;</span>
+      <span>{{ flashError }}</span>
+    </div>
+  {% endif %}
   <main class="site-main" id="main-content" tabindex="-1">
     {% block content %}{% endblock %}
   </main>

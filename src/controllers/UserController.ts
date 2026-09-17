@@ -8,7 +8,7 @@ export class UserController {
 
 	showLogin(req: Request, res: Response): void {
 		if (req.session.jwtToken) {
-			res.redirect("/");
+			res.redirect(this.getSafeReturnTo(req));
 			return;
 		}
 
@@ -19,7 +19,7 @@ export class UserController {
 
 	showRegister(req: Request, res: Response): void {
 		if (req.session.jwtToken) {
-			res.redirect("/");
+			res.redirect(this.getSafeReturnTo(req));
 			return;
 		}
 
@@ -44,7 +44,7 @@ export class UserController {
 			const jwtToken = await this.userService.login(email, password);
 			req.session.jwtToken = jwtToken;
 			req.session.userRoleId = getRoleIdFromToken(jwtToken);
-			res.redirect("/");
+			res.redirect(this.getSafeReturnTo(req));
 		} catch (error) {
 			const status = axios.isAxiosError(error)
 				? error.response?.status
@@ -76,7 +76,7 @@ export class UserController {
 			req.session.jwtToken = jwtToken;
 			req.session.userRoleId = getRoleIdFromToken(jwtToken);
 			req.session.registrationSuccessMessage = "Account successfully created.";
-			res.redirect("/");
+			res.redirect(this.getSafeReturnTo(req));
 		} catch (error) {
 			const status = axios.isAxiosError(error)
 				? error.response?.status
@@ -94,7 +94,32 @@ export class UserController {
 	logout(req: Request, res: Response): void {
 		req.session.destroy(() => {
 			res.clearCookie("connect.sid");
-			res.redirect("/login");
+			res.redirect("/");
 		});
+	}
+
+	private getSafeReturnTo(req: Request): string {
+		const returnTo = req.session.returnTo;
+		delete req.session.returnTo;
+
+		if (typeof returnTo !== "string" || returnTo.includes("\\")) {
+			return "/";
+		}
+
+		try {
+			const host = req.get("host") ?? "localhost";
+			const base = `${req.protocol}://${host}`;
+			const parsed = new URL(returnTo, base);
+			const expected = new URL(base);
+
+			if (parsed.origin !== expected.origin || parsed.username) {
+				return "/";
+			}
+
+			const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+			return path.startsWith("/") ? path : "/";
+		} catch {
+			return "/";
+		}
 	}
 }

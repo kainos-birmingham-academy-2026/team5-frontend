@@ -1,4 +1,5 @@
 export const APPLICANT_ROLE_ID = 1;
+export const ADMIN_ROLE_ID = 3;
 
 export const getRoleIdFromToken = (token: string): number | undefined => {
 	try {

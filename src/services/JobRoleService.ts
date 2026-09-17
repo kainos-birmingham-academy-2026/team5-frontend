@@ -68,6 +68,24 @@ export type JobRoleFilterOptions = {
 	statuses: string[];
 };
 
+export type JobRoleReferenceOptions = {
+	capabilities: { capabilityId: number; capabilityName: string }[];
+	bands: { nameId: number; bandName: string }[];
+};
+
+export type JobRoleFormInput = {
+	roleName: string;
+	location: string;
+	capabilityId: number;
+	bandId: number;
+	closingDate: string;
+	description?: string;
+	responsibilities?: string;
+	sharepointUrl?: string;
+	numberOfOpenPositions?: number;
+	status?: string;
+};
+
 const emptyFilters = (): JobRoleFilters => ({
 	capability: [],
 	band: [],
@@ -131,6 +149,48 @@ export class JobRoleService {
 		jwtToken?: string,
 	): Promise<JobRole | null> {
 		return this.getJobRoleInformation(jobRoleId, jwtToken);
+	}
+
+	async getReferenceOptions(
+		jwtToken?: string,
+	): Promise<JobRoleReferenceOptions> {
+		const response = await apiClient.get<JobRoleReferenceOptions>(
+			"/job-roles/reference-data",
+			authorizationHeader(jwtToken),
+		);
+		return response.data;
+	}
+
+	async createJobRole(
+		data: JobRoleFormInput,
+		jwtToken?: string,
+	): Promise<JobRole> {
+		const response = await apiClient.post<JobRole>(
+			"/job-roles",
+			data,
+			authorizationHeader(jwtToken),
+		);
+		return response.data;
+	}
+
+	async updateJobRole(
+		jobRoleId: number,
+		data: Partial<JobRoleFormInput>,
+		jwtToken?: string,
+	): Promise<JobRole> {
+		const response = await apiClient.put<JobRole>(
+			`/job-roles/${jobRoleId}`,
+			data,
+			authorizationHeader(jwtToken),
+		);
+		return response.data;
+	}
+
+	async deleteJobRole(jobRoleId: number, jwtToken?: string): Promise<void> {
+		await apiClient.delete(
+			`/job-roles/${jobRoleId}`,
+			authorizationHeader(jwtToken),
+		);
 	}
 
 	async submitJobApplication(
