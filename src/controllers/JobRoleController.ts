@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import axios from "axios";
 import type {
 	JobRoleFilters,
 	JobRoleService,
@@ -126,11 +127,7 @@ export class JobRoleController {
 				return;
 			}
 
-			const status = jobRole.statusRef?.statusName ?? jobRole.status;
-			const canApply =
-				status?.toLowerCase() === "open" &&
-				(jobRole.numberOfOpenPositions ?? 0) > 0;
-			if (!canApply) {
+			if (!this.jobRoleService.canApplyToJobRole(jobRole)) {
 				res.status(400).send("This role is not accepting applications");
 				return;
 			}
@@ -181,9 +178,7 @@ export class JobRoleController {
 			req.session.applicationSuccessMessage = "Application submitted successfully.";
 			res.redirect(`/job-roles/${jobRoleId}`);
 		} catch (error) {
-			const message =
-				error instanceof Error ? error.message : "Unable to submit application";
-			req.session.applicationErrorMessage = message;
+			req.session.applicationErrorMessage = this.getApplicationErrorMessage(error);
 			res.redirect(`/job-roles/${jobRoleId}/apply`);
 		}
 	}
@@ -213,15 +208,27 @@ export class JobRoleController {
 				return;
 			}
 
-			const status = jobRole.statusRef?.statusName ?? jobRole.status;
-			const canApply =
-				status?.toLowerCase() === "open" &&
-				(jobRole.numberOfOpenPositions ?? 0) > 0;
+			const canApply = this.jobRoleService.canApplyToJobRole(jobRole);
 
 			res.render("job-role-detail.njk", { jobRole, canApply, applicationSuccessMessage });
 		} catch (error) {
 			console.error("Failed to retrieve job role:", error);
 			res.status(500).send("Failed to retrieve job role");
 		}
+	}
+
+	private getApplicationErrorMessage(error: unknown): string {
+		if (axios.isAxiosError(error) && error.response?.status) {
+			const message = error.response.data?.error;
+			if (
+				error.response.status >= 400 &&
+				error.response.status < 500 &&
+				typeof message === "string"
+			) {
+				return message;
+			}
+		}
+
+		return "Something went wrong submitting your application. Please try again.";
 	}
 }

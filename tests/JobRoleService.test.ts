@@ -136,3 +136,24 @@ describe("JobRoleService job role details", () => {
 		expect(result).toEqual(jobRole);
 	});
 });
+
+describe("JobRoleService application eligibility", () => {
+	it.each([
+		["open role with vacancies", "Open", 1, true],
+		["closed role with vacancies", "Closed", 1, false],
+		["open role without vacancies", "Open", 0, false],
+	] as const)("returns %s as eligible=%s", (_description, status, vacancies, expected) => {
+		const eligible = new JobRoleService().canApplyToJobRole({
+			jobRoleId: 12,
+			roleName: "Software Engineer",
+			location: "Belfast",
+			capabilityId: 1,
+			bandId: 1,
+			closingDate: new Date(),
+			status,
+			numberOfOpenPositions: vacancies,
+		});
+
+		expect(eligible).toBe(expected);
+	});
+});

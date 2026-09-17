@@ -79,6 +79,14 @@ const authorizationHeader = (jwtToken: string | undefined) => ({
 });
 
 export class JobRoleService {
+	canApplyToJobRole(jobRole: JobRole): boolean {
+		const status = jobRole.statusRef?.statusName ?? jobRole.status;
+		return (
+			status?.toLowerCase() === "open" &&
+			(jobRole.numberOfOpenPositions ?? 0) > 0
+		);
+	}
+
 	async getAllJobRoles(
 		page = 1,
 		pageSize = 10,

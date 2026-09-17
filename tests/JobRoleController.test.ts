@@ -5,6 +5,13 @@ import type { JobRoleService } from "../src/services/JobRoleService";
 
 const JWT_TOKEN = "session-token";
 
+const canApplyToJobRole = (jobRole: {
+	status?: string;
+	numberOfOpenPositions?: number | null;
+}) =>
+	jobRole.status?.toLowerCase() === "open" &&
+	(jobRole.numberOfOpenPositions ?? 0) > 0;
+
 const createResponse = () => {
 	const response = {
 		status: vi.fn(),
@@ -158,6 +165,7 @@ describe("JobRoleController job role details", () => {
 		const getJobRoleById = vi.fn().mockResolvedValue(jobRole);
 		const controller = new JobRoleController({
 			getJobRoleById,
+			canApplyToJobRole,
 		} as unknown as JobRoleService);
 		const request = {
 			params: { id: "12" },
@@ -197,6 +205,7 @@ describe("JobRoleController job role details", () => {
 	it("renders the not-found state when no job role matches", async () => {
 		const controller = new JobRoleController({
 			getJobRoleById: vi.fn().mockResolvedValue(null),
+			canApplyToJobRole,
 		} as unknown as JobRoleService);
 		const request = {
 			params: { id: "99" },
@@ -217,6 +226,7 @@ describe("JobRoleController job role details", () => {
 	it("returns a server error when a job role cannot be retrieved", async () => {
 		const controller = new JobRoleController({
 			getJobRoleById: vi.fn().mockRejectedValue(new Error("API unavailable")),
+			canApplyToJobRole,
 		} as unknown as JobRoleService);
 		const request = {
 			params: { id: "12" },
@@ -247,6 +257,7 @@ describe("JobRoleController application form", () => {
 		};
 		const controller = new JobRoleController({
 			getJobRoleById: vi.fn().mockResolvedValue(jobRole),
+			canApplyToJobRole,
 		} as unknown as JobRoleService);
 		const request = {
 			params: { id: "12" },
@@ -306,6 +317,35 @@ describe("JobRoleController application form", () => {
 		expect(response.redirect).toHaveBeenCalledWith("/job-roles/12");
 	});
 
+	it("shows a generic message when the backend fails unexpectedly", async () => {
+		const submitJobApplication = vi
+			.fn()
+			.mockRejectedValue(new Error("Database connection details"));
+		const controller = new JobRoleController({
+			submitJobApplication,
+		} as unknown as JobRoleService);
+		const session: { jwtToken?: string; applicationErrorMessage?: string } = {
+			jwtToken: JWT_TOKEN,
+		};
+		const request = {
+			params: { id: "12" },
+			session,
+			file: {
+				originalname: "cv.pdf",
+				mimetype: "application/pdf",
+				buffer: Buffer.from("pdf-data"),
+			},
+		} as unknown as Request<{ id: string }>;
+		const response = { redirect: vi.fn() } as unknown as Response;
+
+		await controller.submitApplication(request, response);
+
+		expect(session.applicationErrorMessage).toBe(
+			"Something went wrong submitting your application. Please try again.",
+		);
+		expect(response.redirect).toHaveBeenCalledWith("/job-roles/12/apply");
+	});
+
 	it.each([
 		["Closed", 2],
 		["Open", 0],
@@ -318,6 +358,7 @@ describe("JobRoleController application form", () => {
 					status,
 					numberOfOpenPositions,
 				}),
+				canApplyToJobRole,
 			} as unknown as JobRoleService);
 			const request = {
 				params: { id: "12" },
