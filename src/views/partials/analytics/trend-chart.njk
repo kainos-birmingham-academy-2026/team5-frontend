@@ -1,0 +1,42 @@
+{% macro trendChart(trend, granularity) %}
+  <section class="analytics-panel" aria-labelledby="analytics-trend-heading">
+    <h3 id="analytics-trend-heading">Applications over time</h3>
+    <p class="analytics-note">
+      Bucketed by {{ granularity }} in UTC. Buckets with no applications are shown as zero.
+    </p>
+    {% if trend and trend.length %}
+      <div class="analytics-trend" role="img"
+           aria-label="Applications received per {{ granularity }} across the selected range. The same figures are listed in the table below.">
+        {% for point in trend %}
+          <div class="analytics-trend-column">
+            <span class="analytics-trend-value">{{ point.count }}</span>
+            <span class="analytics-trend-bar" style="height: {{ point.height }}%"></span>
+            <span class="analytics-trend-label">{{ point.bucketStart }}</span>
+          </div>
+        {% endfor %}
+      </div>
+      <details class="analytics-details">
+        <summary>View the trend as a table</summary>
+        <table class="data-table">
+          <caption class="ds-sr-only">Applications received per {{ granularity }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{% if granularity == "week" %}Week starting{% else %}Day{% endif %}</th>
+              <th scope="col">Applications</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for point in trend %}
+              <tr>
+                <th scope="row">{{ point.bucketStart }}</th>
+                <td>{{ point.count }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </details>
+    {% else %}
+      <p class="analytics-empty">No applications were received in this period.</p>
+    {% endif %}
+  </section>
+{% endmacro %}

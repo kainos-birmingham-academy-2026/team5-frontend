@@ -1,0 +1,13 @@
+{% extends "layouts/base.njk" %}
+
+{% block title %}Kainos Careers | Something went wrong{% endblock %}
+
+{% block content %}
+  <section class="container section">
+    <article class="error-state">
+      <h1>{{ heading }}</h1>
+      <p>{{ message }}</p>
+      <a class="btn btn-primary" href="/">Back to the careers home page</a>
+    </article>
+  </section>
+{% endblock %}

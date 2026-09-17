@@ -9,9 +9,11 @@ const readView = (...segments: string[]) =>
 	readFileSync(viewPath(...segments), "utf8");
 
 describe("Kainos design system", () => {
-	it("is the single stylesheet imported by the project entry point", () => {
+	it("is the stylesheet set imported by the project entry point", () => {
 		const mainCss = readView("assets", "styles", "main.css");
-		expect(mainCss.trim()).toBe('@import url("./kainos-design-system.css");');
+		expect(mainCss.trim()).toBe(
+			'@import url("./kainos-design-system.css");\n@import url("./analytics.css");',
+		);
 	});
 
 	it("defines core tokens, utilities, states, and responsive behavior", () => {

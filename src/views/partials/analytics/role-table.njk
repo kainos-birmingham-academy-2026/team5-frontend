@@ -1,0 +1,107 @@
+{% macro roleTable(headingId, title, roles, emptyMessage, showDaysUntilClosing, note) %}
+  <section class="analytics-panel" aria-labelledby="{{ headingId }}">
+    <h3 id="{{ headingId }}">{{ title }}</h3>
+    {% if note %}<p class="analytics-note">{{ note }}</p>{% endif %}
+    {% if roles and roles.length %}
+      <div class="analytics-table-scroll">
+        <table class="data-table">
+          <caption class="ds-sr-only">{{ title }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Role</th>
+              <th scope="col">Capability</th>
+              <th scope="col">Band</th>
+              <th scope="col">Location</th>
+              <th scope="col">Closing date</th>
+              <th scope="col">Open positions</th>
+              <th scope="col">Applications</th>
+              <th scope="col">Applications per position</th>
+              {% if showDaysUntilClosing %}<th scope="col">Days until closing</th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for role in roles %}
+              <tr>
+                <th scope="row"><a class="inline-link" href="/job-roles/{{ role.jobRoleId }}">{{ role.roleName }}</a></th>
+                <td>{{ role.capability }}</td>
+                <td>{{ role.band }}</td>
+                <td>{{ role.location }}</td>
+                <td>{{ role.closingDate }}</td>
+                <td>{{ role.numberOfOpenPositions }}</td>
+                <td>{{ role.applications }}</td>
+                <td>{{ role.applicationsPerPosition }}</td>
+                {% if showDaysUntilClosing %}
+                  <td>
+                    {{ role.daysUntilClosing }}
+                    {% if role.daysUntilClosing < 0 %}<span class="badge badge-neutral">Closing date passed</span>{% endif %}
+                  </td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="analytics-empty">{{ emptyMessage }}</p>
+    {% endif %}
+  </section>
+{% endmacro %}
+
+{% macro sortableHeader(label, link) %}
+  <th scope="col" aria-sort="{{ link.ariaSort }}">
+    <a class="analytics-sort-link" href="{{ link.href }}">
+      {{ label }}
+      <span aria-hidden="true">{% if link.ariaSort == "ascending" %}&#9650;{% elif link.ariaSort == "descending" %}&#9660;{% endif %}</span>
+    </a>
+  </th>
+{% endmacro %}
+
+{% macro allRolesTable(table, sortLinks, pageLinks) %}
+  <section class="analytics-panel" aria-labelledby="analytics-all-roles-heading">
+    <h3 id="analytics-all-roles-heading">All roles</h3>
+    {% if table and table.items.length %}
+      <div class="analytics-table-scroll">
+        <table class="data-table">
+          <caption class="ds-sr-only">Every job role with its application count for the selected range</caption>
+          <thead>
+            <tr>
+              {{ sortableHeader("Role", sortLinks.roleName) }}
+              <th scope="col">Capability</th>
+              <th scope="col">Band</th>
+              <th scope="col">Location</th>
+              {{ sortableHeader("Closing date", sortLinks.closingDate) }}
+              {{ sortableHeader("Open positions", sortLinks.numberOfOpenPositions) }}
+              {{ sortableHeader("Applications", sortLinks.applications) }}
+              <th scope="col">Applications per position</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for role in table.items %}
+              <tr>
+                <th scope="row"><a class="inline-link" href="/job-roles/{{ role.jobRoleId }}">{{ role.roleName }}</a></th>
+                <td>{{ role.capability }}</td>
+                <td>{{ role.band }}</td>
+                <td>{{ role.location }}</td>
+                <td>{{ role.closingDate }}</td>
+                <td>{{ role.numberOfOpenPositions }}</td>
+                <td>{{ role.applications }}</td>
+                <td>{{ role.applicationsPerPosition }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <nav class="pagination" aria-label="All roles pagination">
+        {% if pageLinks.previous %}
+          <a class="page-btn" href="{{ pageLinks.previous }}">Previous</a>
+        {% endif %}
+        <span>Page {{ table.page }} of {{ table.totalPages }} &mdash; {{ table.totalItems }} roles</span>
+        {% if pageLinks.next %}
+          <a class="page-btn" href="{{ pageLinks.next }}">Next</a>
+        {% endif %}
+      </nav>
+    {% else %}
+      <p class="analytics-empty">No job roles match the selected filters.</p>
+    {% endif %}
+  </section>
+{% endmacro %}

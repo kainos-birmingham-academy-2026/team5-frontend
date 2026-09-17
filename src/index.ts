@@ -4,9 +4,10 @@ import express from "express";
 import session from "express-session";
 import nunjucks from "nunjucks";
 import morganMiddleware from "./config/morganMiddleware";
-import Logger from "./lib/logger";
 import { ADMIN_ROLE_ID, APPLICANT_ROLE_ID } from "./lib/jwt";
+import Logger from "./lib/logger";
 import AiAssistantRouter from "./routes/AiAssistantRouter";
+import AnalyticsRouter from "./routes/AnalyticsRouter";
 import JobRouter from "./routes/JobRouter";
 import UserRouter from "./routes/UserRouter";
 
@@ -56,6 +57,7 @@ app.use(
 app.use(UserRouter);
 app.use(JobRouter);
 app.use(AiAssistantRouter);
+app.use(AnalyticsRouter);
 
 app.listen(4000, () => {
 	Logger.info("Frontend is running on http://localhost:4000");

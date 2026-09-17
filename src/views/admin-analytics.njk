@@ -1,0 +1,185 @@
+{% extends "layouts/base.njk" %}
+{% from "partials/analytics/kpi-card.njk" import kpiCard %}
+{% from "partials/analytics/bar-row.njk" import breakdownPanel, demandVsSupplyPanel %}
+{% from "partials/analytics/trend-chart.njk" import trendChart %}
+{% from "partials/analytics/role-table.njk" import roleTable, allRolesTable %}
+
+{% block title %}Kainos Careers | Application analytics{% endblock %}
+
+{% block content %}
+  <section class="container section">
+    <h1 class="section-heading">Application analytics</h1>
+    <p class="ds-text-lead">
+      Aggregate recruitment figures for the selected date range. Every figure is derived from existing
+      job role and application records.
+    </p>
+
+    {% if validationMessage %}
+      <p class="notice" role="alert">{{ validationMessage }}</p>
+    {% endif %}
+
+    <form class="filter-bar analytics-filters" method="get" action="/admin/analytics">
+      <input type="hidden" name="sortBy" value="{{ query.sortBy }}" />
+      <input type="hidden" name="sortOrder" value="{{ query.sortOrder }}" />
+
+      <fieldset class="filter-group">
+        <legend>Date range</legend>
+        <div class="form-field">
+          <label for="analytics-preset">Preset</label>
+          <select id="analytics-preset" name="preset">
+            <option value="7d" {% if query.preset == "7d" %}selected{% endif %}>Last 7 days</option>
+            <option value="30d" {% if query.preset == "30d" %}selected{% endif %}>Last 30 days</option>
+            <option value="90d" {% if query.preset == "90d" %}selected{% endif %}>Last 90 days</option>
+            <option value="custom" {% if query.preset == "custom" %}selected{% endif %}>Custom range</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="analytics-from">From</label>
+          <input id="analytics-from" type="date" name="from" value="{{ query.from }}" />
+        </div>
+        <div class="form-field">
+          <label for="analytics-to">To</label>
+          <input id="analytics-to" type="date" name="to" value="{{ query.to }}" />
+        </div>
+        <p class="field-hint">From and to are required when the custom preset is selected. A range may not exceed 366 days.</p>
+      </fieldset>
+
+      <fieldset class="filter-group">
+        <legend>All roles table filters</legend>
+        <div class="form-field">
+          <label for="analytics-role-name">Role name</label>
+          <input id="analytics-role-name" type="search" name="roleName" value="{{ query.roleName }}" />
+        </div>
+        <div class="form-field">
+          <label for="analytics-location">Location</label>
+          <input id="analytics-location" type="search" name="location" value="{{ query.location }}" />
+        </div>
+        <div class="filter-checks">
+          <fieldset class="filter-group-row">
+            <legend>Capability</legend>
+            {% for capability in filterOptions.capabilities %}
+              <label>
+                <input type="checkbox" name="capability" value="{{ capability }}" {% if capability in query.capability %}checked{% endif %} />
+                {{ capability }}
+              </label>
+            {% endfor %}
+          </fieldset>
+          <fieldset class="filter-group-row">
+            <legend>Band</legend>
+            {% for band in filterOptions.bands %}
+              <label>
+                <input type="checkbox" name="band" value="{{ band }}" {% if band in query.band %}checked{% endif %} />
+                {{ band }}
+              </label>
+            {% endfor %}
+          </fieldset>
+          <fieldset class="filter-group-row">
+            <legend>Status</legend>
+            {% for status in filterOptions.statuses %}
+              <label>
+                <input type="checkbox" name="status" value="{{ status }}" {% if status in query.status %}checked{% endif %} />
+                {{ status }}
+              </label>
+            {% endfor %}
+          </fieldset>
+        </div>
+      </fieldset>
+
+      <div class="filter-actions">
+        <button class="btn btn-primary" type="submit">Apply</button>
+        <a class="btn btn-ghost" href="/admin/analytics">Reset</a>
+      </div>
+    </form>
+
+    {% if overview %}
+      <p class="analytics-range-summary">
+        Showing {{ overview.range.from }} to {{ overview.range.to }} inclusive, bucketed by {{ overview.range.granularity }}.
+      </p>
+
+      <h2 id="analytics-kpis-heading">Headline figures</h2>
+      <dl class="analytics-kpi-grid" aria-labelledby="analytics-kpis-heading">
+        {{ kpiCard("Applications in range", overview.kpis.totalApplications, overview.kpis.applicationsChangePercent + "% against " + overview.kpis.previousPeriodApplications + " in the previous period") }}
+        {{ kpiCard("Unique applicants in range", overview.kpis.uniqueApplicants, "One applicant may apply to many roles, but only once per role") }}
+        {{ kpiCard("Total job roles", overview.kpis.totalJobRoles, "All time") }}
+        {{ kpiCard("Open roles", overview.kpis.openRoles, "All time") }}
+        {{ kpiCard("Closed roles", overview.kpis.closedRoles, "All time") }}
+        {{ kpiCard("Total open positions", overview.kpis.totalOpenPositions, "Across open roles, all time") }}
+        {{ kpiCard("Average applications per open role", overview.kpis.averageApplicationsPerOpenRole, "In range") }}
+        {{ kpiCard("Applications per open position", overview.kpis.applicationsPerOpenPosition, "In range") }}
+        {{ kpiCard("Open roles with no applications", overview.kpis.rolesWithNoApplications, "In range") }}
+        {{ kpiCard("Open roles closing within 7 days", overview.kpis.rolesClosingWithin7Days, "Closing dates are stored as text and compared as YYYY-MM-DD") }}
+        {{ kpiCard(
+          "Open roles past their closing date",
+          overview.kpis.rolesPastClosingDateStillOpen,
+          "Data hygiene alert: these roles are still Open",
+          "warning" if overview.kpis.rolesPastClosingDateStillOpen > 0 else ""
+        ) }}
+      </dl>
+
+      <h2>Trend</h2>
+      {{ trendChart(trend, overview.range.granularity) }}
+
+      <h2>Breakdowns</h2>
+      <div class="analytics-panel-grid">
+        {{ breakdownPanel("analytics-capability-heading", "Applications by capability", overview.breakdowns.byCapability, "Applications", "No applications were received in this period.") }}
+        {{ breakdownPanel("analytics-band-heading", "Applications by band", overview.breakdowns.byBand, "Applications", "No applications were received in this period.") }}
+        {{ breakdownPanel("analytics-location-heading", "Applications by location", overview.breakdowns.byLocation, "Applications", "No applications were received in this period.") }}
+        {{ breakdownPanel("analytics-status-heading", "Roles by status", overview.breakdowns.byRoleStatus, "Roles", "No job roles have been created yet.", "All time, not limited to the selected range.") }}
+        {{ demandVsSupplyPanel(demandVsSupply, "No capabilities have open positions or applications.") }}
+      </div>
+
+      <h2>Rankings</h2>
+      {{ roleTable(
+        "analytics-top-roles-heading",
+        "Top performing roles",
+        overview.topRoles,
+        "No role received an application in this period.",
+        false
+      ) }}
+      {{ roleTable(
+        "analytics-cold-roles-heading",
+        "Cold vacancies",
+        overview.coldRoles,
+        "Every open role received at least one application in this period.",
+        true,
+        "Job roles have no created date, so role age and days live cannot be shown. Urgency is ranked by days until the closing date instead."
+      ) }}
+
+      {{ allRolesTable(table, sortLinks, pageLinks) }}
+
+      <h2>Data quality</h2>
+      <section class="analytics-panel" aria-labelledby="analytics-data-quality-heading">
+        <h3 id="analytics-data-quality-heading">CV scan status</h3>
+        <p class="analytics-note">
+          CV scan status is set to pending on upload and is never updated, and application status is always
+          "in progress". Conversion, hire rate and time to hire cannot be reported from this data.
+        </p>
+        {% if overview.dataQuality.cvScanStatus.length %}
+          <table class="data-table">
+            <caption class="ds-sr-only">Applications in range grouped by CV scan status</caption>
+            <thead>
+              <tr>
+                <th scope="col">Scan status</th>
+                <th scope="col">Applications</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in overview.dataQuality.cvScanStatus %}
+                <tr>
+                  <th scope="row">{{ item.label }}</th>
+                  <td>{{ item.count }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="analytics-empty">No CVs were uploaded in this period.</p>
+        {% endif %}
+      </section>
+    {% else %}
+      <p class="analytics-empty">
+        Adjust the date range above to load the dashboard.
+      </p>
+    {% endif %}
+  </section>
+{% endblock %}
