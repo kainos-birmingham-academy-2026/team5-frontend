@@ -1,7 +1,42 @@
-import { Router, type Request, type Response } from "express";
+import multer from "multer";
+import {
+	Router,
+	type NextFunction,
+	type Request,
+	type Response,
+} from "express";
 import { JobRoleController } from "../controllers/JobRoleController";
-import { requireAdmin, requireAuthentication } from "../middleware/authMiddleware";
+import {
+	requireAdmin,
+	requireApplicant,
+	requireAuthentication,
+} from "../middleware/authMiddleware";
 import { JobRoleService } from "../services/JobRoleService";
+
+const INVALID_CV_TYPE_MESSAGE = "CV must be a PDF, DOC, or DOCX file";
+
+const upload = multer({
+	storage: multer.memoryStorage(),
+	limits: { fileSize: 5 * 1024 * 1024 },
+	fileFilter: (
+		_req: Request,
+		file: { mimetype: string },
+		callback: (error: Error | null, acceptFile?: boolean) => void,
+	) => {
+		const allowedMimeTypes = new Set([
+			"application/pdf",
+			"application/msword",
+			"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		]);
+
+		if (!allowedMimeTypes.has(file.mimetype)) {
+			callback(new Error(INVALID_CV_TYPE_MESSAGE));
+			return;
+		}
+
+		callback(null, true);
+	},
+});
 
 const router = Router();
 
@@ -38,6 +73,21 @@ router.get(
 		controller.getJobRoleInformation(req, res),
 );
 router.get(
+	"/job-roles/:id/apply",
+	requireAuthentication,
+	requireApplicant,
+	(req: Request<{ id: string }>, res: Response) =>
+		controller.getApplicationForm(req, res),
+);
+router.post(
+	"/job-roles/:id/apply",
+	requireAuthentication,
+	requireApplicant,
+	upload.single("cv"),
+	(req: Request<{ id: string }>, res: Response) =>
+		controller.submitApplication(req, res),
+);
+router.get(
 	"/job-roles/:id/edit",
 	requireAuthentication,
 	requireAdmin,
@@ -57,6 +107,39 @@ router.post(
 	requireAdmin,
 	(req: Request<{ id: string }>, res: Response) =>
 		controller.deleteJobRole(req, res),
+);
+
+router.use(
+	"/job-roles/:id/apply",
+	(
+		error: unknown,
+		req: Request<{ id: string }>,
+		res: Response,
+		next: NextFunction,
+	) => {
+		const jobRoleId = Number.parseInt(req.params.id, 10);
+		if (Number.isNaN(jobRoleId)) {
+			next(error);
+			return;
+		}
+
+		if (error instanceof multer.MulterError) {
+			req.session.applicationErrorMessage =
+				error.code === "LIMIT_FILE_SIZE"
+					? "CV must not exceed 5 MB"
+					: "Unable to upload CV";
+			res.redirect(`/job-roles/${jobRoleId}/apply`);
+			return;
+		}
+
+		if (error instanceof Error && error.message === INVALID_CV_TYPE_MESSAGE) {
+			req.session.applicationErrorMessage = error.message;
+			res.redirect(`/job-roles/${jobRoleId}/apply`);
+			return;
+		}
+
+		next(error);
+	},
 );
 
 export default router;

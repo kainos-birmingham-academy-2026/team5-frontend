@@ -71,6 +71,22 @@ describe("shared accessibility contracts", () => {
 		expect(detail).toContain("</dl>");
 	});
 
+	it("only shows the application link to eligible applicants", () => {
+		const detail = readView("job-role-detail.njk");
+		expect(detail).toContain("{% if isApplicant and canApply %}");
+		expect(detail).toContain(
+			'href="/job-roles/{{ jobRole.jobRoleId }}/apply">Apply for this role</a>',
+		);
+	});
+
+	it("provides a multipart CV upload form", () => {
+		const application = readView("job-application.njk");
+		expect(application).toContain('enctype="multipart/form-data"');
+		expect(application).toContain('name="cv" type="file"');
+		expect(application).toContain('accept=".pdf,.doc,.docx"');
+		expect(application).toContain('type="submit">Submit application</button>');
+	});
+
 	it("submits every role column filter to the server", () => {
 		const macros = readView("components", "ui-macros.njk");
 		const jobsScript = readView("assets", "scripts", "jobs.ts");

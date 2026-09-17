@@ -197,6 +197,81 @@ export class JobRoleController {
 		await this.renderJobRoleDetail(rawJobRoleId, req, res);
 	}
 
+	async getApplicationForm(
+		req: Request<{ id: string }>,
+		res: Response,
+	): Promise<void> {
+		const jobRoleId = Number.parseInt(req.params.id, 10);
+		if (Number.isNaN(jobRoleId)) {
+			res.status(400).send("Invalid job role id");
+			return;
+		}
+
+		const applicationErrorMessage = req.session.applicationErrorMessage;
+		delete req.session.applicationErrorMessage;
+
+		try {
+			const jobRole = await this.jobRoleService.getJobRoleById(
+				jobRoleId,
+				req.session.jwtToken,
+			);
+			if (!jobRole) {
+				res.status(404).send("Job role not found");
+				return;
+			}
+
+			if (!this.jobRoleService.canApplyToJobRole(jobRole)) {
+				res.status(400).send("This role is not accepting applications");
+				return;
+			}
+
+			res.render("job-application.njk", { jobRole, applicationErrorMessage });
+		} catch (error) {
+			console.error("Failed to retrieve job role application form:", error);
+			res.status(500).send("Failed to retrieve job role");
+		}
+	}
+
+	async submitApplication(
+		req: Request<{ id: string }> & {
+			file?: {
+				originalname: string;
+				mimetype: string;
+				buffer: Buffer;
+			};
+		},
+		res: Response,
+	): Promise<void> {
+		const jobRoleId = Number.parseInt(req.params.id, 10);
+		if (Number.isNaN(jobRoleId)) {
+			res.status(400).send("Invalid job role id");
+			return;
+		}
+
+		if (!req.file) {
+			req.session.applicationErrorMessage = "CV file is required";
+			res.redirect(`/job-roles/${jobRoleId}/apply`);
+			return;
+		}
+
+		try {
+			await this.jobRoleService.submitJobApplication(
+				jobRoleId,
+				{
+					originalname: req.file.originalname,
+					mimetype: req.file.mimetype,
+					buffer: req.file.buffer,
+				},
+				req.session.jwtToken,
+			);
+			req.session.applicationSuccessMessage = "Application submitted successfully.";
+			res.redirect(`/job-roles/${jobRoleId}`);
+		} catch (error) {
+			req.session.applicationErrorMessage = this.getApplicationErrorMessage(error);
+			res.redirect(`/job-roles/${jobRoleId}/apply`);
+		}
+	}
+
 	async showNewJobRoleForm(req: Request, res: Response): Promise<void> {
 		try {
 			const referenceOptions = await this.jobRoleService.getReferenceOptions(
@@ -405,11 +480,29 @@ export class JobRoleController {
 
 			res.render("job-role-detail.njk", {
 				jobRole,
+				canApply: this.jobRoleService.canApplyToJobRole(jobRole),
+				applicationSuccessMessage: req.session.applicationSuccessMessage,
 				...this.consumeFlashMessages(req),
 			});
+			delete req.session.applicationSuccessMessage;
 		} catch (error) {
 			console.error("Failed to retrieve job role:", error);
 			res.status(500).send("Failed to retrieve job role");
 		}
+	}
+
+	private getApplicationErrorMessage(error: unknown): string {
+		if (axios.isAxiosError(error) && error.response?.status) {
+			const message = error.response.data?.error;
+			if (
+				error.response.status >= 400 &&
+				error.response.status < 500 &&
+				typeof message === "string"
+			) {
+				return message;
+			}
+		}
+
+		return "Something went wrong submitting your application. Please try again.";
 	}
 }

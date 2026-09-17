@@ -13,10 +13,10 @@
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
   {% include "partials/header.njk" %}
-  {% if registrationSuccessMessage %}
+  {% if registrationSuccessMessage or applicationSuccessMessage %}
     <div class="toast toast-success" role="status" aria-live="polite">
       <span class="toast-icon" aria-hidden="true">&#10003;</span>
-      <span>{{ registrationSuccessMessage }}</span>
+      <span>{{ registrationSuccessMessage or applicationSuccessMessage }}</span>
     </div>
   {% endif %}
   {% if flashSuccess %}

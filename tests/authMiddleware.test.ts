@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
 import {
 	requireAdmin,
+	requireApplicant,
 	requireAuthentication,
 } from "../src/middleware/authMiddleware";
 
@@ -55,6 +56,31 @@ describe("requireAdmin", () => {
 		const next = vi.fn() as NextFunction;
 
 		requireAdmin(request, response, next);
+
+		expect(next).toHaveBeenCalledOnce();
+	});
+});
+
+describe("requireApplicant", () => {
+	it("rejects a non-applicant user with 403", () => {
+		const request = { session: { userRoleId: 2 } } as unknown as Request;
+		const response = { status: vi.fn(), send: vi.fn() } as unknown as Response;
+		vi.mocked(response.status).mockReturnValue(response);
+		const next = vi.fn() as NextFunction;
+
+		requireApplicant(request, response, next);
+
+		expect(response.status).toHaveBeenCalledWith(403);
+		expect(response.send).toHaveBeenCalledWith("Applicant access is required");
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("allows an applicant user to continue", () => {
+		const request = { session: { userRoleId: 1 } } as unknown as Request;
+		const response = {} as Response;
+		const next = vi.fn() as NextFunction;
+
+		requireApplicant(request, response, next);
 
 		expect(next).toHaveBeenCalledOnce();
 	});

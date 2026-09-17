@@ -142,6 +142,7 @@ describe("JobRoleController job role details", () => {
 		const getJobRoleById = vi.fn().mockResolvedValue(jobRole);
 		const controller = new JobRoleController({
 			getJobRoleById,
+			canApplyToJobRole: vi.fn().mockReturnValue(true),
 		} as unknown as JobRoleService);
 		const request = {
 			params: { id: "12" },
@@ -154,9 +155,10 @@ describe("JobRoleController job role details", () => {
 		await controller.getJobRoleInformation(request, response);
 
 		expect(getJobRoleById).toHaveBeenCalledWith(12, undefined);
-		expect(response.render).toHaveBeenCalledWith("job-role-detail.njk", {
-			jobRole,
-		});
+		expect(response.render).toHaveBeenCalledWith(
+			"job-role-detail.njk",
+			expect.objectContaining({ jobRole }),
+		);
 	});
 
 	it("rejects an invalid job role id without calling the service", async () => {
@@ -217,6 +219,60 @@ describe("JobRoleController job role details", () => {
 		expect(response.status).toHaveBeenCalledWith(500);
 		expect(response.send).toHaveBeenCalledWith("Failed to retrieve job role");
 		consoleError.mockRestore();
+	});
+});
+
+describe("JobRoleController applications", () => {
+	it("renders the application form for an eligible role", async () => {
+		const jobRole = { jobRoleId: 12, roleName: "Software Engineer" };
+		const controller = new JobRoleController({
+			getJobRoleById: vi.fn().mockResolvedValue(jobRole),
+			canApplyToJobRole: vi.fn().mockReturnValue(true),
+		} as unknown as JobRoleService);
+		const request = {
+			params: { id: "12" },
+			session: { jwtToken: "session-token" },
+		} as unknown as Request<{ id: string }>;
+		const response = createResponse();
+
+		await controller.getApplicationForm(request, response);
+
+		expect(response.render).toHaveBeenCalledWith("job-application.njk", {
+			jobRole,
+			applicationErrorMessage: undefined,
+		});
+	});
+
+	it("submits a CV and redirects to the job role", async () => {
+		const submitJobApplication = vi.fn().mockResolvedValue({ applicationId: 7 });
+		const controller = new JobRoleController({
+			submitJobApplication,
+		} as unknown as JobRoleService);
+		const session: { jwtToken?: string; applicationSuccessMessage?: string } = {
+			jwtToken: "session-token",
+		};
+		const request = {
+			params: { id: "12" },
+			session,
+			file: {
+				originalname: "cv.pdf",
+				mimetype: "application/pdf",
+				buffer: Buffer.from("pdf-data"),
+			},
+		} as unknown as Request<{ id: string }>;
+		const response = { redirect: vi.fn() } as unknown as Response;
+
+		await controller.submitApplication(request, response);
+
+		expect(submitJobApplication).toHaveBeenCalledWith(
+			12,
+			expect.objectContaining({ originalname: "cv.pdf" }),
+			"session-token",
+		);
+		expect(session.applicationSuccessMessage).toBe(
+			"Application submitted successfully.",
+		);
+		expect(response.redirect).toHaveBeenCalledWith("/job-roles/12");
 	});
 });
 

@@ -36,6 +36,23 @@ export type PaginatedJobRoles = {
 	totalPages: number;
 };
 
+export type JobApplication = {
+	applicationId: number;
+	applicantId: string;
+	jobRoleId: number;
+	cvFileName: string;
+	cvMimeType: string;
+	status: string;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type UploadedCvFile = {
+	originalname: string;
+	mimetype: string;
+	buffer: Buffer;
+};
+
 export type JobRoleFilters = {
 	roleName?: string;
 	location?: string;
@@ -80,6 +97,14 @@ const authorizationHeader = (jwtToken: string | undefined) => ({
 });
 
 export class JobRoleService {
+	canApplyToJobRole(jobRole: JobRole): boolean {
+		const status = jobRole.statusRef?.statusName ?? jobRole.status;
+		return (
+			status?.toLowerCase() === "open" &&
+			(jobRole.numberOfOpenPositions ?? 0) > 0
+		);
+	}
+
 	async getAllJobRoles(
 		page = 1,
 		pageSize = 10,
@@ -166,5 +191,28 @@ export class JobRoleService {
 			`/job-roles/${jobRoleId}`,
 			authorizationHeader(jwtToken),
 		);
+	}
+
+	async submitJobApplication(
+		jobRoleId: number,
+		file: UploadedCvFile,
+		jwtToken?: string,
+	): Promise<JobApplication> {
+		const formData = new FormData();
+		const cvData = Uint8Array.from(file.buffer);
+		formData.append(
+			"cv",
+			new File([cvData], file.originalname, { type: file.mimetype }),
+		);
+
+		const response = await apiClient.post<JobApplication>(
+			`/job-roles/${jobRoleId}/applications`,
+			formData,
+			{
+				headers: authorizationHeader(jwtToken).headers,
+				timeout: 30000,
+			},
+		);
+		return response.data;
 	}
 }

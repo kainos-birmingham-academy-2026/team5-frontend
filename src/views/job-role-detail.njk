@@ -55,6 +55,12 @@
           {% endif %}
         </dl>
 
+        {% if isApplicant and canApply %}
+          <div class="detail-actions">
+            <a class="btn btn-primary" href="/job-roles/{{ jobRole.jobRoleId }}/apply">Apply for this role</a>
+          </div>
+        {% endif %}
+
         {% if jobRole.description %}
           <section class="detail-copy">
             <h2>Role overview</h2>
