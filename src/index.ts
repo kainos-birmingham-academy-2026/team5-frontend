@@ -12,6 +12,7 @@ import UserRouter from "./routes/UserRouter";
 
 const app = express();
 
+app.set("trust proxy", 1);
 app.use(morganMiddleware);
 
 nunjucks.configure(path.join(process.cwd(), "src/views"), {

@@ -15,7 +15,8 @@ const createResponse = () => {
 	return { response, render };
 };
 
-type TestRequest = Request & {
+type TestRequest = Omit<Request, "protocol"> & {
+	protocol: string;
 	session: {
 		jwtToken?: string;
 		userRoleId?: number;
@@ -28,6 +29,9 @@ const createRequest = () =>
 	({
 		body: { email: "candidate@example.com", password: "wrong-password" },
 		session: {},
+		protocol: "http",
+		get: ((name: string) =>
+			name.toLowerCase() === "host" ? "localhost:4000" : undefined) as Request["get"],
 	}) as unknown as TestRequest;
 
 describe("UserController authentication pages", () => {
@@ -112,7 +116,26 @@ describe("UserController login", () => {
 		expect(request.session.returnTo).toBeUndefined();
 	});
 
-	it.each(["https://evil.com", "//evil.com"])(
+	it("accepts a same-origin Azure URL and redirects to its path", async () => {
+		const login = vi.fn().mockResolvedValue(applicantToken);
+		const controller = new UserController({ login } as unknown as UserService);
+		const request = createRequest();
+		request.protocol = "https";
+		request.get = ((name: string) =>
+			name.toLowerCase() === "host"
+				? "app.azurecontainerapps.io"
+				: undefined) as Request["get"];
+		request.session.returnTo =
+			"https://app.azurecontainerapps.io/job-roles/new";
+		const { response } = createResponse();
+
+		await controller.login(request, response);
+
+		expect(response.redirect).toHaveBeenCalledWith("/job-roles/new");
+		expect(request.session.returnTo).toBeUndefined();
+	});
+
+	it.each(["https://evil.com", "//evil.com", "/\\", "/\\evil.com", "/\\\\evil.com"])(
 		"ignores unsafe returnTo %s after login",
 		async (returnTo) => {
 			const login = vi.fn().mockResolvedValue(applicantToken);
@@ -234,7 +257,7 @@ describe("UserController registration", () => {
 		);
 	});
 
-	it.each(["https://evil.com", "//evil.com"])(
+	it.each(["https://evil.com", "//evil.com", "/\\", "/\\evil.com", "/\\\\evil.com"])(
 		"ignores unsafe returnTo %s after registration",
 		async (returnTo) => {
 			const register = vi.fn().mockResolvedValue(applicantToken);

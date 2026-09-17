@@ -102,14 +102,24 @@ export class UserController {
 		const returnTo = req.session.returnTo;
 		delete req.session.returnTo;
 
-		if (
-			typeof returnTo === "string" &&
-			returnTo.startsWith("/") &&
-			!returnTo.startsWith("//")
-		) {
-			return returnTo;
+		if (typeof returnTo !== "string" || returnTo.includes("\\")) {
+			return "/";
 		}
 
-		return "/";
+		try {
+			const host = req.get("host") ?? "localhost";
+			const base = `${req.protocol}://${host}`;
+			const parsed = new URL(returnTo, base);
+			const expected = new URL(base);
+
+			if (parsed.origin !== expected.origin || parsed.username) {
+				return "/";
+			}
+
+			const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+			return path.startsWith("/") ? path : "/";
+		} catch {
+			return "/";
+		}
 	}
 }

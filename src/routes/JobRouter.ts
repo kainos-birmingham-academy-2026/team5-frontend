@@ -12,7 +12,7 @@ router.get("/health", (_req, res) => {
 	res.json({ status: "UP", time: new Date().toISOString() });
 });
 
-router.get("/", requireAuthentication, (req, res) =>
+router.get("/", (req, res) =>
 	controller.getHomePage(req, res),
 );
 
