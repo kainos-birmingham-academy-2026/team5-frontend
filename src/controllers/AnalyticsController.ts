@@ -3,9 +3,12 @@ import type { Request, Response } from "express";
 import Logger from "../lib/logger";
 import type { AnalyticsService } from "../services/AnalyticsService";
 import type {
+	AnalyticsBreakdownItem,
 	AnalyticsOverview,
 	AnalyticsPreset,
+	AnalyticsRoleSummary,
 	AnalyticsTableQuery,
+	AnalyticsTrendPoint,
 	PaginatedAnalyticsJobRoles,
 } from "../types/analytics";
 
@@ -130,6 +133,111 @@ const largest = (values: number[]): number =>
 const percentOf = (value: number, max: number): number =>
 	max > 0 ? Math.round((value / max) * 1000) / 10 : 0;
 
+const VOLUME_CHART = {
+	width: 760,
+	height: 260,
+	paddingTop: 16,
+	paddingRight: 16,
+	paddingBottom: 44,
+	paddingLeft: 44,
+};
+
+const AXIS_TICKS = 4;
+const MAX_AXIS_LABELS = 7;
+const MARKER_LIMIT = 40;
+const DONUT_RADIUS = 56;
+const DONUT_CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS;
+const SERIES_COLOURS = 6;
+
+const round = (value: number): number => Math.round(value * 10) / 10;
+
+/** Rounded up to a multiple of the tick count so every gridline label is a whole number. */
+const axisMaximum = (value: number): number =>
+	Math.max(AXIS_TICKS, Math.ceil(value / AXIS_TICKS) * AXIS_TICKS);
+
+const buildVolumeChart = (trend: AnalyticsTrendPoint[]) => {
+	if (!trend.length) {
+		return null;
+	}
+
+	const { width, height, paddingTop, paddingRight, paddingBottom, paddingLeft } =
+		VOLUME_CHART;
+	const plotWidth = width - paddingLeft - paddingRight;
+	const plotHeight = height - paddingTop - paddingBottom;
+	const baseline = paddingTop + plotHeight;
+	const max = axisMaximum(largest(trend.map((point) => point.count)));
+	const step = trend.length > 1 ? plotWidth / (trend.length - 1) : 0;
+	const labelInterval = Math.ceil(trend.length / MAX_AXIS_LABELS);
+
+	const points = trend.map((point, index) => ({
+		...point,
+		x: round(paddingLeft + (trend.length > 1 ? index * step : plotWidth / 2)),
+		y: round(baseline - (point.count / max) * plotHeight),
+		showLabel: index % labelInterval === 0 || index === trend.length - 1,
+	}));
+
+	const first = points[0];
+	const last = points[points.length - 1];
+
+	return {
+		width,
+		height,
+		baseline,
+		max,
+		points,
+		showMarkers: points.length <= MARKER_LIMIT,
+		plotLeft: paddingLeft,
+		plotRight: paddingLeft + plotWidth,
+		tickLabelX: paddingLeft - 8,
+		axisLabelY: baseline + 20,
+		line: points.map((point) => `${point.x},${point.y}`).join(" "),
+		area: `M${first.x},${baseline} ${points
+			.map((point) => `L${point.x},${point.y}`)
+			.join(" ")} L${last.x},${baseline} Z`,
+		ticks: Array.from({ length: AXIS_TICKS + 1 }, (_, index) => ({
+			value: (max / AXIS_TICKS) * index,
+			y: round(baseline - (plotHeight / AXIS_TICKS) * index),
+		})),
+	};
+};
+
+const buildDonut = (items: AnalyticsBreakdownItem[]) => {
+	const total = items.reduce((sum, item) => sum + item.count, 0);
+	if (!total) {
+		return null;
+	}
+
+	let consumed = 0;
+	const segments = items.map((item, index) => {
+		const length = (item.count / total) * DONUT_CIRCUMFERENCE;
+		const segment = {
+			label: item.label,
+			count: item.count,
+			percentage: round((item.count / total) * 100),
+			dashArray: `${round(length)} ${round(DONUT_CIRCUMFERENCE - length)}`,
+			dashOffset: consumed === 0 ? 0 : round(-consumed),
+			series: (index % SERIES_COLOURS) + 1,
+		};
+		consumed += length;
+		return segment;
+	});
+
+	return { total, radius: DONUT_RADIUS, segments };
+};
+
+const buildRankingChart = (roles: AnalyticsRoleSummary[]) => {
+	const max = largest(roles.map((role) => role.applications));
+
+	return roles
+		.filter((role) => role.applications > 0)
+		.map((role) => ({
+			jobRoleId: role.jobRoleId,
+			roleName: role.roleName,
+			applications: role.applications,
+			width: percentOf(role.applications, max),
+		}));
+};
+
 const validationMessageFrom = (error: unknown): string | undefined => {
 	if (!axios.isAxiosError(error) || error.response?.status !== 400) {
 		return undefined;
@@ -204,7 +312,6 @@ export class AnalyticsController {
 		overview: AnalyticsOverview | null,
 		table: PaginatedAnalyticsJobRoles | null,
 	) {
-		const trendMax = largest(overview?.trend.map((point) => point.count) ?? []);
 		const demandVsSupply = overview?.breakdowns.demandVsSupply ?? [];
 		const demandMax = largest(
 			demandVsSupply.flatMap((item) => [item.openPositions, item.applications]),
@@ -216,24 +323,15 @@ export class AnalyticsController {
 			table,
 			sortLinks: buildSortLinks(query),
 			pageLinks: buildPageLinks(query, table),
-			trend: (overview?.trend ?? []).map((point) => ({
-				...point,
-				height: percentOf(point.count, trendMax),
-			})),
+			volumeChart: buildVolumeChart(overview?.trend ?? []),
+			capabilityDonut: buildDonut(overview?.breakdowns.byCapability ?? []),
+			roleStatusDonut: buildDonut(overview?.breakdowns.byRoleStatus ?? []),
+			topRolesChart: buildRankingChart(overview?.topRoles ?? []),
 			demandVsSupply: demandVsSupply.map((item) => ({
 				...item,
 				openPositionsWidth: percentOf(item.openPositions, demandMax),
 				applicationsWidth: percentOf(item.applications, demandMax),
 			})),
-			filterOptions: {
-				capabilities: (overview?.breakdowns.byCapability ?? []).map(
-					(item) => item.label,
-				),
-				bands: (overview?.breakdowns.byBand ?? []).map((item) => item.label),
-				statuses: (overview?.breakdowns.byRoleStatus ?? []).map(
-					(item) => item.label,
-				),
-			},
 		};
 	}
 }

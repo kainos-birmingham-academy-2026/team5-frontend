@@ -180,7 +180,7 @@ describe("AnalyticsController", () => {
 		vi.clearAllMocks();
 	});
 
-	it("renders the dashboard with pre-computed bar sizes", async () => {
+	it("renders the dashboard with pre-computed chart geometry", async () => {
 		serviceMock.getOverview.mockResolvedValue(overview);
 		serviceMock.getJobRoles.mockResolvedValue(table);
 		const res = createResponse();
@@ -196,10 +196,39 @@ describe("AnalyticsController", () => {
 			expect.objectContaining({
 				overview,
 				table,
-				trend: [
-					{ bucketStart: "2026-09-16", count: 1, height: 33.3 },
-					{ bucketStart: "2026-09-17", count: 3, height: 100 },
-				],
+				volumeChart: expect.objectContaining({
+					max: 4,
+					line: "44,166 744,66",
+					points: [
+						expect.objectContaining({
+							bucketStart: "2026-09-16",
+							count: 1,
+							x: 44,
+							y: 166,
+						}),
+						expect.objectContaining({
+							bucketStart: "2026-09-17",
+							count: 3,
+							x: 744,
+							y: 66,
+						}),
+					],
+				}),
+				capabilityDonut: {
+					total: 4,
+					radius: 56,
+					segments: [
+						{
+							label: "Engineering",
+							count: 4,
+							percentage: 100,
+							dashArray: "351.9 0",
+							dashOffset: 0,
+							series: 1,
+						},
+					],
+				},
+				topRolesChart: [],
 				demandVsSupply: [
 					{
 						label: "Engineering",
@@ -209,11 +238,6 @@ describe("AnalyticsController", () => {
 						applicationsWidth: 100,
 					},
 				],
-				filterOptions: {
-					capabilities: ["Engineering"],
-					bands: ["Band 2"],
-					statuses: ["Open"],
-				},
 			}),
 		);
 	});

@@ -1,6 +1,7 @@
 {% extends "layouts/base.njk" %}
 {% from "partials/analytics/kpi-card.njk" import kpiCard %}
 {% from "partials/analytics/bar-row.njk" import breakdownPanel, demandVsSupplyPanel %}
+{% from "partials/analytics/charts.njk" import donutChart, rankingChart %}
 {% from "partials/analytics/trend-chart.njk" import trendChart %}
 {% from "partials/analytics/role-table.njk" import roleTable, allRolesTable %}
 
@@ -54,35 +55,6 @@
           <label for="analytics-location">Location</label>
           <input id="analytics-location" type="search" name="location" value="{{ query.location }}" />
         </div>
-        <div class="filter-checks">
-          <fieldset class="filter-group-row">
-            <legend>Capability</legend>
-            {% for capability in filterOptions.capabilities %}
-              <label>
-                <input type="checkbox" name="capability" value="{{ capability }}" {% if capability in query.capability %}checked{% endif %} />
-                {{ capability }}
-              </label>
-            {% endfor %}
-          </fieldset>
-          <fieldset class="filter-group-row">
-            <legend>Band</legend>
-            {% for band in filterOptions.bands %}
-              <label>
-                <input type="checkbox" name="band" value="{{ band }}" {% if band in query.band %}checked{% endif %} />
-                {{ band }}
-              </label>
-            {% endfor %}
-          </fieldset>
-          <fieldset class="filter-group-row">
-            <legend>Status</legend>
-            {% for status in filterOptions.statuses %}
-              <label>
-                <input type="checkbox" name="status" value="{{ status }}" {% if status in query.status %}checked{% endif %} />
-                {{ status }}
-              </label>
-            {% endfor %}
-          </fieldset>
-        </div>
       </fieldset>
 
       <div class="filter-actions">
@@ -116,8 +88,32 @@
         ) }}
       </dl>
 
-      <h2>Trend</h2>
-      {{ trendChart(trend, overview.range.granularity) }}
+      <h2>Charts</h2>
+      {{ trendChart(volumeChart, overview.range.granularity) }}
+      <div class="analytics-panel-grid">
+        {{ rankingChart(
+          "analytics-top-roles-chart-heading",
+          "Applications by job role",
+          topRolesChart,
+          "No role received an application in this period.",
+          "The ten roles with the most applications in the selected range."
+        ) }}
+        {{ donutChart(
+          "analytics-capability-donut-heading",
+          "Share of applications by capability",
+          capabilityDonut,
+          "Applications",
+          "No applications were received in this period."
+        ) }}
+        {{ donutChart(
+          "analytics-status-donut-heading",
+          "Share of job roles by status",
+          roleStatusDonut,
+          "Roles",
+          "No job roles have been created yet.",
+          "All time, not limited to the selected range."
+        ) }}
+      </div>
 
       <h2>Breakdowns</h2>
       <div class="analytics-panel-grid">

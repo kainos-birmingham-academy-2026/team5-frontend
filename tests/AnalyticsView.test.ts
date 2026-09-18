@@ -111,7 +111,71 @@ const model = {
 		},
 	},
 	pageLinks: {},
-	trend: [{ bucketStart: "2026-09-17", count: 4, height: 100 }],
+	volumeChart: {
+		width: 760,
+		height: 260,
+		baseline: 216,
+		max: 4,
+		points: [
+			{
+				bucketStart: "2026-09-17",
+				count: 4,
+				x: 394,
+				y: 16,
+				showLabel: true,
+			},
+		],
+		showMarkers: true,
+		plotLeft: 44,
+		plotRight: 744,
+		tickLabelX: 36,
+		axisLabelY: 236,
+		line: "394,16",
+		area: "M394,216 L394,16 L394,216 Z",
+		ticks: [
+			{ value: 0, y: 216 },
+			{ value: 1, y: 166 },
+			{ value: 2, y: 116 },
+			{ value: 3, y: 66 },
+			{ value: 4, y: 16 },
+		],
+	},
+	capabilityDonut: {
+		total: 4,
+		radius: 56,
+		segments: [
+			{
+				label: "Engineering",
+				count: 4,
+				percentage: 100,
+				dashArray: "351.9 0",
+				dashOffset: 0,
+				series: 1,
+			},
+		],
+	},
+	roleStatusDonut: {
+		total: 2,
+		radius: 56,
+		segments: [
+			{
+				label: "Open",
+				count: 2,
+				percentage: 100,
+				dashArray: "351.9 0",
+				dashOffset: 0,
+				series: 1,
+			},
+		],
+	},
+	topRolesChart: [
+		{
+			jobRoleId: 1,
+			roleName: "Platform Engineer",
+			applications: 4,
+			width: 100,
+		},
+	],
 	demandVsSupply: [
 		{
 			label: "Engineering",
@@ -121,11 +185,6 @@ const model = {
 			applicationsWidth: 100,
 		},
 	],
-	filterOptions: {
-		capabilities: ["Engineering"],
-		bands: ["Band 2"],
-		statuses: ["Open"],
-	},
 };
 
 const render = (context: Record<string, unknown>) =>
@@ -136,6 +195,10 @@ describe("admin-analytics.njk", () => {
 		const html = render(model);
 
 		expect(html).toContain("Application analytics");
+		expect(html).toContain("Application volume over time");
+		expect(html).toContain("Applications by job role");
+		expect(html).toContain("Share of applications by capability");
+		expect(html).toContain("Share of job roles by status");
 		expect(html).toContain("Applications by capability");
 		expect(html).toContain("Applications by band");
 		expect(html).toContain("Applications by location");
@@ -156,27 +219,47 @@ describe("admin-analytics.njk", () => {
 		expect(html).toContain('href="/admin/analytics?sortBy=roleName"');
 	});
 
-	it("checks the capability filters that are active in the query string", () => {
+	it("does not offer capability, band or status filter controls", () => {
 		const html = render(model);
 
-		expect(html).toContain(
-			'<input type="checkbox" name="capability" value="Engineering" checked />',
-		);
+		expect(html).not.toContain('name="capability"');
+		expect(html).not.toContain('name="band"');
+		expect(html).not.toContain('name="status"');
 	});
 
 	it("sizes bars with inline percentages and always shows the numeric value", () => {
 		const html = render(model);
 
 		expect(html).toContain('style="width: 100%"');
-		expect(html).toContain('style="height: 100%"');
 		expect(html).toContain("<td>4</td>");
+	});
+
+	it("draws the application volume chart as scalable SVG with axis gridlines", () => {
+		const html = render(model);
+
+		expect(html).toContain('viewBox="0 0 760 260"');
+		expect(html).toContain(
+			'<polyline class="analytics-chart-line" points="394,16" />',
+		);
+		expect(html).toContain('<path class="analytics-chart-area"');
+		expect(html).toContain('x1="44" y1="216" x2="744" y2="216"');
+	});
+
+	it("draws donut charts with a tabular legend beside them", () => {
+		const html = render(model);
+
+		expect(html).toContain(
+			'class="analytics-donut-segment analytics-series-1"',
+		);
+		expect(html).toContain('stroke-dasharray="351.9 0"');
+		expect(html).toContain("<td>100%</td>");
 	});
 
 	it("gives the trend an accessible name and a tabular fallback", () => {
 		const html = render(model);
 
 		expect(html).toContain('role="img"');
-		expect(html).toContain("Applications received per day");
+		expect(html).toContain("applications received per day");
 		expect(html).toContain("View the trend as a table");
 	});
 
@@ -206,9 +289,11 @@ describe("admin-analytics.njk", () => {
 			...model,
 			overview: null,
 			table: null,
-			trend: [],
+			volumeChart: null,
+			capabilityDonut: null,
+			roleStatusDonut: null,
+			topRolesChart: [],
 			demandVsSupply: [],
-			filterOptions: { capabilities: [], bands: [], statuses: [] },
 			validationMessage: "from must not be later than to",
 		});
 
@@ -236,7 +321,10 @@ describe("admin-analytics.njk", () => {
 				coldRoles: [],
 				dataQuality: { cvScanStatus: [] },
 			},
-			trend: [],
+			volumeChart: null,
+			capabilityDonut: null,
+			roleStatusDonut: null,
+			topRolesChart: [],
 			demandVsSupply: [],
 			table: { items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 0 },
 		});

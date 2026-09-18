@@ -1,39 +1,52 @@
-{% macro trendChart(trend, granularity) %}
+{% macro trendChart(chart, granularity) %}
   <section class="analytics-panel" aria-labelledby="analytics-trend-heading">
-    <h3 id="analytics-trend-heading">Applications over time</h3>
+    <h3 id="analytics-trend-heading">Application volume over time</h3>
     <p class="analytics-note">
       Bucketed by {{ granularity }} in UTC. Buckets with no applications are shown as zero.
     </p>
-    {% if trend and trend.length %}
-      <div class="analytics-trend" role="img"
-           aria-label="Applications received per {{ granularity }} across the selected range. The same figures are listed in the table below.">
-        {% for point in trend %}
-          <div class="analytics-trend-column">
-            <span class="analytics-trend-value">{{ point.count }}</span>
-            <span class="analytics-trend-bar" style="height: {{ point.height }}%"></span>
-            <span class="analytics-trend-label">{{ point.bucketStart }}</span>
-          </div>
+    {% if chart %}
+      <svg class="analytics-chart" viewBox="0 0 {{ chart.width }} {{ chart.height }}" role="img"
+           aria-label="Line chart of applications received per {{ granularity }} across the selected range, peaking at {{ chart.max }}. The same figures are listed in the table below.">
+        <g class="analytics-chart-grid">
+          {% for tick in chart.ticks %}
+            <line x1="{{ chart.plotLeft }}" y1="{{ tick.y }}" x2="{{ chart.plotRight }}" y2="{{ tick.y }}" />
+            <text class="analytics-chart-tick" x="{{ chart.tickLabelX }}" y="{{ tick.y }}" text-anchor="end">{{ tick.value }}</text>
+          {% endfor %}
+        </g>
+        <path class="analytics-chart-area" d="{{ chart.area }}" />
+        <polyline class="analytics-chart-line" points="{{ chart.line }}" />
+        {% if chart.showMarkers %}
+          {% for point in chart.points %}
+            <circle class="analytics-chart-point" cx="{{ point.x }}" cy="{{ point.y }}" r="3" />
+          {% endfor %}
+        {% endif %}
+        {% for point in chart.points %}
+          {% if point.showLabel %}
+            <text class="analytics-chart-tick" x="{{ point.x }}" y="{{ chart.axisLabelY }}" text-anchor="middle">{{ point.bucketStart }}</text>
+          {% endif %}
         {% endfor %}
-      </div>
+      </svg>
       <details class="analytics-details">
         <summary>View the trend as a table</summary>
-        <table class="data-table">
-          <caption class="ds-sr-only">Applications received per {{ granularity }}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{% if granularity == "week" %}Week starting{% else %}Day{% endif %}</th>
-              <th scope="col">Applications</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for point in trend %}
+        <div class="analytics-table-scroll">
+          <table class="data-table">
+            <caption class="ds-sr-only">Applications received per {{ granularity }}</caption>
+            <thead>
               <tr>
-                <th scope="row">{{ point.bucketStart }}</th>
-                <td>{{ point.count }}</td>
+                <th scope="col">{% if granularity == "week" %}Week starting{% else %}Day{% endif %}</th>
+                <th scope="col">Applications</th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {% for point in chart.points %}
+                <tr>
+                  <th scope="row">{{ point.bucketStart }}</th>
+                  <td>{{ point.count }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </details>
     {% else %}
       <p class="analytics-empty">No applications were received in this period.</p>
