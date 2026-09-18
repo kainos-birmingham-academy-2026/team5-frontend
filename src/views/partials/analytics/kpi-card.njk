@@ -1,0 +1,9 @@
+{% macro kpiCard(label, value, hint, tone) %}
+  <div class="analytics-kpi{% if tone %} analytics-kpi-{{ tone }}{% endif %}">
+    <dt class="analytics-kpi-label">{{ label }}</dt>
+    <dd class="analytics-kpi-body">
+      <span class="analytics-kpi-value">{{ value }}</span>
+      {% if hint %}<span class="analytics-kpi-hint">{{ hint }}</span>{% endif %}
+    </dd>
+  </div>
+{% endmacro %}

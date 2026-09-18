@@ -1,0 +1,69 @@
+{% macro donutChart(headingId, title, donut, valueHeading, emptyMessage, note) %}
+  <section class="analytics-panel" aria-labelledby="{{ headingId }}">
+    <h3 id="{{ headingId }}">{{ title }}</h3>
+    {% if note %}<p class="analytics-note">{{ note }}</p>{% endif %}
+    {% if donut %}
+      <div class="analytics-donut-layout">
+        <svg class="analytics-donut" viewBox="0 0 160 160" role="img"
+             aria-label="Donut chart: {{ title }}. Every segment is listed with its value and share in the table beside the chart.">
+          <g transform="rotate(-90 80 80)">
+            <circle class="analytics-donut-track" cx="80" cy="80" r="{{ donut.radius }}" />
+            {% for segment in donut.segments %}
+              <circle class="analytics-donut-segment analytics-series-{{ segment.series }}"
+                      cx="80" cy="80" r="{{ donut.radius }}"
+                      stroke-dasharray="{{ segment.dashArray }}"
+                      stroke-dashoffset="{{ segment.dashOffset }}" />
+            {% endfor %}
+          </g>
+          <text class="analytics-donut-total" x="80" y="86" text-anchor="middle">{{ donut.total }}</text>
+        </svg>
+        <table class="data-table analytics-donut-table">
+          <caption class="ds-sr-only">{{ title }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">{{ valueHeading }}</th>
+              <th scope="col">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for segment in donut.segments %}
+              <tr>
+                <th scope="row">
+                  <span class="analytics-swatch analytics-series-{{ segment.series }}" aria-hidden="true"></span>
+                  {{ segment.label }}
+                </th>
+                <td>{{ segment.count }}</td>
+                <td>{{ segment.percentage }}%</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="analytics-empty">{{ emptyMessage }}</p>
+    {% endif %}
+  </section>
+{% endmacro %}
+
+{% macro rankingChart(headingId, title, bars, emptyMessage, note) %}
+  <section class="analytics-panel" aria-labelledby="{{ headingId }}">
+    <h3 id="{{ headingId }}">{{ title }}</h3>
+    {% if note %}<p class="analytics-note">{{ note }}</p>{% endif %}
+    {% if bars and bars.length %}
+      <ol class="analytics-ranking">
+        {% for bar in bars %}
+          <li class="analytics-ranking-row">
+            <a class="analytics-ranking-label inline-link" href="/job-roles/{{ bar.jobRoleId }}">{{ bar.roleName }}</a>
+            <span class="analytics-ranking-track" aria-hidden="true">
+              <span class="analytics-ranking-bar" style="width: {{ bar.width }}%"></span>
+            </span>
+            <span class="analytics-ranking-value">{{ bar.applications }}</span>
+          </li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p class="analytics-empty">{{ emptyMessage }}</p>
+    {% endif %}
+  </section>
+{% endmacro %}

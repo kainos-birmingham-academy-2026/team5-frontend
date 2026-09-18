@@ -1,0 +1,72 @@
+{% macro breakdownPanel(headingId, title, items, valueHeading, emptyMessage, note) %}
+  <section class="analytics-panel" aria-labelledby="{{ headingId }}">
+    <h3 id="{{ headingId }}">{{ title }}</h3>
+    {% if note %}<p class="analytics-note">{{ note }}</p>{% endif %}
+    {% if items and items.length %}
+      <table class="data-table analytics-bar-table">
+        <caption class="ds-sr-only">{{ title }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">{{ valueHeading }}</th>
+            <th scope="col">Share</th>
+            <th scope="col"><span class="ds-sr-only">Relative size</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+            <tr>
+              <th scope="row">{{ item.label }}</th>
+              <td>{{ item.count }}</td>
+              <td>{{ item.percentage }}%</td>
+              <td class="analytics-bar-cell">
+                <span class="analytics-bar" style="width: {{ item.percentage }}%" aria-hidden="true"></span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="analytics-empty">{{ emptyMessage }}</p>
+    {% endif %}
+  </section>
+{% endmacro %}
+
+{% macro demandVsSupplyPanel(items, emptyMessage) %}
+  <section class="analytics-panel" aria-labelledby="analytics-demand-heading">
+    <h3 id="analytics-demand-heading">Demand versus supply by capability</h3>
+    <p class="analytics-note">Open positions are all time; applications are for the selected range.</p>
+    {% if items and items.length %}
+      <table class="data-table analytics-bar-table">
+        <caption class="ds-sr-only">Open positions compared with applications received, by capability</caption>
+        <thead>
+          <tr>
+            <th scope="col">Capability</th>
+            <th scope="col">Open positions</th>
+            <th scope="col">Applications</th>
+            <th scope="col"><span class="ds-sr-only">Relative size</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+            <tr>
+              <th scope="row">{{ item.label }}</th>
+              <td>{{ item.openPositions }}</td>
+              <td>{{ item.applications }}</td>
+              <td class="analytics-bar-cell">
+                <span class="analytics-bar analytics-bar-demand" style="width: {{ item.openPositionsWidth }}%" aria-hidden="true"></span>
+                <span class="analytics-bar analytics-bar-supply" style="width: {{ item.applicationsWidth }}%" aria-hidden="true"></span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="analytics-legend">
+        <span class="analytics-legend-item"><span class="analytics-swatch analytics-bar-demand" aria-hidden="true"></span>Open positions</span>
+        <span class="analytics-legend-item"><span class="analytics-swatch analytics-bar-supply" aria-hidden="true"></span>Applications</span>
+      </p>
+    {% else %}
+      <p class="analytics-empty">{{ emptyMessage }}</p>
+    {% endif %}
+  </section>
+{% endmacro %}
